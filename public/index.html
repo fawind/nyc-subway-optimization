@@ -5,33 +5,35 @@
 
   <title>Epic Subway</title>
 
+  <!-- Bower components -->
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+  <link href="bower_components/materialize/dist/css/materialize.css" rel="stylesheet">
+  <script src="bower_components/materialize/dist/js/materialize.js"></script>
+  <script src="bower_components/leaflet/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
+
   <!-- Styles -->
   <link type="text/css" rel="stylesheet" href="css/main.css" />
 
-  <!-- Bower components -->
-  <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
-
 </head>
 
-<body>
-  <nav class="navbar navbar-inverse" role="navigation">
-    <div class="container">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="index.html">Epic-Subway</a>
-      </div>
-      <!-- Collect the nav links, forms, and other content for toggling -->
+<body ng-app="epic-taxi">
+  <nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo">EPIC-Subway</a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a href="#">Options</a></li>
+      </ul>
     </div>
-    <!-- /.container -->
   </nav>
 
-  <div ng-app="epic-taxi">
-    <div ng-include="'views/mainView.html'" ng-controller="MainController"></div>
-  </div>
+  <div ng-include="'views/mainView.html'" ng-controller="MainController"></div>
 
   <!-- Angular -->
   <script src="bower_components/angular/angular.js"></script>
   <script src="js/app.js"></script>
   <script src="js/controllers/mainController.js"></script>
   <script src="js/services/mainService.js"></script>
+  <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
 </body>
 </html>
