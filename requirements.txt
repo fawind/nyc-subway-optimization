@@ -1,2 +1,2 @@
 flask-restful==0.3.3
-pyhdb==0.2.2
+pyhdb
