@@ -34,8 +34,8 @@ python app.js
 
 
 ```
-app.py -- Start server
-/public      -- Frontend
+app.py           -- Start server
+/public          -- Frontend
   |-index.html
   |-...
 /app             -- Backend
