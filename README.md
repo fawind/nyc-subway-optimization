@@ -18,13 +18,15 @@ cd public
 bower install
 ```
 
-Finally add [the credential file](https://gist.github.com/fawind/5e52b568c0a8f8636da2) as credentials.py in your root directory (same as app.py)
+Finally add and modify the [credentials.py file](https://gist.github.com/fawind/5e52b568c0a8f8636da2) in your root directory (same as app.py).
 
 After that you can run the server from the project root (don't forget to start your virtual env each time!)
 ```
 # run the server
-python app.js
+python app.py
 
+# now open your browser with
+localhost:8080/index.html
 ```
 
 ### Structure
