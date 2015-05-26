@@ -16,8 +16,9 @@ pip install -r requirements.txt
 # install frontend dependencies
 cd public
 bower install
-
 ```
+
+Finally add [the credential file](https://gist.github.com/fawind/5e52b568c0a8f8636da2) as credentials.py in your root directory (same as app.py)
 
 After that you can run the server from the project root (don't forget to start your virtual env each time!)
 ```
