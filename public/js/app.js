@@ -1,3 +1,3 @@
 (function() {
-  var app = angular.module('epic-taxi', ['leaflet-directive']);
+  var app = angular.module('epic-taxi', ['leaflet-directive', 'ngLodash']);
 })();

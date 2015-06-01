@@ -1,10 +1,10 @@
 angular.module('epic-taxi')
-  .controller('MainController', ['$scope', 'MainService', function ($scope, mainService) {
+  .controller('MainController', ['$scope', 'lodash', 'MainService', function ($scope, _, mainService) {
     $scope.test = 'Hello Angular';
     console.log('Controller running');
 
     // test Service
-    mainService.getData()
+    mainService.getStations()
       .success(function(results) {
         console.log(results);
       });
