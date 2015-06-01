@@ -1,8 +1,7 @@
-'use strict';
-
-angular.module('epic-taxi', ['leaflet-directive'])
+angular.module('epic-taxi')
   .controller('MainController', ['$scope', 'MainService', function ($scope, mainService) {
     $scope.test = 'Hello Angular';
+    console.log('Controller running');
 
     // test Service
     mainService.getData()

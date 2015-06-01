@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('epic-taxi')
   .factory('MainService', ['$http', function($http) {
 

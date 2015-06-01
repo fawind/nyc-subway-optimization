@@ -1,3 +1,3 @@
-'use strict';
-
-var app = angular.module('epic-taxi', []);
+(function() {
+  var app = angular.module('epic-taxi', ['leaflet-directive']);
+})();

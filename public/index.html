@@ -27,7 +27,9 @@
     </div>
   </nav>
 
-  <div ng-include="'views/mainView.html'" ng-controller="MainController"></div>
+  <div ng-controller="MainController">
+    <leaflet subway id="map" center="newYork" tiles="tiles"></leaflet>
+  </div>
 
   <!-- Angular -->
   <script src="bower_components/angular/angular.js"></script>
@@ -35,5 +37,7 @@
   <script src="js/controllers/mainController.js"></script>
   <script src="js/services/mainService.js"></script>
   <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+  <script src="js/directives/welcome.js"></script>
+  <script src="js/directives/subwayRoutes.js"></script>
 </body>
 </html>
