@@ -7,6 +7,7 @@
     "bootstrap": "~3.3.4",
     "leaflet": "~0.7.3",
     "angular-leaflet-directive": "~0.8.1",
-    "materialize": "~0.96.1"
+    "materialize": "~0.96.1",
+    "d3": "~3.5.5"
   }
 }
