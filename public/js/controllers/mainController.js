@@ -3,6 +3,10 @@ angular.module('epic-taxi')
 
     var markers = {};
     var paths = {};
+    var stationIcon = {
+      iconUrl: 'assets/station-marker.png',
+      iconSize:     [20, 20]
+    };
 
     $scope.initMap = function() {
       angular.extend($scope, {
@@ -42,7 +46,8 @@ angular.module('epic-taxi')
             lng: parseFloat(station.lng),
             message: station.name,
             focus: false,
-            draggable: false
+            draggable: false,
+            icon: stationIcon
           };
         });
       });
