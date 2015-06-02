@@ -5,7 +5,7 @@ angular.module('epic-taxi')
     var paths = {};
     var stationIcon = {
       iconUrl: 'assets/station-marker.png',
-      iconSize:     [20, 20]
+      iconSize: [25, 25]
     };
 
     $scope.initMap = function() {
@@ -40,7 +40,7 @@ angular.module('epic-taxi')
     function addStations(routes) {
       _.each(routes, function(route) {
         _.each(route.stations, function(station, i) {
-          var label = '' + route.route + i;
+          var label = route.route + i;
           markers[label] = {
             lat: parseFloat(station.lat),
             lng: parseFloat(station.lng),
