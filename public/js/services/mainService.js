@@ -5,8 +5,13 @@ angular.module('epic-taxi')
     return $http.get('/api/test');
   }
 
+  function getStations() {
+    return $http.get('/data/subway-lines.json');
+  }
+
   return {
-    getData: getData
+    getData: getData,
+    getStations: getStations
   };
 
 }]);
