@@ -9,9 +9,29 @@ angular.module('epic-taxi')
     return $http.get('/data/subway-lines.json');
   }
 
+  function getRouteColor(route) {
+    var colors = {
+      1: 'red', 2: 'red',
+      3: 'red', 4: 'green',
+      5: 'green', 6: 'green',
+      7: 'purple', A: 'blue',
+      B: 'orange', C: 'blue',
+      D: 'orange', E: 'blue',
+      F: 'orange', G: 'green',
+      J: 'brown', L: 'grey',
+      M: 'orange', N: 'yellow',
+      Q: 'yellow', R: 'yellow',
+      Z: 'brown'
+    };
+
+    return colors[route];
+  }
+
   return {
     getData: getData,
-    getStations: getStations
+    getStations: getStations,
+    getRouteColor: getRouteColor
   };
 
 }]);
+
