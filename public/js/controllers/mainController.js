@@ -1,5 +1,5 @@
 angular.module('epic-taxi')
-  .controller('MainController', ['$scope', 'lodash', 'MainService', function ($scope, _, mainService) {
+  .controller('MainController', ['$scope', 'lodash', 'MainService', 'leafletEvents', function ($scope, _, mainService, leafletEvents) {
 
     var markers = {};
     var paths = {};
@@ -17,11 +17,23 @@ angular.module('epic-taxi')
         },
         subwayPaths: {},
         tiles: {
-          url: 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+          url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
           options: {
             attribution: '<a href="http://cartodb.com/attributions">CartoDB</a>'
           }
+        },
+        events: {
+          markers: {
+            enable: leafletEvents.click
+          }
         }
+      });
+
+      $scope.$on('leafletDirectiveMarker.click', function(event, args) {
+        mainService.getCluster(args.model.stationId)
+          .success(function(response) {
+            console.log(response);
+          });
       });
     };
 
@@ -42,6 +54,7 @@ angular.module('epic-taxi')
         _.each(route.stations, function(station, i) {
           var label = route.route + i;
           markers[label] = {
+            stationId: station.id,
             lat: parseFloat(station.lat),
             lng: parseFloat(station.lng),
             message: station.name,

@@ -1,6 +1,5 @@
 html, body {
   height: 100%;
-  background-color: black;
 }
 
 .fixed {
@@ -19,5 +18,5 @@ nav {
   width: 100%;
   top: 64px;
   bottom: 0px;
-  background: #242426;
+  background: #CDD2D4;
 }

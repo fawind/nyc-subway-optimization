@@ -9,6 +9,11 @@ angular.module('epic-taxi')
     return $http.get('/data/subway-lines.json');
   }
 
+  function getCluster(id) {
+    var data = { id: id };
+    return $http.post('/api/cluster', data);
+  }
+
   function getRouteColor(route) {
     var colors = {
       1: 'red', 2: 'red',
@@ -30,6 +35,7 @@ angular.module('epic-taxi')
   return {
     getData: getData,
     getStations: getStations,
+    getCluster: getCluster,
     getRouteColor: getRouteColor
   };
 
