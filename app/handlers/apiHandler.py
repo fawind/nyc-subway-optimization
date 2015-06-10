@@ -12,4 +12,10 @@ class TestPage(Resource):
 class Cluster(Resource):
     def post(self):
         stationId =  request.json['id']
-        return {'res': 'ok', 'id': stationId}
+        stationLat = request.json['lat']
+        stationLng = request.json['lng']
+        print '[POST] cluster: id: ' + str(stationId) + ', lat: ' + str(stationLat) + ', lng: ' + str(stationLng)
+
+        results = db.get_cluster(stationLat, stationLng)
+
+        return {'lat': '40.793737', 'lng': '-73.958803'}

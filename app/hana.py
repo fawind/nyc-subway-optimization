@@ -1,5 +1,6 @@
 import pyhdb
 import credentials
+import math
 
 class DBHandler:
     def __init__(self):
@@ -18,3 +19,13 @@ class DBHandler:
         cursor.execute("SELECT COUNT(TOTAL) FROM NYCCAB.FARE WHERE TOTAL > 0")
 
         return cursor.fetchone()
+
+    def get_cluster(self, lat, lng):
+        cursor = self.connection.cursor()
+
+        query = "SELECT COUNT(ID) FROM NYCCAB.TRIP_DOUBLE"
+
+        cursor.execute(query)
+
+        return cursor.fetchone();
+
