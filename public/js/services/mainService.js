@@ -9,8 +9,8 @@ angular.module('epic-taxi')
     return $http.get('/data/subway-lines.json');
   }
 
-  function getCluster(id) {
-    var data = { id: id };
+  function getCluster(id, lat, lng) {
+    var data = { id: id, lat: lat, lng: lng };
     return $http.post('/api/cluster', data);
   }
 

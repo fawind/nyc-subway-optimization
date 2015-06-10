@@ -41,7 +41,7 @@ angular.module('epic-taxi')
             subway: {
               name: 'Subway',
               visible: true,
-              type: 'group',
+              type: 'group'
             }
           }
         },
@@ -49,18 +49,19 @@ angular.module('epic-taxi')
           markers: {
             enable: [leafletEvents.click, leafletEvents.popupclose]
           }
-        },
-        defaults: {
-          layerControl: true
         }
       });
 
       $scope.$on('leafletDirectiveMarker.click', function(event, args) {
         $scope.hideSubway(args.model.stationId);
-        mainService.getCluster(args.model.stationId)
-        .success(function(response) {
-          console.log(response);
-        });
+        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng)
+          .success(function(response) {
+            console.log(response);
+            angular.extend($scope, {
+              cluster: angular.copy(response)
+            });
+
+          });
       });
 
       $scope.$on('leafletDirectiveMarker.popupclose', function(event, args) {
