@@ -18,4 +18,4 @@ class Cluster(Resource):
 
         results = db.get_cluster(stationLat, stationLng)
 
-        return {'lat': '40.793737', 'lng': '-73.958803'}
+        return results
