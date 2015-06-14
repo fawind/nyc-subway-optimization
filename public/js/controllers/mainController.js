@@ -54,19 +54,29 @@ angular.module('epic-taxi')
 
       $scope.$on('leafletDirectiveMarker.click', function(event, args) {
         $scope.hideSubway(args.model.stationId);
+
+        /*
+        angular.extend($scope, {
+          cluster: angular.copy([{lat: 40.778774, lng: -73.977342}])
+        });
+        */
+
         mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng)
           .success(function(response) {
-            console.log(typeof(response));
-            console.log(response);
-            angular.extend($scope, {
-              cluster: angular.copy(response.cluster)
-            });
+            var cluster = _.sortBy(response.cluster, 'count').reverse().slice(0, 5);
 
+            angular.extend($scope, {
+              cluster: angular.copy(cluster)
+            });
           });
+
       });
 
       $scope.$on('leafletDirectiveMarker.popupclose', function(event, args) {
         $scope.showSubway();
+        angular.extend($scope, {
+          cluster: angular.copy([])
+        });
       });
 
       $scope.$on('leafletDirectiveMap.zoomend', function(event, args){

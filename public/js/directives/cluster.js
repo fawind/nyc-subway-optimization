@@ -1,5 +1,5 @@
 angular.module('epic-taxi')
-  .directive("cluster", function() {
+  .directive("cluster", ['lodash', function(_) {
     // cluster: {'lat' : '123', 'lng': '123'}
 
     return {
@@ -12,19 +12,27 @@ angular.module('epic-taxi')
 
           leafletController.getMap()
             .then(function(map) {
-              return scope.render(newCluster[0], map);
+              return scope.render(newCluster, map);
             });
         });
 
         scope.render = function(cluster, map) {
-          console.log(cluster);
-          console.log(map);
-          var svg = d3.select(map._panes.overlayPane).append("svg");
-          svg.selectAll('*').remove();
-          var g = svg.append('g').attr("class", "leaflet-zoom-animated");
+          var overlayPane = d3.select(map._panes.overlayPane);
 
-          var data =  [ {LatLng: new L.LatLng(cluster.lat, cluster.lng)} ];
+          // remove all old cluster
+          overlayPane.selectAll(".cluster").remove();
 
+          var svg = overlayPane.append("svg").attr("class", "leaflet-zoom-hide cluster").attr("width", map._size.x).attr("height", map._size.y);
+
+          _.each(cluster, function(area) {
+            drawCircle(map, svg, area);
+          });
+        };
+
+        function drawCircle(map, svg, area) {
+          var data =  [ {LatLng: new L.LatLng(area.lat, area.lng)} ];
+
+          var g = svg.append('g');
           var feature = g.selectAll('circle')
             .data(data)
             .enter().append('circle')
@@ -40,10 +48,10 @@ angular.module('epic-taxi')
               return "translate("+
                         map.latLngToLayerPoint(d.LatLng).x +","+
                         map.latLngToLayerPoint(d.LatLng).y +")";
-
             });
           }
-        };
+          map.on("viewreset", update);
+        }
       }
     };
-  });
+  }]);
