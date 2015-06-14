@@ -1,9 +1,8 @@
 import math
-import json
 import pyhdb
 
 import credentials
-from mapbounds import *
+from app.utils.mapbounds import *
 
 
 class DBHandler:
@@ -108,7 +107,7 @@ class DBHandler:
         print "INFO: Dropped temporary View"
 
 
-        return json.JSONEncoder().encode(result_set);
+        return result_set;
 
     # naive way to cluster data without using a temporary view (return not yet implemented)
     def get_cluster_basic(self, lat_st, lng_st):

@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from app.hana import DBHandler
 
@@ -18,4 +18,4 @@ class Cluster(Resource):
 
         results = db.get_cluster(stationLat, stationLng)
 
-        return results
+        return jsonify(cluster=results)

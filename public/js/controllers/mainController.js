@@ -56,9 +56,10 @@ angular.module('epic-taxi')
         $scope.hideSubway(args.model.stationId);
         mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng)
           .success(function(response) {
+            console.log(typeof(response));
             console.log(response);
             angular.extend($scope, {
-              cluster: angular.copy(response)
+              cluster: angular.copy(response.cluster)
             });
 
           });

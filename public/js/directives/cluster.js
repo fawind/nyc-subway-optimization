@@ -4,7 +4,6 @@ angular.module('epic-taxi')
 
     return {
       require: 'leaflet',
-      scpope: 'false',
       replace: 'false',
       link: function(scope, element, attrs, leafletController) {
 
@@ -13,11 +12,12 @@ angular.module('epic-taxi')
 
           leafletController.getMap()
             .then(function(map) {
-              return scope.render(newCluster, map);
+              return scope.render(newCluster[0], map);
             });
         });
 
         scope.render = function(cluster, map) {
+          console.log(cluster);
           console.log(map);
           var svg = d3.select(map._panes.overlayPane).append("svg");
           svg.selectAll('*').remove();
