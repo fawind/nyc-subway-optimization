@@ -30,6 +30,10 @@
 
   <div ng-controller="MainController">
     <leaflet cluster id="map" layers="layers" center="newYork" markers="markers" paths="subwayPaths" defaults="defaults" cluster="cluster"></leaflet>
+    <a class="btn-floating btn-large waves-effect waves-light grey reset" ng-click="resetStation()"><i class="mdi-content-clear"></i></a>
+    <div ng-show="loading" class="progress">
+      <div class="indeterminate"></div>
+    </div>
   </div>
 
   <!-- Angular -->

@@ -20,3 +20,14 @@ nav {
   bottom: 0px;
   background: #CDD2D4;
 }
+
+.reset {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+}
+
+.progress {
+  position: absolute;
+  bottom: -14px;
+}

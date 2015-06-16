@@ -18,6 +18,7 @@ angular.module('epic-taxi')
 
     $scope.initMap = function() {
       angular.extend($scope, {
+        loading: false,
         newYork: {
           lat: 40.7304783951045,
           lng: -73.98880004882812,
@@ -53,44 +54,46 @@ angular.module('epic-taxi')
       });
 
       $scope.$on('leafletDirectiveMarker.click', function(event, args) {
+        $scope.loading = true;
         $scope.hideSubway(args.model.stationId);
 
         // in-memory cache
+        /*
         var cluster = [{"count":135339,"lat":40.795053,"lng":-73.92376},{"count":61505,"lat":40.795053,"lng":-73.96276},{"count":48905,"lat":40.831053,"lng":-73.92376},{"count":37458,"lat":40.759053,"lng":-73.96276},{"count":14742,"lat":40.759053,"lng":-74.00176}];
         angular.extend($scope, {
           cluster: angular.copy(cluster)
         });
+        */
 
-        /*
         mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng)
           .success(function(response) {
             var cluster = _.sortBy(response.cluster, 'count').reverse().slice(0, 5);
             angular.extend($scope, {
-              cluster: angular.copy(cluster)
+              cluster: angular.copy(cluster),
+              loading: false
             });
           });
-        */
-
       });
 
-      $scope.$on('leafletDirectiveMarker.popupclose', function(event, args) {
-        /*
-        $scope.showSubway();
-        angular.extend($scope, {
-          cluster: angular.copy([])
-        });
-        */
-      });
-
-      $scope.$on('leafletDirectiveMap.zoomend', function(event, args){
+      $scope.$on('leafletDirectiveMap.zoomend', function(event, args) {
         var zoomLevel = args.leafletEvent.target._zoom;
         updateRoutesAndStationIcons(zoomLevel);
       });
     };
 
+    // Dismiss cluster view
+    $scope.resetStation = function() {
+      $scope.showSubway();
+      angular.extend($scope, {
+        cluster: angular.copy([])
+      });
+    };
+
     $scope.hideSubway = function(id) {
       _.each($scope.markers, function(marker){
-        if (id !== marker.stationId)
+        if (id === marker.stationId)
+          marker.opacity = 1.0;
+        else
           marker.opacity = 0.2;
       });
       _.each($scope.subwayPaths, function(path){
