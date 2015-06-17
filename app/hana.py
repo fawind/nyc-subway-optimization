@@ -30,7 +30,7 @@ class DBHandler:
         cursor = self.connection.cursor()
 
         # number representing amount of clusters in each direction (east/north in this case)
-        raster_deg = 10.0
+        raster_deg = 20.0
 
         offset_lng = get_lng_diff() / (raster_deg * 2)
         offset_lat = get_lat_diff() / (raster_deg * 2)
@@ -109,6 +109,63 @@ class DBHandler:
 
         return result_set;
 
+    def get_cluster_squery(self, lat_st, lng_st):
+        cursor = self.connection.cursor()
+
+        # number representing amount of clusters in each direction (east/north in this case)
+        raster_deg = 20.0
+
+        offset_lng = get_lng_diff() / (raster_deg * 2)
+        offset_lat = get_lat_diff() / (raster_deg * 2)
+
+        # limiters for each side of the area we look on
+        lat = get_bottom_right()['lat'] + offset_lat
+        lat_max = get_top_left()['lat']
+
+        lng = get_top_left()['lng'] + offset_lng
+        lng_max = get_bottom_right()['lng']
+
+        cur_id = self.station_out_id
+        self.station_out_id = self.station_out_id + 1
+
+        query_list = []
+        # start in the south of manhatten/NY
+        while lat < lat_max:
+            # start in the west of manhatten/NY
+            while lng < lng_max:
+                query_list.append("SELECT COUNT(ID), "+str(lat)+", "+str(lng)+" \
+                        FROM NYCCAB.TRIP \
+                        WHERE PICKUP_LONG < %s AND PICKUP_LONG > %s \
+                        AND PICKUP_LAT < %s AND PICKUP_LAT > %s \
+                        AND DROPOFF_LONG < %s AND DROPOFF_LONG > %s \
+                        AND DROPOFF_LAT < %s AND DROPOFF_LAT > %s" \
+                        % (str(lng_st + offset_lng), str(lng_st - offset_lng),
+                        str(lat_st + offset_lat), str(lat_st - offset_lat),
+                        str(lng + offset_lng), str(lng - offset_lng),
+                        str(lat + offset_lat), str(lat - offset_lat)))
+
+                # increase longitude for next iteration
+                lng = lng + get_lng_diff() / raster_deg
+
+            # increase latitude for next iteration
+            lat = lat + get_lat_diff() / raster_deg
+            # reset longitude
+            lng = get_top_left()['lng']
+
+        query = " UNION ALL ".join(query_list)
+
+        cursor.execute(query)
+        print "INFO: Executed Query"
+
+        # transform result to specified structure
+        result_set = []
+        for elem in cursor.fetchall():
+            cluster = {'count': elem[0], 'lat': float(elem[1]), 'lng': float(elem[2])}
+            result_set.append(cluster)
+
+        return result_set
+
+
     # naive way to cluster data without using a temporary view (return not yet implemented)
     def get_cluster_basic(self, lat_st, lng_st):
         cursor = self.connection.cursor()
@@ -141,9 +198,7 @@ class DBHandler:
                         str(lng_st + offset_lng), str(lng_st - offset_lng),
                         str(lat_st + offset_lat), str(lat_st - offset_lat))
 
-                print 'start query'
                 cursor.execute(query)
-                print cursor.fetchone()[0]
 
                 # increase longitude for next iteration
                 lng = lng + get_lng_diff() / raster_deg
@@ -154,4 +209,5 @@ class DBHandler:
             lng = get_top_left()['lng']
 
         return 0;
+
 

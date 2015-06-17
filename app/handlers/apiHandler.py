@@ -19,3 +19,18 @@ class Cluster(Resource):
         results = db.get_cluster(stationLat, stationLng)
 
         return jsonify(cluster=results)
+
+class ClusterFiltered(Resource):
+    def post(self):
+        stationId =  request.json['id']
+        stationLat = request.json['lat']
+        stationLng = request.json['lng']
+        dates = request.json['filter']['date']
+        years = request.json['filter']['years']
+        times = request.json['filter']['time']
+
+        results = db.get_cluster_filtered(stationLat, stationLng, dates, years, times)
+
+        return {'hello': 'hellow'}
+
+
