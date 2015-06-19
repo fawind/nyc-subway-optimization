@@ -1,0 +1,24 @@
+{
+  "name": "epic-subway",
+  "version": "1.0.0",
+  "description": "Data Analysis and Visualization Project on New Yorck City Taxi data combined with MTA subway network data.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fawind/epic-subway.git"
+  },
+  "author": "Alexander Immer, Fabian Windheuser, Lennard Wolf",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fawind/epic-subway/issues"
+  },
+  "homepage": "https://github.com/fawind/epic-subway#readme",
+  "dependencies": {
+    "body-parser": "^1.13.1",
+    "express": "^4.12.4",
+    "hdb": "^0.4.4"
+  }
+}

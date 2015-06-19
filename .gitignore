@@ -4,6 +4,9 @@ tmp
 # Frontend packages
 bower_components
 
+# Node packages
+node_modules
+
 # credentials
 *credentials.py
 

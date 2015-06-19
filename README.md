@@ -1,29 +1,26 @@
 Epic-Taxi
 ===================
 
-### Installation
+### Installation 
 
 ```
 clone repo
 
-# setup virtual environment
-virtualenv --no-site-packages env
-# activate environment
-source env/bin/activate
-# install required packages
-pip install -r requirements.txt
+# install required packages (node, npm)
+npm install
 
 # install frontend dependencies
 cd public
 bower install
 ```
 
-Finally add and modify the [credentials.py file](https://gist.github.com/fawind/5e52b568c0a8f8636da2) in your root directory (same as app.py).
+Finally add and modify the [credentials.js file](https://gist.github.com/AlexImmer/03ed4f3fd047b4d591e2) in the /app directory.
 
-After that you can run the server from the project root (don't forget to start your virtual env each time!)
 ```
 # run the server
-python app.py
+node app.js
+# run the server in debug-mode
+DEBUG=[modules]:* node app.js
 
 # now open your browser with
 localhost:8080/index.html
@@ -31,18 +28,21 @@ localhost:8080/index.html
 
 ### Structure
 
-##### Backend: Flask, Flask-RESTful: [docs](https://flask-restful.readthedocs.org/en/0.3.3/)
+##### Backend: Node with Express: [docs](http://expressjs.com/api.html)
 
-##### Frontend: ?Angular?, d3js
+##### Frontend: Angular, d3.js
 
 
 ```
-app.py           -- Start server
-/public          -- Frontend
+app.js              -- Start server
+/public             -- Frontend
   |-index.html
   |-...
-/app             -- Backend
-  |--routes.py   -- Routing
-  /handlers      -- Handlers for requests
+/app                -- Backend
+  |--routes.js      -- Routing
+  |--hana.js        -- Hana Connector
+  |--queries.js     -- Database queries
+  |--credentials.js -- Modify this file
+  /utils         -- Geo Utils for Lat/Lng calculations
      |-...
 ```
