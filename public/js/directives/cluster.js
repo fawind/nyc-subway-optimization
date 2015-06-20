@@ -1,7 +1,5 @@
 angular.module('epic-taxi')
   .directive("cluster", ['lodash', function(_) {
-    // cluster: {'lat' : '123', 'lng': '123'}
-
     return {
       require: 'leaflet',
       replace: 'false',
@@ -17,7 +15,6 @@ angular.module('epic-taxi')
         });
 
         scope.render = function(cluster, map) {
-          console.log(map);
           var overlayPane = d3.select(map.getPanes().overlayPane);
 
           // remove all old cluster
@@ -41,6 +38,7 @@ angular.module('epic-taxi')
             feature.LatLng = new L.LatLng(feature.geometry.coordinates[0], feature.geometry.coordinates[1]);
           });
 
+          // Add a circle for each feature
           var feature = g.selectAll('circle')
             .data(features)
             .enter().append('circle')
@@ -48,22 +46,46 @@ angular.module('epic-taxi')
             .style("opacity", 0.6)
             .style("fill", "red");
 
-          function update() {
-            svg.attr("width", map.getSize().x);
-            svg.attr("height", map.getSize().y);
-            svg.style("top", function(d) {console.log(map.getBounds());});
-
-
-            feature.attr("cx", function(d) { return map.latLngToLayerPoint(d.LatLng).x; });
-            feature.attr("cy", function(d) { return map.latLngToLayerPoint(d.LatLng).y; });
-            //feature.attr("r", function(d) { return d.properties.count / 1400 * Math.pow(2, map._zoom); });
-            feature.attr("r", function(d) { return 20 / 1400 * Math.pow(2, map._zoom); });
-          }
-
-          map.on("viewreset", update);
+          map.on("moveend", update);
           update();
 
+          /* Update size and scaling of svgs on mapchange */
+          function update() {
+            var bounds = getBounds(features);
+            var radius = 20 / 1400 * Math.pow(2, map.getZoom());
 
+            var width = Math.abs((bounds.max[0] - bounds.min[0]) + 2 * radius);
+            var height = Math.abs((bounds.max[1] - bounds.min[1]) + 2 * radius);
+            var left = bounds.min[0] - radius;
+            var top = bounds.min[1] - radius;
+
+            svg.attr('width', width).attr('height', height)
+              .style("left", left + 'px')
+              .style("top", top + 'px');
+
+            g .attr("transform", "translate(" + -bounds.min[0] + "," + -bounds.min[1] + ")");
+
+            g.selectAll('circle')
+              .attr("cx", function(d) { return map.latLngToLayerPoint(d.LatLng).x + radius; })
+              .attr("cy", function(d) { return map.latLngToLayerPoint(d.LatLng).y + radius;})
+              .attr("r", radius);
+          }
+
+          /* Get the min and max bounds of all features */
+          function getBounds(features) {
+            var bounds = { min: [999, 999], max: [-999, -999] };
+
+            _.each(features, function(element) {
+              var point = map.latLngToLayerPoint(element.LatLng);
+
+              bounds.min[0] = Math.min(bounds.min[0], point.x);
+              bounds.min[1] = Math.min(bounds.min[1], point.y);
+              bounds.max[0] = Math.max(bounds.max[0], point.x);
+              bounds.max[1] = Math.max(bounds.max[1], point.y);
+            });
+
+            return bounds;
+          }
         };
       }
     };
