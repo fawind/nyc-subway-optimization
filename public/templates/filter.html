@@ -1,0 +1,60 @@
+<div id="modalFilter" class="modal bottom-sheet">
+  <div class="modal-content">
+    <h4>Filter</h4>
+
+    <ul class="collapsible" data-collapsible="accordion">
+      <li>
+        <div class="collapsible-header"><i class="mdi-editor-format-list-numbered"></i>Year</div>
+        <div class="collapsible-body">
+              <p>
+                <input type="checkbox" id="2010" class="filled-in" checked="checked" />
+                <label for="2010">2010</label>
+                <br>
+                <input type="checkbox" id="2011" class="filled-in" checked="checked" />
+                <label for="2011">2011</label>
+                <br>
+                <input type="checkbox" id="2012" class="filled-in" checked="checked" />
+                <label for="2012">2012</label>
+                <br>
+                <input type="checkbox" id="2013" class="filled-in" checked="checked" />
+                <label for="2013">2013</label>
+              </p>
+        </div>
+      </li>
+      <li>
+        <div class="collapsible-header"><i class="mdi-notification-event-available"></i>Date</div>
+        <div class="collapsible-body">
+          <p>
+            <label for="startDate">Start Date</label>
+            <input type="date" class="datepicker" id="startDate" value="01 January, 2010">
+
+            <label for="endDate">End Date</label>
+            <input type="date" class="datepicker" id="endDate" value="31 December, 2013">
+          </p>
+        </div>
+      </li>
+      <li>
+        <div class="collapsible-header"><i class="mdi-device-access-time"></i>Time</div>
+        <div class="collapsible-body">
+          <p>
+            <input type="checkbox" id="morning" class="filled-in" checked="checked" />
+            <label for="morning">Morning</label>
+            <br>
+            <input type="checkbox" id="afternoon" class="filled-in" checked="checked" />
+            <label for="afternoon">Afternoon</label>
+            <br>
+            <input type="checkbox" id="evening" class="filled-in" checked="checked" />
+            <label for="evening">Evening</label>
+            <br>
+            <input type="checkbox" id="night" class="filled-in" checked="checked" />
+            <label for="night">Night</label>
+          </p>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="modal-footer">
+    <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Save</a>
+  </div>
+</div>

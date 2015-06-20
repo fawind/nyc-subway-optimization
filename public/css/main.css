@@ -9,8 +9,9 @@ html, body {
 nav {
   background-color: #263238;
 }
-.brand-logo {
+.nav-wrapper {
   margin-left: 10px;
+  margin-right: 10px;
 }
 
 #map {
@@ -30,4 +31,9 @@ nav {
 .progress {
   position: absolute;
   bottom: -14px;
+}
+
+.picker {
+  position: absolute;
+  top: 20px;
 }

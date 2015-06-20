@@ -30,7 +30,7 @@ angular.module('epic-taxi')
       });
 
       $scope.$on('leafletDirectiveMap.zoomend', function(event, args) {
-        var zoomLevel = args.leafletEvent.target._zoom;
+        var zoomLevel = args.leafletEvent.target.getZoom();
         updateRoutesAndStationIcons(zoomLevel);
       });
     };

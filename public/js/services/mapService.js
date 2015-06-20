@@ -30,7 +30,8 @@ angular.module('epic-taxi')
         },
         events: {
           markers: { enable: [leafletEvents.click, leafletEvents.popupclose] }
-        }
+        },
+        defaults: { attributionControl: false }
       };
     }
 

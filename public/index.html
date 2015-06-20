@@ -5,13 +5,26 @@
 
   <title>Epic Subway</title>
 
-  <!-- Bower components -->
+  <!-- Component s-->
   <script src="bower_components/jquery/dist/jquery.js"></script>
   <script src="bower_components/d3/d3.js"></script>
+
   <link href="bower_components/materialize/dist/css/materialize.css" rel="stylesheet">
   <script src="bower_components/materialize/dist/js/materialize.js"></script>
+
   <script src="bower_components/leaflet/dist/leaflet.js"></script>
   <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
+
+  <!-- Angular -->
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/controllers/mainController.js"></script>
+  <script src="js/controllers/filterController.js"></script>
+  <script src="js/services/mainService.js"></script>
+  <script src="js/services/mapService.js"></script>
+  <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+  <script src="bower_components/ng-lodash/build/ng-lodash.js"></script>
+  <script src="js/directives/cluster.js"></script>
 
   <!-- Styles -->
   <link type="text/css" rel="stylesheet" href="css/main.css" />
@@ -19,31 +32,19 @@
 </head>
 
 <body ng-app="epic-taxi">
-  <nav>
-    <div class="nav-wrapper">
-      <a href="#" class="brand-logo">EPIC-Subway</a>
-      <ul id="nav-mobile" class="right hide-on-med-and-down">
-        <li><a href="#">Options</a></li>
-      </ul>
-    </div>
-  </nav>
+  <div id="navigation" ng-controller="FilterController">
+    <div ng-include src="'templates/navigation.html'"></div>
+    <div ng-include src="'templates/filter.html'"></div>
+  </div>
 
   <div ng-controller="MainController">
     <leaflet cluster tripDisplay id="map" layers="layers" center="newYork" markers="markers" paths="subwayPaths" defaults="defaults" cluster="cluster"></leaflet>
+
     <a class="btn-floating btn-large waves-effect waves-light grey reset" ng-click="resetStation()"><i class="mdi-content-clear"></i></a>
+
     <div ng-show="loading" class="progress">
       <div class="indeterminate"></div>
     </div>
   </div>
-
-  <!-- Angular -->
-  <script src="bower_components/angular/angular.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/controllers/mainController.js"></script>
-  <script src="js/services/mainService.js"></script>
-  <script src="js/services/mapService.js"></script>
-  <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
-  <script src="bower_components/ng-lodash/build/ng-lodash.js"></script>
-  <script src="js/directives/cluster.js"></script>
 </body>
 </html>
