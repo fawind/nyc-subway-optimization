@@ -1,63 +1,16 @@
 angular.module('epic-taxi')
-  .controller('MainController', ['$scope', 'lodash', 'MainService', 'leafletEvents', function ($scope, _, mainService, leafletEvents) {
+  .controller('MainController', ['$scope', 'lodash', 'MainService', 'MapService', function ($scope, _, mainService, mapService) {
 
-    var markers = {};
-    var paths = {};
-    var stationIcon = {
-      iconUrl: 'assets/station-marker2.png',
-      iconSize: [13, 13]
-    };
-
-    var iconScale = d3.scale.sqrt()
-      .domain([6, 8, 10, 12, 13, 16, 18])
-      .range([1, 3, 7, 13, 16, 35, 50]);
-
-    var pathScale = d3.scale.sqrt()
-      .domain([9, 12, 14, 16, 18])
-      .range([1, 3, 5, 8, 12]);
-
-    $scope.initMap = function() {
-      angular.extend($scope, {
-        loading: false,
-        newYork: {
-          lat: 40.7304783951045,
-          lng: -73.98880004882812,
-          zoom: 12
-        },
-        subwayPaths: {},
-        layers: {
-          baselayers: {
-            mapbox_light: {
-              name: 'Light',
-              type: 'xyz',
-              url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
-            },
-            mapbox_dark: {
-              name: 'Dark',
-              type: 'xyz',
-              url: 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-            }
-          },
-          overlays: {
-            subway: {
-              name: 'Subway',
-              visible: true,
-              type: 'group'
-            }
-          }
-        },
-        events: {
-          markers: {
-            enable: [leafletEvents.click, leafletEvents.popupclose]
-          }
-        }
-      });
+    initMap = function() {
+      var config = mapService.getConfig();
+      angular.extend($scope, config);
+      $scope.loading = false;
 
       $scope.$on('leafletDirectiveMarker.click', function(event, args) {
         $scope.loading = true;
-        $scope.hideSubway(args.model.stationId);
+        hideSubway(args.model.stationId);
 
-        // in-memory cache
+        // sample cluster
         /*
         var cluster = [{"count":135339,"lat":40.795053,"lng":-73.92376},{"count":61505,"lat":40.795053,"lng":-73.96276},{"count":48905,"lat":40.831053,"lng":-73.92376},{"count":37458,"lat":40.759053,"lng":-73.96276},{"count":14742,"lat":40.759053,"lng":-74.00176}];
         angular.extend($scope, {
@@ -67,6 +20,7 @@ angular.module('epic-taxi')
 
         mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng)
           .success(function(response) {
+            // get the top 5 cluster
             var cluster = _.sortBy(response.cluster, 'count').reverse().slice(0, 5);
             angular.extend($scope, {
               cluster: angular.copy(cluster),
@@ -83,13 +37,13 @@ angular.module('epic-taxi')
 
     // Dismiss cluster view
     $scope.resetStation = function() {
-      $scope.showSubway();
+      showSubway();
       angular.extend($scope, {
         cluster: angular.copy([])
       });
     };
 
-    $scope.hideSubway = function(id) {
+    hideSubway = function(id) {
       _.each($scope.markers, function(marker){
         if (id === marker.stationId)
           marker.opacity = 1.0;
@@ -101,7 +55,7 @@ angular.module('epic-taxi')
       });
     };
 
-    $scope.showSubway = function() {
+    showSubway = function() {
       _.each($scope.markers, function(marker){
         marker.opacity = 1.0;
       });
@@ -109,58 +63,6 @@ angular.module('epic-taxi')
         path.opacity = 1.0;
       });
     };
-
-    $scope.addMarkers = function() {
-      angular.extend($scope, {
-        markers: angular.copy(markers)
-      });
-    };
-
-    $scope.addPaths = function() {
-      angular.extend($scope, {
-        subwayPaths: angular.copy(paths)
-      });
-    };
-
-    function addStations(routes) {
-      _.each(routes, function(route) {
-        _.each(route.stations, function(station, i) {
-          markers[station.id] = {
-            stationId: station.id,
-            lat: parseFloat(station.lat),
-            lng: parseFloat(station.lng),
-            message: station.name,
-            focus: false,
-            draggable: false,
-            icon: stationIcon,
-            layer: 'subway'
-          };
-        });
-      });
-      $scope.addMarkers();
-    }
-
-    function addRoutes(routes) {
-      _.each(routes, function(route) {
-        var routePath = {
-          color: mainService.getRouteColor(route.route),
-          weight: 3,
-          message: route.route,
-          latlngs: [],
-          layer: 'subway'
-        };
-
-        _.each(route.stations, function(station) {
-          routePath.latlngs.push({
-            lat: parseFloat(station.lat),
-            lng: parseFloat(station.lng)
-          });
-        });
-
-        paths[route.route] = routePath;
-      });
-      $scope.addPaths();
-    }
 
     function updateRoutesAndStationIcons(zoomLevel) {
       _.each($scope.markers, function(marker) {
@@ -172,14 +74,22 @@ angular.module('epic-taxi')
       });
     }
 
+    var iconScale = d3.scale.sqrt()
+      .domain([6, 8, 10, 12, 13, 16, 18])
+      .range([1, 3, 7, 13, 16, 35, 50]);
+
+    var pathScale = d3.scale.sqrt()
+      .domain([9, 12, 14, 16, 18])
+      .range([1, 3, 5, 8, 12]);
+
     // init the Map and load the subway routes
-    $scope.initMap();
+    initMap();
 
     mainService.getStations()
       .success(function(routes) {
         console.log('Got all stations...');
-        addRoutes(routes);
-        addStations(routes);
-      });
 
+        $scope.markers = mapService.createMarker(routes);
+        $scope.subwayPaths = mapService.createPaths(routes);
+      });
   }]);

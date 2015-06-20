@@ -46,7 +46,7 @@ angular.module('epic-taxi')
             .style("opacity", 0.6)
             .style("fill", "red");
 
-          map.on("moveend", update);
+          map.on("viewreset", update);
           update();
 
           /* Update size and scaling of svgs on mapchange */
