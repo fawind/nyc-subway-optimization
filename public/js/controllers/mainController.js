@@ -18,7 +18,9 @@ angular.module('epic-taxi')
         });
         */
 
-        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng)
+        var filter = mainService.filter;
+
+        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, filter)
           .success(function(response) {
             // get the top 5 cluster
             var cluster = _.sortBy(response.cluster, 'count').reverse().slice(0, 5);
