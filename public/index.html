@@ -17,13 +17,14 @@
 
   <!-- Angular -->
   <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+  <script src="bower_components/ng-lodash/build/ng-lodash.js"></script>
+
   <script src="js/app.js"></script>
   <script src="js/controllers/mainController.js"></script>
   <script src="js/controllers/filterController.js"></script>
   <script src="js/services/mainService.js"></script>
   <script src="js/services/mapService.js"></script>
-  <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
-  <script src="bower_components/ng-lodash/build/ng-lodash.js"></script>
   <script src="js/directives/cluster.js"></script>
 
   <!-- Styles -->
@@ -38,7 +39,7 @@
   </div>
 
   <div ng-controller="MainController">
-    <leaflet cluster tripDisplay id="map" layers="layers" center="newYork" markers="markers" paths="subwayPaths" defaults="defaults" cluster="cluster"></leaflet>
+    <leaflet cluster cluster-connection id="map" layers="layers" center="newYork" markers="markers" paths="subwayPaths" defaults="defaults" cluster="cluster"></leaflet>
 
     <a class="btn-floating btn-large waves-effect waves-light grey reset" ng-click="resetStation()"><i class="mdi-content-clear"></i></a>
 

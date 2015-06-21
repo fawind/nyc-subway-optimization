@@ -13,17 +13,32 @@ angular.module('epic-taxi')
         // sample cluster
         /*
         var cluster = [{"count":135339,"lat":40.795053,"lng":-73.92376},{"count":61505,"lat":40.795053,"lng":-73.96276},{"count":48905,"lat":40.831053,"lng":-73.92376},{"count":37458,"lat":40.759053,"lng":-73.96276},{"count":14742,"lat":40.759053,"lng":-74.00176}];
+        var clusterObj = {
+          station: {
+            id: args.model.stationId,
+            lat: args.model.lat,
+            lng: args.model.lng
+          },
+          cluster: cluster
+        };
         angular.extend($scope, {
-          cluster: angular.copy(cluster)
+          cluster: angular.copy(clusterObj)
         });
         */
 
         var filter = mainService.filter;
-
         mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, filter)
           .success(function(response) {
             // get the top 5 cluster
-            var cluster = _.sortBy(response.cluster, 'count').reverse().slice(0, 5);
+            var cluster = {
+              station: {
+                id: args.model.stationId,
+                lat: args.model.lat,
+                lng: args.model.lng
+              },
+              cluster: _.sortBy(response.cluster, 'count').reverse().slice(0, 5)
+            };
+
             angular.extend($scope, {
               cluster: angular.copy(cluster),
               loading: false
@@ -41,7 +56,7 @@ angular.module('epic-taxi')
     $scope.resetStation = function() {
       showSubway();
       angular.extend($scope, {
-        cluster: angular.copy([])
+        cluster: angular.copy({})
       });
     };
 
