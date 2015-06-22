@@ -1,5 +1,7 @@
-var hdb = require('hdb');
-var credentials = require('./credentials');
+var hdb = require('hdb/lib');
+var credentials = require('./credentials')
+
+hdb.common.MAX_PACKET_SIZE = Math.pow(2, 20);
 
 var client = hdb.createClient(credentials);
 
