@@ -3,25 +3,28 @@ var GeoUtils = {
   get_top_left: {lng: -74.019760, lat: 40.864695},
   get_bottom_right: {lng: -73.779058, lat: 40.621053},
 
+  get_lat_diff: 0.243643,
+  get_lng_diff: 0.240702,
+
   get_lat_diff_m: 27090,
   get_lng_diff_m: 20240,
 
   // return quite accurate value for border of our rectangle
-  get_lat_diff_t: function() {
+  get_lat_diff_m: function() {
     return this.get_distance_m(this.get_top_left.lat, this.get_top_left.lng,
       this.get_bottom_right.lat,this.get_top_left.lng)
   },
 
-  get_lng_diff_t: function() {
+  get_lng_diff_m: function() {
     return this.get_distance_m(this.get_top_left.lat, this.get_top_left.lng,
       this.get_top_left.lat,this.get_bottom_right.lng)
   },
 
-  get_lat_diff: function() {
+  get_lat_diff_n: function() {
     return Math.abs(this.get_top_left.lat - this.get_bottom_right.lat)
   },
 
-  get_lng_diff: function() {
+  get_lng_diff_n: function() {
     return Math.abs(this.get_top_left.lng - this.get_bottom_right.lng)
   },
 
