@@ -10,26 +10,6 @@ var clientPool = {
     });
 
     return client;
-
-    /*
-    for(var i=0; i<clients.length; i++){
-      if(!clients[i].in_use) {
-        clients[i].in_use = true;
-        return clients[i];
-      }
-    }
-
-    clients[clients.length] = {
-      in_use: true,
-      client: hdb.createClient(credentials)
-    }
-
-    clients[clients.length-1].client.on('error', function (err) {
-      console.error('Network connection error', err);
-    });
-
-    return clients[clients.length-1];
-    */
   },
   simpleQuery: function(query, cb) {
     var client = hdb.createClient(credentials);
