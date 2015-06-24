@@ -34,8 +34,6 @@ var QueryHandler = {
 
     var query = query_list.join(' UNION ALL ');
 
-    console.log('DB Start Query');
-
     var result = clientPool.simpleQuery(query, cb);
   },
 
@@ -74,8 +72,6 @@ var QueryHandler = {
     };
 
     var query = query_list.join(' UNION ALL ');
-
-    console.log('DB Start Query');
 
     var result = clientPool.simpleQuery(query, cb);
   }

@@ -22,6 +22,8 @@ var clientPool = {
         return console.error('Connect error', err);
       }
       
+      console.log('DB Start Query');
+
       client.exec(query, function (err, rows) {
         client.end();
         if (err) {
