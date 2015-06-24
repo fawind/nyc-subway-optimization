@@ -2,26 +2,33 @@ var clientPool = require('./hana');
 var geo = require('./utils/geo');
 
 var QueryHandler = {
-  get_cluster: function(lat_st, lng_st, raster_deg, cb) {
-    var offset_lng = geo.get_lng_diff / (raster_deg * 2)
-    var offset_lat = geo.get_lat_diff / (raster_deg * 2)
+  get_cluster: function(lat_st, lng_st, from, to, years, daytimes, raster_deg, cb) {
+    var from = ((new Date(from)).toISOString().substring(0, 10))
+    var to = ((new Date(to)).toISOString().substring(0, 10))
 
-    var lat = geo.get_bottom_right.lat + offset_lat
-    var lng = geo.get_top_left.lng + offset_lng
+    var offset_lng = geo.getLngDiff / (raster_deg * 2)
+    var offset_lat = geo.getLatDiff / (raster_deg * 2)
 
-    var base_pickup = 'PICKUP_LONG < '+String(lng_st + offset_lng)+' AND PICKUP_LONG > '+String(lng_st - offset_lng)+
-      ' AND PICKUP_LAT < '+String(lat_st + offset_lat)+' AND PICKUP_LAT > '+String(lat_st - offset_lat);
+    var lat = geo.getBottomRight.lat + offset_lat
+    var lng = geo.getTopLeft.lng + offset_lng
 
+    // filter rides which start in the area around the given station (box defined by 2*offsetX x 2*offsetY)
+    var basePickup = 'PICKUP_LONG < '+(lng_st + offset_lng).toFixed(6)+' AND PICKUP_LONG > '+(lng_st - offset_lng).toFixed(6)+
+      ' AND PICKUP_LAT < '+(lat_st + offset_lat).toFixed(6)+' AND PICKUP_LAT > '+(lat_st - offset_lat).toFixed(6);
 
-    var query_list = [];
+    var yearFilter = ' AND year(PICKUP_TIME) IN ('+years.join(', ')+')';
+
+    var fromToFilter = " AND PICKUP_TIME >= '" + from + "' AND PICKUP_TIME <= '" + to + "'"
+
+    var queryList = [];
     // start in the south of NYC
-    while(lat < geo.get_top_left.lat) {
+    while(lat < geo.getTopLeft.lat) {
       // start in the west of NYC
-      while(lng < geo.get_bottom_right.lng) {
-        query_list.push('SELECT COUNT(ID) AS "count", '+String(lat)+' as "lat", '+String(lng)+'as "lng"'+
-          ' FROM NYCCAB.TRIP WHERE '+base_pickup+
-          ' AND DROPOFF_LONG < '+String(lng + offset_lng)+' AND DROPOFF_LONG > '+String(lng - offset_lng)+
-          ' AND DROPOFF_LAT < '+String(lat + offset_lat)+' AND DROPOFF_LAT > '+String(lat - offset_lat));
+      while(lng < geo.getBottomRight.lng) {
+        queryList.push('SELECT COUNT(ID) AS "count", '+lat.toFixed(6)+' as "lat", '+lng.toFixed(6)+'as "lng"'+
+          ' FROM NYCCAB.TRIP WHERE '+basePickup+fromToFilter+
+          ' AND DROPOFF_LONG < '+(lng + offset_lng).toFixed(6)+' AND DROPOFF_LONG > '+(lng - offset_lng).toFixed(6)+
+          ' AND DROPOFF_LAT < '+(lat + offset_lat).toFixed(6)+' AND DROPOFF_LAT > '+(lat - offset_lat).toFixed(6));
 
         // increase longitude for next iteration by one box-size
         lng = lng + 2 * offset_lng
@@ -29,51 +36,14 @@ var QueryHandler = {
       // increase latitude for next iteration by one box-size
       lat = lat + 2 * offset_lat
       // reset longitude
-      lng = geo.get_top_left.lng
+      lng = geo.getTopLeft.lng
     };
 
-    var query = query_list.join(' UNION ALL ');
+    var query = queryList.join(' UNION ALL ');
 
-    var result = clientPool.simpleQuery(query, cb);
-  },
+    console.log(encodeURI(query).split(/%..|./).length - 1);
 
-  get_cluster_filtered: function(lat_st, lng_st, from, to, years, daytimes, raster_deg, cb) {
-    console.log(from)
-    console.log(to)
-    console.log(daytimes)
-    var offset_lng = geo.get_lng_diff / (raster_deg * 2)
-    var offset_lat = geo.get_lat_diff / (raster_deg * 2)
-
-    var lat = geo.get_bottom_right.lat + offset_lat
-    var lng = geo.get_top_left.lng + offset_lng
-
-    var base_pickup = 'PICKUP_LONG < '+String(lng_st + offset_lng)+' AND PICKUP_LONG > '+String(lng_st - offset_lng)+
-      ' AND PICKUP_LAT < '+String(lat_st + offset_lat)+' AND PICKUP_LAT > '+String(lat_st - offset_lat);
-
-    var year_filter = ' AND YEAR(PICKUP_TIME) IN ('+years.join(', ')+')';
-
-    var query_list = [];
-    // start in the south of NYC
-    while(lat < geo.get_top_left.lat) {
-      // start in the west of NYC
-      while(lng < geo.get_bottom_right.lng) {
-        query_list.push('SELECT COUNT(ID) AS "count", '+String(lat)+' as "lat", '+String(lng)+'as "lng"'+
-          ' FROM NYCCAB.TRIP WHERE '+base_pickup+year_filter+
-          ' AND DROPOFF_LONG < '+String(lng + offset_lng)+' AND DROPOFF_LONG > '+String(lng - offset_lng)+
-          ' AND DROPOFF_LAT < '+String(lat + offset_lat)+' AND DROPOFF_LAT > '+String(lat - offset_lat));
-
-        // increase longitude for next iteration by one box-size
-        lng = lng + 2 * offset_lng
-      };
-      // increase latitude for next iteration by one box-size
-      lat = lat + 2 * offset_lat
-      // reset longitude
-      lng = geo.get_top_left.lng
-    };
-
-    var query = query_list.join(' UNION ALL ');
-
-    var result = clientPool.simpleQuery(query, cb);
+    clientPool.simpleQuery(query, cb);
   }
 };
 
