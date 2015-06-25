@@ -21,7 +21,7 @@ angular.module('epic-taxi')
             renderConnections(cluster, map);
         }
 
-        function removeConnection(cluster, map) {
+        function removeConnection(map) {
           var overlayPane = d3.select(map.getPanes().overlayPane);
           overlayPane.selectAll('.clusterConnection').remove();
         }
