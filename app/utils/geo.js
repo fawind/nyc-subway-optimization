@@ -1,40 +1,40 @@
 var GeoUtils = {
   // spans area we focus on manhatten area and east till JFK-airport
-  get_top_left: {lng: -74.019760, lat: 40.864695},
-  get_bottom_right: {lng: -73.779058, lat: 40.621053},
+  getTopLeft: {lng: -74.019760, lat: 40.864695},
+  getBottomRight: {lng: -73.779058, lat: 40.621053},
 
-  get_lat_diff: 0.243643,
-  get_lng_diff: 0.240702,
+  getLatDiff: 0.243643,
+  getLngDiff: 0.240702,
 
-  get_lat_diff_m: 27090,
-  get_lng_diff_m: 20240,
+  getLatDiff_m: 27090,
+  getLngDiff_m: 20240,
 
   // return quite accurate value for border of our rectangle
-  get_lat_diff_m: function() {
-    return this.get_distance_m(this.get_top_left.lat, this.get_top_left.lng,
-      this.get_bottom_right.lat,this.get_top_left.lng)
+  getLatDiff_m: function() {
+    return this.getDistance_m(this.getTopLeft.lat, this.getTopLeft.lng,
+      this.getBottomRight.lat,this.getTopLeft.lng)
   },
 
-  get_lng_diff_m: function() {
-    return this.get_distance_m(this.get_top_left.lat, this.get_top_left.lng,
-      this.get_top_left.lat,this.get_bottom_right.lng)
+  getLngDiff_m: function() {
+    return this.getDistance_m(this.getTopLeft.lat, this.getTopLeft.lng,
+      this.getTopLeft.lat,this.getBottomRight.lng)
   },
 
-  get_lat_diff_n: function() {
-    return Math.abs(this.get_top_left.lat - this.get_bottom_right.lat)
+  getLatDiff_n: function() {
+    return Math.abs(this.getTopLeft.lat - this.getBottomRight.lat)
   },
 
-  get_lng_diff_n: function() {
-    return Math.abs(this.get_top_left.lng - this.get_bottom_right.lng)
+  getLngDiff_n: function() {
+    return Math.abs(this.getTopLeft.lng - this.getBottomRight.lng)
   },
 
-  get_distance_m: function(lat1, lng1, lat2, lng2) {
+  getDistance_m: function(lat1, lng1, lat2, lng2) {
     var radius = 6371000;
 
-    var phi = this.deg_to_rad(lat1);
-    var phi2 = this.deg_to_rad(lat2);
-    var deltalat = this.deg_to_rad(lat2-lat1);
-    var deltalng = this.deg_to_rad(lng2-lng1);
+    var phi = this.degToRad(lat1);
+    var phi2 = this.degToRad(lat2);
+    var deltalat = this.degToRad(lat2-lat1);
+    var deltalng = this.degToRad(lng2-lng1);
 
     var a = Math.sin(deltalat/2) * Math.sin(deltalat/2) +
       Math.cos(phi) * Math.cos(phi2) *
@@ -45,11 +45,11 @@ var GeoUtils = {
     return radius * c;
   },
 
-  deg_to_rad: function(deg) {
+  degToRad: function(deg) {
     return deg * (Math.PI/180)
   },
 
-  translate_point: function(distance_m, bearing, lat, lng) {
+  translatePoint: function(distance_m, bearing, lat, lng) {
   	var new_lat = Math.asin(Math.sin(lat) * Math.cos(d/R) +
   		Math.cos(lat) * Math.sin(d/R) * Math.cos(bear));
 
