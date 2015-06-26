@@ -49,12 +49,21 @@ var GeoUtils = {
     return deg * (Math.PI/180)
   },
 
-  translatePoint: function(distance_m, bearing, lat, lng) {
-  	var new_lat = Math.asin(Math.sin(lat) * Math.cos(d/R) +
-  		Math.cos(lat) * Math.sin(d/R) * Math.cos(bear));
+  translateLatEast: function(distance_m, lat) {
+    return this.translatePoint(distance_m, 90, lat, -73.779058).lat;
+  },
 
-  	var new_lng = lat + Math.atan2(Math.sin(bear) * Math.sin(d/R) * Math.cos(lat),
-  		Math.cos(d/R) - Math.sin(lat) * Math.sin(new_lat));
+  translateLngNorth: function(distance_m, lng) {
+    return this.translatePoint(distance_m, 0, 40.621053, lng).lng;
+  },
+
+  translatePoint: function(distance_m, bear, lat, lng) {
+    var R = 6371000;
+  	var new_lat = Math.asin(Math.sin(lat) * Math.cos(distance_m/R) +
+  		Math.cos(lat) * Math.sin(distance_m/R) * Math.cos(bear));
+
+  	var new_lng = lat + Math.atan2(Math.sin(bear) * Math.sin(distance_m/R) * Math.cos(lat),
+  		Math.cos(distance_m/R) - Math.sin(lat) * Math.sin(new_lat));
 
   	return {
       lat: new_lat,
