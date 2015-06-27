@@ -3,7 +3,7 @@ angular.module('epic-taxi')
 
     var filter = {};
     var rides = '';
-    var gridSize = 2000;
+    var gridSize;
 
     var topLeft = {lat: 40.864695, lng: -74.019760};
     var bottomRight = {lat: 40.621053, lng: -73.779058};
