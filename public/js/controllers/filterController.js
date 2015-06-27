@@ -32,13 +32,6 @@ angular.module('epic-taxi')
       year2013: true
     };
 
-    $scope.timeModel = {
-      morning: true,
-      afternoon: true,
-      evening: true,
-      night: true
-    };
-
     $scope.dateModel = {
       startDate: formatDate(minDate),
       endDate: formatDate(maxDate)
@@ -52,27 +45,12 @@ angular.module('epic-taxi')
 
       var filter = {
         date: [dates.start, dates.end],
-        years: [],
-        time: []
+        years: []
       };
 
       var years = _.each($scope.yearModel, function(checked, year) {
         if (checked === true)
           filter.years.push(year.replace(/\D/g,''));
-      });
-
-      //ToDo: check time format
-      var times = _.each($scope.timeModel, function(checked, time) {
-        if (checked === true) {
-          if (time === 'morning')
-            filter.time.push(['0:00', '12:00']);
-          if (time === 'afternoon')
-            filter.time.push(['12:00', '18:00']);
-          if (time === 'evening')
-            filter.time.push(['18:00', '22:00']);
-          if (time === 'night')
-            filter.time.push(['22:00', '24:00']);
-        }
       });
 
       mainService.filter = filter;
