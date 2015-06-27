@@ -31,6 +31,9 @@ angular.module('epic-taxi')
         events: {
           markers: { enable: [leafletEvents.click, leafletEvents.popupclose] }
         },
+        controls: {
+          draw: { polyline: false, polygon: false, rectangle: true, circle: false, marker: false }
+        },
         defaults: { attributionControl: false }
       };
     }

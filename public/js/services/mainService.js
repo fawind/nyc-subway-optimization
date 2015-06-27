@@ -7,13 +7,17 @@ angular.module('epic-taxi')
 
     var topLeft = {lat: 40.864695, lng: -74.019760};
     var bottomRight = {lat: 40.621053, lng: -73.779058};
-    var box = { topLeft: topLeft, bottomRight: bottomRight };
+    var defaultBox = { topLeft: topLeft, bottomRight: bottomRight };
+    var box = null;
 
     function getStations() {
       return $http.get('/data/subway-lines.json');
     }
 
-    function getCluster(id, lat, lng, ridesObj, blockSize, filterObj) {
+    function getCluster(id, lat, lng, ridesObj, blockSize, boundingBox, filterObj) {
+      if (boundingBox === null)
+        boundingBox = defaultBox;
+
       var data = {
         station: {
           id: id,
@@ -21,7 +25,7 @@ angular.module('epic-taxi')
           lng: lng
         },
         blockSize: blockSize,
-        box: box,
+        box: boundingBox,
         filter: filterObj
       };
 

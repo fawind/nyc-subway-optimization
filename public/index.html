@@ -14,6 +14,8 @@
 
   <script src="bower_components/leaflet/dist/leaflet.js"></script>
   <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
+  <script src="bower_components/leaflet.draw/dist/leaflet.draw.js"></script>
+  <link rel="stylesheet" href="bower_components/leaflet.draw/dist/leaflet.draw.css" />
 
   <!-- Angular -->
   <script src="bower_components/angular/angular.js"></script>
@@ -40,7 +42,7 @@
   </div>
 
   <div ng-controller="MainController">
-    <leaflet cluster cluster-connection id="map" layers="layers" center="newYork" markers="markers" paths="subwayPaths" defaults="defaults" cluster="cluster"></leaflet>
+    <leaflet cluster cluster-connection id="map" layers="layers" center="newYork" markers="markers" paths="subwayPaths" controls="controls" defaults="defaults" cluster="cluster"></leaflet>
 
     <a class="btn-floating btn-large waves-effect waves-light grey reset" ng-click="resetStation()"><i class="mdi-content-clear"></i></a>
 

@@ -1,10 +1,33 @@
 angular.module('epic-taxi')
-  .controller('MainController', ['$scope', 'lodash', 'MainService', 'MapService', function ($scope, _, mainService, mapService) {
+  .controller('MainController', ['$scope', 'lodash', 'MainService', 'MapService', 'leafletData', function ($scope, _, mainService, mapService, leafletData) {
+
+    var currentBoundingBoxLayer = null;
 
     initMap = function() {
       var config = mapService.getConfig();
       angular.extend($scope, config);
       $scope.loading = false;
+
+      leafletData.getMap('map').then(function(map) {
+        var drawnItems = $scope.controls.edit.featureGroup;
+        map.on('draw:created', function(e) {
+          drawnItems.removeLayer(currentBoundingBoxLayer);
+          var layer = e.layer;
+          currentBoundingBoxLayer = layer;
+          drawnItems.addLayer(layer);
+
+          var form = layer.toGeoJSON().geometry.coordinates[0];
+          var topLeft = { lat: form[1][1], lng: form[1][0] };
+          var bottomRight = { lat: form[3][1], lng: form[3][0] };
+          var box = { topLeft: topLeft, bottomRight: bottomRight };
+
+          mainService.box = box;
+        });
+
+        map.on('draw:deleted', function(e) {
+          mainService.box = null;
+       });
+      });
 
       $scope.$on('leafletDirectiveMarker.click', function(event, args) {
         $scope.loading = true;
@@ -29,7 +52,8 @@ angular.module('epic-taxi')
         var filter = mainService.filter;
         var rides = mainService.rides;
         var gridSize = mainService.gridSize;
-        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, filter)
+        var boundingBox = mainService.box;
+        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, boundingBox, filter)
           .success(function(response) {
             // get the top 5 cluster
             var cluster = {
