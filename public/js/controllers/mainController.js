@@ -27,7 +27,9 @@ angular.module('epic-taxi')
         */
 
         var filter = mainService.filter;
-        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, filter)
+        var rides = mainService.rides;
+        var gridSize = mainService.gridSize;
+        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, filter)
           .success(function(response) {
             // get the top 5 cluster
             var cluster = {

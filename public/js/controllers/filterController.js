@@ -25,6 +25,10 @@ angular.module('epic-taxi')
         });
     };
 
+    $scope.ridesModel = 'incoming';
+
+    $scope.gridSizeModel = 2000;
+
     $scope.yearModel = {
       year2010: true,
       year2011: true,
@@ -54,6 +58,8 @@ angular.module('epic-taxi')
       });
 
       mainService.filter = filter;
+      mainService.rides = $scope.ridesModel;
+      mainService.gridSize = $scope.gridSizeModel;
     };
 
     function validateDates(startDate, endDate) {
