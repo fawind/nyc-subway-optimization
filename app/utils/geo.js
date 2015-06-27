@@ -1,10 +1,10 @@
 var GeoUtils = {
-  // spans area we focus on manhatten area and east till JFK-airport
+  // spans MAX area we focus on manhatten area and east till JFK-airport
   getTopLeft: {lng: -74.019760, lat: 40.864695},
   getBottomRight: {lng: -73.779058, lat: 40.621053},
 
-  getLatDiff: 0.243643,
-  getLngDiff: 0.240702,
+  getLatDiff_sph: 0.243643,
+  getLngDiff_sph: 0.240702,
 
   getLatDiff_m: 27090,
   getLngDiff_m: 20240,
@@ -49,27 +49,17 @@ var GeoUtils = {
     return deg * (Math.PI/180)
   },
 
-  translateLatEast: function(distance_m, lat) {
-    return this.translatePoint(distance_m, 90, lat, -73.779058).lat;
+  getLatDiff: function(lat1, lat2, blockSize_m) {
+    var d = this.getDistance_m(lat1, this.getTopLeft.lng,
+      lat2, this.getTopLeft.lng);
+    return Math.abs(lat1 - lat2) * (blockSize_m/d);
   },
 
-  translateLngNorth: function(distance_m, lng) {
-    return this.translatePoint(distance_m, 0, 40.621053, lng).lng;
-  },
-
-  translatePoint: function(distance_m, bear, lat, lng) {
-    var R = 6371000;
-  	var new_lat = Math.asin(Math.sin(lat) * Math.cos(distance_m/R) +
-  		Math.cos(lat) * Math.sin(distance_m/R) * Math.cos(bear));
-
-  	var new_lng = lat + Math.atan2(Math.sin(bear) * Math.sin(distance_m/R) * Math.cos(lat),
-  		Math.cos(distance_m/R) - Math.sin(lat) * Math.sin(new_lat));
-
-  	return {
-      lat: new_lat,
-      lng: new_lng
-  	};
+  getLngDiff: function(lng1, lng2, blockSize_m) {
+    var d = this.getDistance_m(this.getTopLeft.lat, lng1,
+      this.getTopLeft.lat, lng2);
+    return Math.abs(lng1 -lng2) * (blockSize_m/d);
   }
-};
+}
 
 module.exports = GeoUtils;

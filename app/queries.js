@@ -8,8 +8,8 @@ var QueryHandler = {
     // Those parts are then put together with a UNION ALL statement between each.
     // This is basically the subquery we operate on as it gives us the required 
     // data per cluster and additionally the midpoint as lat and lng.
-    var offsetLng = Math.abs(station.lng - geo.translateLngNorth(blockSize, station.lng))/2;
-    var offsetLat = Math.abs(station.lat - geo.translateLatEast(blockSize, station.lng))/2;
+    var offsetLat = geo.getLatDiff(box.topLeft.lat, box.bottomRight.lat, blockSize);
+    var offsetLng = geo.getLngDiff(box.topLeft.lng, box.bottomRight.lng, blockSize);
     var lat = box.bottomRight.lat + offsetLat
     var lng = box.topLeft.lng + offsetLng
 
@@ -24,10 +24,10 @@ var QueryHandler = {
           ' AND DROPOFF_LAT <= '+(lat + offsetLat).toFixed(6)+' AND DROPOFF_LAT >= '+(lat - offsetLat).toFixed(6));
 
         // increase longitude for next iteration by one box-size
-        lng = geo.translateLngNorth(blockSize, lng)
+        lng = lng + (2*offsetLng)
       };
       // increase latitude for next iteration by one box-size
-      lat = lat + geo.translateLatEast(blockSize, lat)
+      lat = lat + (2*offsetLat)
       // reset longitude
       lng = box.topLeft.lng
     };
