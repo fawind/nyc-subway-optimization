@@ -1,5 +1,5 @@
 var hdb = require('hdb');
-var credentials = require('./credentials')
+var credentials = require('./credentials');
 
 var clientPool = {
   getClient: function() {
@@ -21,7 +21,7 @@ var clientPool = {
       if (err) {
         return console.error('Connect error', err);
       }
-      
+
       console.log('DB Start Query');
 
       client.exec(query, function (err, rows) {
@@ -30,10 +30,10 @@ var clientPool = {
           return console.error('Execute error:', err);
         }
         console.log('DB Finished Query');
-        cb(rows)
+        cb(rows);
       });
     });
   }
-}
+};
 
 module.exports = clientPool;

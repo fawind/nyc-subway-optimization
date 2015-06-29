@@ -6,7 +6,7 @@ var router = express.Router();
 router.post('/api/cluster/outgoing', function(req, res, next) {
   console.log('POST request to ' + req.url + ' Station: ' + req.body.id);
 
-  QueryHandler.getClusterOutgoing(req.body.station, req.body.filter.date, req.body.filter.years, 
+  QueryHandler.getClusterOutgoing(req.body.station, req.body.filter.date, req.body.filter.years,
     req.body.filter.time, req.body.blockSize, req.body.box, function(rows) {
   	  res.json({cluster: rows});
   	});
@@ -15,7 +15,7 @@ router.post('/api/cluster/outgoing', function(req, res, next) {
 router.post('/api/cluster/incoming', function(req, res, next) {
 	console.log('POST request to ' + req.url + ' Station: ' + req.body.id);
 
-	QueryHandler.getClusterIncoming(req.body.station, req.body.filter.date, req.body.filter.years, 
+	QueryHandler.getClusterIncoming(req.body.station, req.body.filter.date, req.body.filter.years,
     req.body.filter.time, req.body.blockSize, req.body.box, function(rows) {
       res.json({cluster: rows});
     });
