@@ -1,10 +1,41 @@
 angular.module('epic-taxi')
-  .controller('MainController', ['$scope', 'lodash', 'MainService', 'MapService', function ($scope, _, mainService, mapService) {
+  .controller('MainController', ['$scope', 'lodash', 'MainService', 'MapService', 'leafletData', function ($scope, _, mainService, mapService, leafletData) {
+
+    var currentBoundingBoxLayer = null;
 
     initMap = function() {
       var config = mapService.getConfig();
       angular.extend($scope, config);
       $scope.loading = false;
+
+      leafletData.getMap('map').then(function(map) {
+        var drawnItems = $scope.controls.edit.featureGroup;
+        map.on('draw:created', function(e) {
+          drawnItems.removeLayer(currentBoundingBoxLayer);
+          var layer = e.layer;
+          currentBoundingBoxLayer = layer;
+
+          var form = layer.toGeoJSON().geometry.coordinates[0];
+          console.log(layer.toGeoJSON());
+          var topLeft = { lat: form[1][1], lng: form[1][0] };
+          var bottomRight = { lat: form[3][1], lng: form[3][0] };
+          var box = { topLeft: topLeft, bottomRight: bottomRight };
+
+          console.log(box);
+
+          if (validBounds(box)) {
+            drawnItems.addLayer(layer);
+            mainService.box = box;
+          }
+          else {
+            Materialize.toast('The bounding box is to big!', 2000);
+          }
+        });
+
+        map.on('draw:deleted', function(e) {
+          mainService.box = null;
+       });
+      });
 
       $scope.$on('leafletDirectiveMarker.click', function(event, args) {
         $scope.loading = true;
@@ -27,7 +58,10 @@ angular.module('epic-taxi')
         */
 
         var filter = mainService.filter;
-        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, filter)
+        var rides = mainService.rides;
+        var gridSize = mainService.gridSize;
+        var boundingBox = mainService.box;
+        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, boundingBox, filter)
           .success(function(response) {
             // get the top 5 cluster
             var cluster = {
@@ -67,7 +101,7 @@ angular.module('epic-taxi')
         else
           marker.opacity = 0.2;
       });
-      _.each($scope.subwayPaths, function(path){
+      _.each($scope.paths, function(path){
         path.opacity = 0.2;
       });
     };
@@ -76,7 +110,7 @@ angular.module('epic-taxi')
       _.each($scope.markers, function(marker){
         marker.opacity = 1.0;
       });
-      _.each($scope.subwayPaths, function(path){
+      _.each($scope.paths, function(path){
         path.opacity = 1.0;
       });
     };
@@ -86,9 +120,27 @@ angular.module('epic-taxi')
         marker.icon.iconSize = [iconScale(zoomLevel), iconScale(zoomLevel) ];
       });
 
-      _.each($scope.subwayPaths, function(path) {
+      _.each($scope.paths, function(path) {
         path.weight = pathScale(zoomLevel);
       });
+    }
+
+    function validBounds(box) {
+      var maxTopLeft = mapService.clusterBounds.topLeft;
+      var maxBottomRight = mapService.clusterBounds.bottomRight;
+
+      function inArea(point) {
+        if ((point.lat <= maxTopLeft.lat && point.lat >= maxBottomRight.lat) &&
+        (point.lng >= maxTopLeft.lng && point.lng <= maxBottomRight.lng)) {
+          return true;
+        }
+        return false;
+      }
+
+      if (inArea(box.topLeft) && inArea(box.bottomRight)) {
+        return true;
+      }
+      return false;
     }
 
     var iconScale = d3.scale.sqrt()
@@ -107,6 +159,6 @@ angular.module('epic-taxi')
         console.log('Got all stations...');
 
         $scope.markers = mapService.createMarker(routes);
-        $scope.subwayPaths = mapService.createPaths(routes);
+        $scope.paths = mapService.createPaths(routes);
       });
   }]);

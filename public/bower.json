@@ -9,6 +9,7 @@
     "angular-leaflet-directive": "~0.7.15",
     "materialize": "~0.96.1",
     "d3": "~3.5.5",
-    "ng-lodash": "~0.2.3"
+    "ng-lodash": "~0.2.3",
+    "leaflet.draw": "~0.2.4"
   }
 }

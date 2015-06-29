@@ -45,19 +45,20 @@ var QueryHandler = {
       ' AND PICKUP_LAT < '+(station.lat + offsetLat).toFixed(6)+' AND PICKUP_LAT > '+(station.lat - offsetLat).toFixed(6);
 
     // filter based on front-end settings for from-to value
-    var from = ((new Date(timeSpan.from)).toISOString().substring(0, 10))
-    var to = ((new Date(timeSpan.to)).toISOString().substring(0, 10))
+    var from = ((new Date(timeSpan[0])).toISOString().substring(0, 10))
+    var to = ((new Date(timeSpan[1])).toISOString().substring(0, 10))
 
     var fromToFilter = " AND PICKUP_TIME >= '" + from + "' AND PICKUP_TIME <= '" + to + "'"
 
     // filter based on the years we want to have a look at
     var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN ('+years.join(', ')+')';
 
-    // filter based on specific daytimes (morning, midday, evening, night)
+    /* filter based on specific daytimes (morning, midday, evening, night)
     daytimes = daytimes.map(function(d) {
       return '(hour(cast(PICKUP_TIME as SECONDDATE)) >= '+d[0]+' AND hour(cast(PICKUP_TIME as SECONDDATE)) <= '+d[1]+')'
     }).join(' OR ');
     var daytimeFilter = ' AND (' + daytimes + ')'
+    */
 
     // query - add +daytimeFilter later as it runs more than a minute with it.
     var query = 'SELECT COUNT(ID) as "count", lat as "lat", lng as "lng" FROM('+innerQuery+') WHERE '+basePickup+fromToFilter+yearFilter+' GROUP BY lat, lng'
@@ -113,19 +114,20 @@ var QueryHandler = {
       ' AND DROPOFF_LAT < '+(station.lat + offsetLat).toFixed(6)+' AND DROPOFF_LAT > '+(station.lat - offsetLat).toFixed(6);
 
     // filter based on front-end settings for from-to value
-    var from = ((new Date(timeSpan.from)).toISOString().substring(0, 10))
-    var to = ((new Date(timeSpan.to)).toISOString().substring(0, 10))
+    var from = ((new Date(timeSpan[0])).toISOString().substring(0, 10))
+    var to = ((new Date(timeSpan[1])).toISOString().substring(0, 10))
 
     var fromToFilter = " AND PICKUP_TIME >= '" + from + "' AND PICKUP_TIME <= '" + to + "'"
 
     // filter based on the years we want to have a look at
     var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN ('+years.join(', ')+')';
 
-    // filter based on specific daytimes (morning, midday, evening, night)
+    /* filter based on specific daytimes (morning, midday, evening, night)
     daytimes = daytimes.map(function(d) {
       return '(hour(cast(PICKUP_TIME as SECONDDATE)) >= '+d[0]+' AND hour(cast(PICKUP_TIME as SECONDDATE)) <= '+d[1]+')'
     }).join(' OR ');
     var daytimeFilter = ' AND (' + daytimes + ')'
+    */
 
     // query - add +daytimeFilter later as it runs more than a minute with it.
     var query = 'SELECT COUNT(ID) as "count", lat as "lat", lng as "lng" FROM('+innerQuery+') WHERE '+basePickup+fromToFilter+yearFilter+' GROUP BY lat, lng'

@@ -1,6 +1,17 @@
 angular.module('epic-taxi')
   .factory('MapService', ['lodash', 'leafletEvents', function(_, leafletEvents) {
 
+    var clusterBounds = {
+      topLeft: { lat: 40.864695, lng: -74.019760 },
+      bottomRight: { lat: 40.621053, lng: -73.779058 }
+    };
+
+    var boundsBox = {
+      latlngs: [ clusterBounds.topLeft, clusterBounds.bottomRight ],
+      type: 'rectangle',
+      layer: 'clusterBounds'
+    };
+
     var stationIcon = {
       iconUrl: 'assets/station-marker2.png',
       iconSize: [13, 13]
@@ -10,7 +21,8 @@ angular.module('epic-taxi')
     function getConfig() {
       return {
         newYork: { lat: 40.7304783951045, lng: -73.98880004882812, zoom: 12 },
-        subwayPaths: {},
+        paths: {
+        },
         layers: {
           baselayers: {
             mapbox_light: {
@@ -25,11 +37,15 @@ angular.module('epic-taxi')
             }
           },
           overlays: {
-            subway: { name: 'Subway', visible: true, type: 'group' }
+            subway: { name: 'Subway', visible: true, type: 'group' },
+            clusterBounds: { name: 'Cluster bounds', visible: false, type: 'group' }
           }
         },
         events: {
           markers: { enable: [leafletEvents.click, leafletEvents.popupclose] }
+        },
+        controls: {
+          draw: { polyline: false, polygon: false, rectangle: true, circle: false, marker: false }
         },
         defaults: { attributionControl: false }
       };
@@ -79,6 +95,7 @@ angular.module('epic-taxi')
     /* Create path object for each route */
     function createPaths(routes) {
       var paths = {};
+      paths.cluster = boundsBox;
 
       _.each(routes, function(route) {
         var routePath = {
@@ -105,7 +122,8 @@ angular.module('epic-taxi')
     return {
       getConfig: getConfig,
       createMarker: createMarker,
-      createPaths: createPaths
+      createPaths: createPaths,
+      clusterBounds: clusterBounds
     };
   }]);
 

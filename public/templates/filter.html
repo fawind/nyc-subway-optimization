@@ -4,21 +4,44 @@
 
     <ul class="collapsible" data-collapsible="accordion">
       <li>
+        <div class="collapsible-header active"><i class="mdi-action-swap-horiz"></i>Incoming / Outgoing</div>
+        <div class="collapsible-body">
+          <p>
+            <input name="rides" type="radio" id="incoming" value="incoming" ng-model="$parent.ridesModel" ng-change="updateFilter()"/>
+            <label for="incoming">Incoming</label>
+            <br>
+            <input name="rides" type="radio" id="outgoing" value="outgoing" ng-model="$parent.ridesModel" ng-change="updateFilter()"/>
+            <label for="outgoing">Outgoing</label>
+          </p>
+        </div>
+      </li>
+      <li>
+        <div class="collapsible-header"><i class="mdi-image-grid-on"></i>Grid size</div>
+        <div class="collapsible-body">
+          <p>
+            <label>Grid size: {{gridSizeModel}}m</label>
+          </p>
+          <p class="range-field">
+            <input type="range" id="gridSize" min="700" max="3000" ng-model="$parent.gridSizeModel" ng-change="updateFilter()"/>
+          </p>
+        </div>
+      </li>
+      <li>
         <div class="collapsible-header"><i class="mdi-editor-format-list-numbered"></i>Year</div>
         <div class="collapsible-body">
-              <p>
-                <input type="checkbox" id="2010" class="filled-in" ng-model="yearModel.year2010" ng-change="updateFilter()"/>
-                <label for="2010">2010</label>
-                <br>
-                <input type="checkbox" id="2011" class="filled-in" ng-model="yearModel.year2011" ng-change="updateFilter()"/>
-                <label for="2011">2011</label>
-                <br>
-                <input type="checkbox" id="2012" class="filled-in" ng-model="yearModel.year2012" ng-change="updateFilter()"/>
-                <label for="2012">2012</label>
-                <br>
-                <input type="checkbox" id="2013" class="filled-in" ng-model="yearModel.year2013" ng-change="updateFilter()"/>
-                <label for="2013">2013</label>
-              </p>
+          <p>
+            <input type="checkbox" id="2010" class="filled-in" ng-model="yearModel.year2010" ng-change="updateFilter()"/>
+            <label for="2010">2010</label>
+            <br>
+            <input type="checkbox" id="2011" class="filled-in" ng-model="yearModel.year2011" ng-change="updateFilter()"/>
+            <label for="2011">2011</label>
+            <br>
+            <input type="checkbox" id="2012" class="filled-in" ng-model="yearModel.year2012" ng-change="updateFilter()"/>
+            <label for="2012">2012</label>
+            <br>
+            <input type="checkbox" id="2013" class="filled-in" ng-model="yearModel.year2013" ng-change="updateFilter()"/>
+            <label for="2013">2013</label>
+          </p>
         </div>
       </li>
       <li>
@@ -30,24 +53,6 @@
 
             <label for="endDate">End Date</label>
             <input type="date" class="datepicker" id="endDate" model="endDate" value="2013-12-31">
-          </p>
-        </div>
-      </li>
-      <li>
-        <div class="collapsible-header"><i class="mdi-device-access-time"></i>Time</div>
-        <div class="collapsible-body">
-          <p>
-            <input type="checkbox" id="morning" class="filled-in" ng-model="timeModel.morning" ng-change="updateFilter()"/>
-            <label for="morning">Morning</label>
-            <br>
-            <input type="checkbox" id="afternoon" class="filled-in" ng-model="timeModel.afternoon" ng-change="updateFilter()"/>
-            <label for="afternoon">Afternoon</label>
-            <br>
-            <input type="checkbox" id="evening" class="filled-in" ng-model="timeModel.evening" ng-change="updateFilter()"/>
-            <label for="evening">Evening</label>
-            <br>
-            <input type="checkbox" id="night" class="filled-in" ng-model="timeModel.night" ng-change="updateFilter()"/>
-            <label for="night">Night</label>
           </p>
         </div>
       </li>
