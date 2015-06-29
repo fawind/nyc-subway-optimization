@@ -14,14 +14,22 @@ angular.module('epic-taxi')
           drawnItems.removeLayer(currentBoundingBoxLayer);
           var layer = e.layer;
           currentBoundingBoxLayer = layer;
-          drawnItems.addLayer(layer);
 
           var form = layer.toGeoJSON().geometry.coordinates[0];
+          console.log(layer.toGeoJSON());
           var topLeft = { lat: form[1][1], lng: form[1][0] };
           var bottomRight = { lat: form[3][1], lng: form[3][0] };
           var box = { topLeft: topLeft, bottomRight: bottomRight };
 
-          mainService.box = box;
+          console.log(box);
+
+          if (validBounds(box)) {
+            drawnItems.addLayer(layer);
+            mainService.box = box;
+          }
+          else {
+            Materialize.toast('The bounding box is to big!', 2000);
+          }
         });
 
         map.on('draw:deleted', function(e) {
@@ -93,7 +101,7 @@ angular.module('epic-taxi')
         else
           marker.opacity = 0.2;
       });
-      _.each($scope.subwayPaths, function(path){
+      _.each($scope.paths, function(path){
         path.opacity = 0.2;
       });
     };
@@ -102,7 +110,7 @@ angular.module('epic-taxi')
       _.each($scope.markers, function(marker){
         marker.opacity = 1.0;
       });
-      _.each($scope.subwayPaths, function(path){
+      _.each($scope.paths, function(path){
         path.opacity = 1.0;
       });
     };
@@ -112,9 +120,27 @@ angular.module('epic-taxi')
         marker.icon.iconSize = [iconScale(zoomLevel), iconScale(zoomLevel) ];
       });
 
-      _.each($scope.subwayPaths, function(path) {
+      _.each($scope.paths, function(path) {
         path.weight = pathScale(zoomLevel);
       });
+    }
+
+    function validBounds(box) {
+      var maxTopLeft = mapService.clusterBounds.topLeft;
+      var maxBottomRight = mapService.clusterBounds.bottomRight;
+
+      function inArea(point) {
+        if ((point.lat <= maxTopLeft.lat && point.lat >= maxBottomRight.lat) &&
+        (point.lng >= maxTopLeft.lng && point.lng <= maxBottomRight.lng)) {
+          return true;
+        }
+        return false;
+      }
+
+      if (inArea(box.topLeft) && inArea(box.bottomRight)) {
+        return true;
+      }
+      return false;
     }
 
     var iconScale = d3.scale.sqrt()
@@ -133,6 +159,6 @@ angular.module('epic-taxi')
         console.log('Got all stations...');
 
         $scope.markers = mapService.createMarker(routes);
-        $scope.subwayPaths = mapService.createPaths(routes);
+        $scope.paths = mapService.createPaths(routes);
       });
   }]);
