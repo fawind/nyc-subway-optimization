@@ -16,12 +16,9 @@ angular.module('epic-taxi')
           currentBoundingBoxLayer = layer;
 
           var form = layer.toGeoJSON().geometry.coordinates[0];
-          console.log(layer.toGeoJSON());
           var topLeft = { lat: form[1][1], lng: form[1][0] };
           var bottomRight = { lat: form[3][1], lng: form[3][0] };
           var box = { topLeft: topLeft, bottomRight: bottomRight };
-
-          console.log(box);
 
           if (validBounds(box)) {
             drawnItems.addLayer(layer);
@@ -41,19 +38,12 @@ angular.module('epic-taxi')
         $scope.loading = true;
         hideSubway(args.model.stationId);
 
-        // sample cluster
         /*
-        var cluster = [{"count":135339,"lat":40.795053,"lng":-73.92376},{"count":61505,"lat":40.795053,"lng":-73.96276},{"count":48905,"lat":40.831053,"lng":-73.92376},{"count":37458,"lat":40.759053,"lng":-73.96276},{"count":14742,"lat":40.759053,"lng":-74.00176}];
-        var clusterObj = {
-          station: {
-            id: args.model.stationId,
-            lat: args.model.lat,
-            lng: args.model.lng
-          },
-          cluster: cluster
-        };
+        // sample cluster
+        var cluster = {"station":{"id":"156","lat":40.7736203331,"lng":-73.9598739981},"cluster":[{"count":183898456,"lat":"40.755951","lng":"-73.948409"},{"count":99358022,"lat":"40.755951","lng":"-74.019760"},{"count":35405007,"lat":"40.809911","lng":"-73.948409"},{"count":26567890,"lat":"40.701992","lng":"-74.019760"},{"count":7146990,"lat":"40.755951","lng":"-73.877059"}], gridSize: 3000};
         angular.extend($scope, {
-          cluster: angular.copy(clusterObj)
+          cluster: angular.copy(cluster),
+          loading: false
         });
         */
 
@@ -70,6 +60,7 @@ angular.module('epic-taxi')
                 lat: args.model.lat,
                 lng: args.model.lng
               },
+              gridSize: gridSize,
               cluster: _.sortBy(response.cluster, 'count').reverse().slice(0, 5)
             };
 

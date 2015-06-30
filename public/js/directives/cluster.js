@@ -35,6 +35,7 @@ angular.module('epic-taxi')
           var svg = overlayPane.append('svg').attr('class', 'leaflet-zoom-hide cluster');
           var g = svg.append('g');
 
+          var gridSize = cluster.gridSize;
           var features = cluster.cluster.map(function(area) {
             return {
               type: 'Feature',
@@ -81,7 +82,7 @@ angular.module('epic-taxi')
           /* Update size and scaling of svgs on mapchange */
           function update() {
             var bounds = getBounds(features);
-            var radius = 20 / 1400 * Math.pow(2, map.getZoom());
+            var radius = gridSize / 120000 * Math.pow(2, map.getZoom());
 
             var width = Math.abs((bounds.max[0] - bounds.min[0]) + 2 * radius);
             var height = Math.abs((bounds.max[1] - bounds.min[1]) + 2 * radius);
