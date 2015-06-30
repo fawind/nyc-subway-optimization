@@ -1,5 +1,5 @@
 var hdb = require('hdb');
-var credentials = require('./app/credentials')
+var credentials = require('./../app/credentials');
 
 var clienta = hdb.createClient(credentials);
 
