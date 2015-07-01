@@ -25,12 +25,12 @@ var QueryHandler = {
 
         // increase longitude for next iteration by one box-size
         lng = lng + (2 * offsetLng);
-      }
+      };
       // increase latitude for next iteration by one box-size
       lat = lat + (2 * offsetLat);
       // reset longitude
-      lng = box.topLeft.lng;
-    }
+      lng = box.topLeft.lng + offsetLng;
+    };
 
     var innerQuery = queryList.join(' UNION ALL ');
 
@@ -95,12 +95,12 @@ var QueryHandler = {
 
         // increase longitude for next iteration by one box-size
         lng = lng + (2 * offsetLng);
-      }
+      };
       // increase latitude for next iteration by one box-size
       lat = lat + (2 * offsetLat);
       // reset longitude
-      lng = box.topLeft.lng;
-    }
+      lng = box.topLeft.lng + offsetLng;
+    };
 
     var innerQuery = queryList.join(' UNION ALL ');
 
