@@ -71,7 +71,7 @@ var QueryHandler = {
 
     // execute query
     return new Promise(function(resolve, reject) {
-      clientPool.simpleQuery(query, function(rows) {
+      clientPool.query(query, function(rows) {
         resolve(rows);
       },
       function(error) {
@@ -148,7 +148,7 @@ var QueryHandler = {
 
     // execute query
     return new Promise(function(resolve, reject) {
-      clientPool.simpleQuery(query, function(rows) {
+      clientPool.query(query, function(rows) {
         resolve(rows);
       },
       function(error) {
@@ -158,7 +158,7 @@ var QueryHandler = {
   },
 
   getAllCluster: function() {
-    var blockSize = 10000;
+    var blockSize = 5000;
     var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
     // ================================================================
     // For each blocksize x blocksize square cluster all outgoing rides
@@ -175,14 +175,12 @@ var QueryHandler = {
     while(lat < box.topLeft.lat) {
       // start in the west of NYC
       while(lng < box.bottomRight.lng) {
-        console.log('-');
         promises.push(this.getClusterOutgoing({lng: lng, lat: lat}, [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ],
           [ '2010', '2011', '2012', '2013' ], 3, blockSize, box)
           .then(function(rows) {
-            console.log('.');
             resultList.push(rows);
           })
-          .error(function(err) {
+          .catch(function(err) {
             console.log(err);
           }));
 
@@ -198,7 +196,6 @@ var QueryHandler = {
     // resultList wanted here
     return Promise.all(promises)
       .then(function() {
-        console.log('here');
         return resultList;
       })
   }

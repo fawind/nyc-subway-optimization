@@ -11,7 +11,7 @@ router.post('/api/cluster/outgoing', function(req, res, next) {
     .then(function(rows) {
       res.json({cluster: rows});
     })
-    .error(function(err) {
+    .catch(function(err) {
       console.log(err);
       res.json(500, { error: err });
     });
@@ -25,7 +25,7 @@ router.post('/api/cluster/incoming', function(req, res, next) {
     .then(function(rows) {
       res.json({cluster: rows});
     })
-    .error(function(err) {
+    .catch(function(err) {
       console.log(err);
       res.json(500, { error: err });
     });
