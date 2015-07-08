@@ -178,7 +178,7 @@ var QueryHandler = {
         promises.push(this.getClusterOutgoing({lng: lng, lat: lat}, [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ],
           [ '2010', '2011', '2012', '2013' ], 3, blockSize, box)
           .then(function(rows) {
-            resultList.push(rows);
+            resultList.push({ lat: lat, lng: lng, endpoints: rows });
           })
           .catch(function(err) {
             console.log(err);
