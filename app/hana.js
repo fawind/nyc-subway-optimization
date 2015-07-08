@@ -18,7 +18,7 @@ var clientPool = {
     return client;
   },
 
-  query: function(query, cb, error) {
+  simpleQuery: function(query, cb, error) {
     mainClient.on('error', function(err) {
       error('Network connection error', err);
       return;
@@ -34,6 +34,7 @@ var clientPool = {
 
       mainClient.exec(query, function (err, rows) {
         if (err) {
+          mainClient.end();
           error('Execute error:', err);
           return;
         }
@@ -43,16 +44,16 @@ var clientPool = {
     });
   },
 
-  simpleQuery: function(query, cb, error) {
+  query: function(query, cb, error) {
     var client = hdb.createClient(credentials);
     client.on('error', function(err) {
-      error('Network connection error', err);
+      error('Network connection error on activate', err);
       return;
     });
 
     client.connect(function (err) {
       if (err) {
-        error('Network connection error', err);
+        error('Network connection error on connect', err);
         return;
       }
 
