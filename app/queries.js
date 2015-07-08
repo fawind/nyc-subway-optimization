@@ -16,22 +16,22 @@ var QueryHandler = {
 
     var queryList = [];
     // start in the south of NYC
-    while(lat < box.topLeft.lat) {
+    while (lat < box.topLeft.lat) {
       // start in the west of NYC
-      while(lng < box.bottomRight.lng) {
-        queryList.push('SELECT ID, PICKUP_LAT, PICKUP_LONG, PICKUP_TIME, ' + lat.toFixed(6) + ' as lat, ' + lng.toFixed(6)+' as lng' +
+      while (lng < box.bottomRight.lng) {
+        queryList.push('SELECT ID, PICKUP_LAT, PICKUP_LONG, PICKUP_TIME, ' + lat.toFixed(6) + ' as lat, ' + lng.toFixed(6) + ' as lng' +
           ' FROM NYCCAB.TRIP WHERE' +
           ' DROPOFF_LONG <= ' + (lng + offsetLng).toFixed(6) + ' AND DROPOFF_LONG >= ' + (lng - offsetLng).toFixed(6) +
           ' AND DROPOFF_LAT <= ' + (lat + offsetLat).toFixed(6) + ' AND DROPOFF_LAT >= ' + (lat - offsetLat).toFixed(6));
 
         // increase longitude for next iteration by one box-size
         lng = lng + (2 * offsetLng);
-      };
+      }
       // increase latitude for next iteration by one box-size
       lat = lat + (2 * offsetLat);
       // reset longitude
       lng = box.topLeft.lng + offsetLng;
-    };
+    }
 
     var innerQuery = queryList.join(' UNION ALL ');
 
@@ -71,12 +71,11 @@ var QueryHandler = {
 
     // execute query
     return new Promise(function(resolve, reject) {
-      clientPool.query(query, function(rows) {
-        resolve(rows);
-      },
-      function(error) {
-        reject(error);
-      });
+      clientPool.query(
+        query,
+        function(rows) { resolve(rows); },
+        function(error) { reject(error); }
+      );
     });
   },
 
@@ -93,9 +92,9 @@ var QueryHandler = {
 
     var queryList = [];
     // start in the south of NYC
-    while(lat < box.topLeft.lat) {
+    while (lat < box.topLeft.lat) {
       // start in the west of NYC
-      while(lng < box.bottomRight.lng) {
+      while (lng < box.bottomRight.lng) {
         queryList.push('SELECT ID, DROPOFF_LAT, DROPOFF_LONG, PICKUP_TIME, ' + lat.toFixed(6) + ' as lat, ' + lng.toFixed(6) + ' as lng' +
           ' FROM NYCCAB.TRIP WHERE' +
           ' PICKUP_LONG <= ' + (lng + offsetLng).toFixed(6) + ' AND PICKUP_LONG >= ' + (lng - offsetLng).toFixed(6) +
@@ -103,12 +102,12 @@ var QueryHandler = {
 
         // increase longitude for next iteration by one box-size
         lng = lng + (2 * offsetLng);
-      };
+      }
       // increase latitude for next iteration by one box-size
       lat = lat + (2 * offsetLat);
       // reset longitude
       lng = box.topLeft.lng + offsetLng;
-    };
+    }
 
     var innerQuery = queryList.join(' UNION ALL ');
 
@@ -129,7 +128,7 @@ var QueryHandler = {
     var fromToFilter = " AND PICKUP_TIME >= '" + from + "' AND PICKUP_TIME <= '" + to + "'";
 
     // filter based on the years we want to have a look at
-    var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN ('+years.join(', ')+')';
+    var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN (' + years.join(', ') + ')';
 
     /* filter based on specific daytimes (morning, midday, evening, night)
     daytimes = daytimes.map(function(d) {
@@ -148,18 +147,19 @@ var QueryHandler = {
 
     // execute query
     return new Promise(function(resolve, reject) {
-      clientPool.query(query, function(rows) {
-        resolve(rows);
-      },
-      function(error) {
-        reject(error);
-      });
+      clientPool.query(
+        query,
+        function(rows) { resolve(rows); },
+        function(error) { reject(error); }
+      );
     });
   },
 
   getAllCluster: function() {
     var blockSize = 5000;
     var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
+    var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
+    var years = [ '2010', '2011', '2012', '2013' ];
     // ================================================================
     // For each blocksize x blocksize square cluster all outgoing rides
     // which would be equivalent to doing the same with incoming (=same edges).
@@ -172,32 +172,82 @@ var QueryHandler = {
     var promises = [];
     var resultList = [];
     // start in the south of NYC
-    while(lat < box.topLeft.lat) {
+    while (lat < box.topLeft.lat) {
       // start in the west of NYC
-      while(lng < box.bottomRight.lng) {
-        promises.push(this.getClusterOutgoing({lng: lng, lat: lat}, [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ],
-          [ '2010', '2011', '2012', '2013' ], 3, blockSize, box)
-          .then(function(rows) {
-            resultList.push(rows);
-          })
-          .catch(function(err) {
-            console.log(err);
-          }));
+      while (lng < box.bottomRight.lng) {
+        promises.push(this.getClusterOutgoing({lng: lng, lat: lat}, dates, years, 3, blockSize, box)
+          .then(function(rows) { resultList.push(rows); })
+          .catch(function(err) { console.log(err); }));
 
         // increase longitude for next iteration by one box-size
         lng = lng + (2 * offsetLng);
-      };
+      }
       // increase latitude for next iteration by one box-size
       lat = lat + (2 * offsetLat);
       // reset longitude
       lng = box.topLeft.lng + offsetLng;
-    };
+    }
 
     // resultList wanted here
     return Promise.all(promises)
       .then(function() {
         return resultList;
       });
+  },
+
+  getAllClusterSequential: function() {
+    var blockSize = 5000;
+    var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
+    var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
+    var years = [ '2010', '2011', '2012', '2013' ];
+    var attr = { dates: dates, years: years, times: 3, blockSize: blockSize, box: box };
+    // ================================================================
+    // For each blocksize x blocksize square cluster all outgoing rides
+    // which would be equivalent to doing the same with incoming (=same edges).
+
+    var offsetLat = geo.getLatDiff(box.topLeft.lat, box.bottomRight.lat, blockSize);
+    var offsetLng = geo.getLngDiff(box.topLeft.lng, box.bottomRight.lng, blockSize);
+    var lat = box.bottomRight.lat + offsetLat;
+    var lng = box.topLeft.lng + offsetLng;
+
+    var queries = [];
+    var resultList = [];
+
+    /* Add lat-lngs to query-list */
+    // start in the south of NYC
+    while (lat < box.topLeft.lat) {
+      // start in the west of NYC
+      while (lng < box.bottomRight.lng) {
+        queries.push({ lng: lng, lat: lat });
+
+        // increase longitude for next iteration by one box-size
+        lng = lng + (2 * offsetLng);
+      }
+      // increase latitude for next iteration by one box-size
+      lat = lat + (2 * offsetLat);
+      // reset longitude
+      lng = box.topLeft.lng + offsetLng;
+    }
+
+    // Execute a query for each lat-lng recursively
+    return new Promise(function(resolve, reject) {
+      QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject);
+    });
+  },
+
+  executeRecursive: function(queries, attr, resultList, resolve, reject) {
+    if (queries.length === 0) {
+      resolve(resultList);
+    }
+    else {
+      latLng = queries.pop();
+      QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.times, attr.blockSize, attr.box)
+        .then(function(rows) {
+          resultList.push(rows);
+          QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject);
+        })
+        .catch(function(error) { reject(error); });
+    }
   }
 };
 
