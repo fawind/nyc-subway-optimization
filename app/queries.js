@@ -197,7 +197,7 @@ var QueryHandler = {
     return Promise.all(promises)
       .then(function() {
         return resultList;
-      })
+      });
   }
 };
 
