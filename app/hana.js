@@ -11,15 +11,17 @@ var clientPool = {
 
     return client;
   },
-  simpleQuery: function(query, cb) {
+  simpleQuery: function(query, cb, error) {
     var client = hdb.createClient(credentials);
     client.on('error', function(err) {
-      console.error('Network connection error', err);
+      error('Network connection error', err);
+      return;
     });
 
     client.connect(function (err) {
       if (err) {
-        return console.error('Connect error', err);
+        error('Network connection error', err);
+        return;
       }
 
       console.log('DB Start Query');
@@ -27,7 +29,8 @@ var clientPool = {
       client.exec(query, function (err, rows) {
         client.end();
         if (err) {
-          return console.error('Execute error:', err);
+          error('Execute error:', err);
+          return;
         }
         console.log('DB Finished Query');
         cb(rows);
