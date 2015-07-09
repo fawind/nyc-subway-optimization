@@ -155,8 +155,7 @@ var QueryHandler = {
     });
   },
 
-  getAllCluster: function() {
-    var blockSize = 5000;
+  getAllCluster: function(blockSize) {
     var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
     var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
     var years = [ '2010', '2011', '2012', '2013' ];
@@ -195,8 +194,7 @@ var QueryHandler = {
       });
   },
 
-  getAllClusterSequential: function() {
-    var blockSize = 5000;
+  getAllClusterSequential: function(blockSize) {
     var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
     var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
     var years = [ '2010', '2011', '2012', '2013' ];
@@ -263,7 +261,7 @@ var QueryHandler = {
 
   insertRideEdges: function() {
     return new Promise(function(resolve, reject) {
-      QueryHandler.getAllClusterSequential()
+      QueryHandler.getAllClusterSequential(5000)
         .then(function(result) {
           var bulk = QueryHandler.edgesToRows(result);
           var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?)';
