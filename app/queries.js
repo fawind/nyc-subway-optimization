@@ -3,7 +3,7 @@ var geo = require('./utils/geo');
 var Promise = require('bluebird');
 
 var QueryHandler = {
-  getClusterOutgoing: function(station, timeSpan, years, daytimes, blockSize, box) {
+  getClusterOutgoing: function(station, timeSpan, years, blockSize, box) {
     // ================================================================
     // Generating the query by indvidiually generating each areas constraint.
     // Those parts are then put together with a UNION ALL statement between each.
@@ -79,7 +79,7 @@ var QueryHandler = {
     });
   },
 
-  getClusterIncoming: function(station, timeSpan, years, daytimes, blockSize, box) {
+  getClusterIncoming: function(station, timeSpan, years, blockSize, box) {
     // ================================================================
     // Generating the query by indvidiually generating each areas constraint.
     // Those parts are then put together with a UNION ALL statement between each.
@@ -175,7 +175,7 @@ var QueryHandler = {
     while (lat < box.topLeft.lat) {
       // start in the west of NYC
       while (lng < box.bottomRight.lng) {
-        promises.push(this.getClusterOutgoing({lng: lng, lat: lat}, dates, years, 3, blockSize, box)
+        promises.push(this.getClusterOutgoing({lng: lng, lat: lat}, dates, years, blockSize, box)
           .then(function(rows) { resultList.push(rows); })
           .catch(function(err) { console.log(err); }));
 
@@ -200,7 +200,7 @@ var QueryHandler = {
     var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
     var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
     var years = [ '2010', '2011', '2012', '2013' ];
-    var attr = { dates: dates, years: years, times: 3, blockSize: blockSize, box: box };
+    var attr = { dates: dates, years: years, blockSize: blockSize, box: box };
     // ================================================================
     // For each blocksize x blocksize square cluster all outgoing rides
     // which would be equivalent to doing the same with incoming (=same edges).
@@ -241,7 +241,7 @@ var QueryHandler = {
     }
     else {
       latLng = queries.pop();
-      QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.times, attr.blockSize, attr.box)
+      QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.blockSize, attr.box)
         .then(function(rows) {
           resultList.push(rows);
           QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject);
