@@ -175,8 +175,8 @@ var QueryHandler = {
     while (lat < box.topLeft.lat) {
       // start in the west of NYC
       while (lng < box.bottomRight.lng) {
-        promises.push(this.getClusterOutgoing({lng: lng, lat: lat}, dates, years, blockSize, box)
-          .then(function(rows) { resultList.push(rows); })
+        promises.push(QueryHandler.getClusterOutgoing({lng: lng, lat: lat}, dates, years, blockSize, box)
+          .then(function(rows) { resultList.push({ lat: lat, lng: lng, endPoints: rows }); })
           .catch(function(err) { console.log(err); }));
 
         // increase longitude for next iteration by one box-size
@@ -243,11 +243,33 @@ var QueryHandler = {
       latLng = queries.pop();
       QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.blockSize, attr.box)
         .then(function(rows) {
-          resultList.push(rows);
+          resultList.push({ lat: latLng.lat, lng: latLng.lng, endPoints: rows });
           QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject);
         })
         .catch(function(error) { reject(error); });
     }
+  },
+
+  edgesToRows: function(edges) {
+    var rows = [];
+    for (i = 0; i < edges.length; i++) {
+      for (j = 0; j < edges[i]['endPoints'].length; j++) {
+        var temp = edges[i]['endPoints'][j];
+        rows.push([edges[i]['lat'], edges[i]['lng'], temp['count'], temp['lat'], temp['lng']]);
+      }
+    }
+    return rows;
+  },
+
+  insertRideEdges: function() {
+    return new Promise(function(resolve, reject) {
+      QueryHandler.getAllClusterSequential()
+        .then(function(result) {
+          var bulk = QueryHandler.edgesToRows(result);
+          var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?)';
+          clientPool.insertBulk(statement, bulk, resolve, reject);
+        });
+    });
   }
 };
 
