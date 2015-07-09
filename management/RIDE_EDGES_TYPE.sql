@@ -1,7 +1,7 @@
 CREATE TYPE EDGES AS TABLE(
-    "lat_out" decimal,
-    "lng_out" decimal,
-    "count" integer,
-    "lat_in" decimal,
-    "lng_in" decimal
+    LAT_OUT REAL,
+    LNG_OUT REAL,
+    COUNTS INTEGER,
+    LAT_IN REAL,
+    LNG_IN REAL
 );
