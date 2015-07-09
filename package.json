@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/fawind/epic-subway#readme",
   "dependencies": {
+    "bluebird": "^2.9.32",
     "body-parser": "^1.13.1",
     "express": "^4.12.4",
     "hdb": "^0.4.4"

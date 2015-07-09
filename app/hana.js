@@ -1,6 +1,12 @@
 var hdb = require('hdb');
 var credentials = require('./credentials');
 
+var mainClient = hdb.createClient(credentials);
+
+mainClient.on('error', function(err) {
+  console.error('Network connection error', err);
+});
+
 var clientPool = {
   getClient: function() {
     var client = hdb.createClient(credentials);
@@ -11,15 +17,44 @@ var clientPool = {
 
     return client;
   },
-  simpleQuery: function(query, cb) {
+
+  simpleQuery: function(query, cb, error) {
+    mainClient.on('error', function(err) {
+      error('Network connection error', err);
+      return;
+    });
+
+    mainClient.connect(function (err) {
+      if (err) {
+        error('Network connection error', err);
+        return;
+      }
+
+      console.log('DB Start Query');
+
+      mainClient.exec(query, function (err, rows) {
+        if (err) {
+          mainClient.end();
+          error('Execute error:', err);
+          return;
+        }
+        console.log('DB Finished Query');
+        cb(rows);
+      });
+    });
+  },
+
+  query: function(query, cb, error) {
     var client = hdb.createClient(credentials);
     client.on('error', function(err) {
-      console.error('Network connection error', err);
+      error('Network connection error on activate', err);
+      return;
     });
 
     client.connect(function (err) {
       if (err) {
-        return console.error('Connect error', err);
+        error('Network connection error on connect', err);
+        return;
       }
 
       console.log('DB Start Query');
@@ -27,10 +62,43 @@ var clientPool = {
       client.exec(query, function (err, rows) {
         client.end();
         if (err) {
-          return console.error('Execute error:', err);
+          error('Execute error:', err);
+          return;
         }
         console.log('DB Finished Query');
         cb(rows);
+      });
+    });
+  },
+
+  insertBulk: function(insertQuery, bulk, cb, error) {
+    var client = hdb.createClient(credentials);
+    client.on('error', function(err) {
+      error('Network connection error on activate', err);
+    });
+
+    client.connect(function(err) {
+      if (err) {
+        error('Network connection error on connect', err);
+      }
+
+      client.prepare(insertQuery, function(err, statement) {
+        if(err) {
+          return error('Preparation error:', err);
+        }
+
+        statement.exec(bulk, function(err, affectedRows) {
+          if (err) {
+            return error('Execution error:', err);
+          }
+          cb(affectedRows);
+        });
+
+        statement.drop(function(err){
+          if (err) {
+            return error('Drop error:', err);
+          }
+        });
       });
     });
   }
