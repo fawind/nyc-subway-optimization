@@ -69,6 +69,38 @@ var clientPool = {
         cb(rows);
       });
     });
+  },
+
+  insertBulk: function(insertQuery, bulk, cb, error) {
+    var client = hdb.createClient(credentials);
+    client.on('error', function(err) {
+      error('Network connection error on activate', err);
+    });
+
+    client.connect(function(err) {
+      if (err) {
+        error('Network connection error on connect', err);
+      }
+
+      client.prepare(insertQuery, function(err, statement) {
+        if(err) {
+          return error('Preparation error:', err);
+        }
+
+        statement.exec(bulk, function(err, affectedRows) {
+          if (err) {
+            return error('Execution error:', err);
+          }
+          cb(affectedRows);
+        });
+
+        statement.drop(function(err){
+          if (err) {
+            return error('Drop error:', err);
+          }
+        });
+      });
+    });
   }
 };
 
