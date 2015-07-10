@@ -243,25 +243,30 @@ var QueryHandler = {
       QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.blockSize, attr.box)
         .then(function(rows) {
           resultList.push({ lat: latLng.lat, lng: latLng.lng, endPoints: rows });
-          var path = '/tmp/' + String(latLng.lat) + 'x' + String(latLng.lng) + '.json';
-          fs.writeFile(path, JSON.stringify({ lat: latLng.lat, lng: latLng.lng, endPoints: rows }, null, '\t'), function(err) {
-            if(err) {
-              return console.log(err);
-            }
-            console.log("The file was saved!");
-          });
+          QueryHandler.saveToFile(latLng, rows);
+
           QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject);
         })
         .catch(function(error) { reject(error); });
     }
   },
 
+  saveToFile: function(latLng, rows) {
+    var path = '/tmp/' + String(latLng.lat) + 'x' + String(latLng.lng) + '.json';
+    fs.writeFile(path, JSON.stringify({ lat: latLng.lat, lng: latLng.lng, endPoints: rows }, null, '\t'), function(err) {
+      if(err)
+        console.log(err);
+      else
+        console.log("saved tmp data to:", path);
+    });
+  },
+
   edgesToRows: function(edges) {
     var rows = [];
     for (i = 0; i < edges.length; i++) {
-      for (j = 0; j < edges[i]['endPoints'].length; j++) {
-        var temp = edges[i]['endPoints'][j];
-        rows.push([edges[i]['lat'], edges[i]['lng'], temp['count'], temp['lat'], temp['lng']]);
+      for (j = 0; j < edges[i].endPoints.length; j++) {
+        var temp = edges[i].endPoints[j];
+        rows.push([edges[i].lat, edges[i].lng, temp.count, temp.lat, temp.lng]);
       }
     }
     return rows;
@@ -271,9 +276,12 @@ var QueryHandler = {
     return new Promise(function(resolve, reject) {
       QueryHandler.getAllClusterSequential(700)
         .then(function(result) {
+          console.log(results);
+          /*
           var bulk = QueryHandler.edgesToRows(result);
           var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?)';
           clientPool.insertBulk(statement, bulk, resolve, reject);
+          */
         })
         .catch(function(error) {
           console.log(error);
