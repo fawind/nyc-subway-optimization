@@ -81,8 +81,20 @@ angular.module('epic-taxi')
     $scope.resetStation = function() {
       showSubway();
       angular.extend($scope, {
-        cluster: angular.copy({})
+        cluster: {},
+        edges: []
       });
+    };
+
+    $scope.optimizeRoutes = function() {
+      // TODO: fetch edges from backend
+      var edges = [
+          { lat_out: 40.761807, lng_out: -73.983552, lat_in: 40.771393, lng_in: -73.983348, count: 10 },
+          { lat_out: 40.766833, lng_out: -73.957422, lat_in: 40.778659, lng_in: -73.954462, count: 20 },
+          { lat_out: 40.794502, lng_out: -73.968446, lat_in: 40.800529, lng_in: -73.955278, count: 30 }
+        ];
+
+      angular.extend($scope, { edges: angular.copy(edges) });
     };
 
     hideSubway = function(id) {

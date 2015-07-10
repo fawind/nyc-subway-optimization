@@ -29,6 +29,7 @@
   <script src="js/services/mapService.js"></script>
   <script src="js/directives/cluster.js"></script>
   <script src="js/directives/clusterConnection.js"></script>
+  <script src="js/directives/edges.js"></script>
 
   <!-- Styles -->
   <link type="text/css" rel="stylesheet" href="css/main.css" />
@@ -36,13 +37,13 @@
 </head>
 
 <body ng-app="epic-taxi">
-  <div id="navigation" ng-controller="FilterController">
-    <div ng-include src="'templates/navigation.html'"></div>
-    <div ng-include src="'templates/filter.html'"></div>
-  </div>
-
   <div ng-controller="MainController">
-    <leaflet cluster cluster-connection id="map" layers="layers" center="newYork" markers="markers" paths="paths" controls="controls" defaults="defaults" cluster="cluster"></leaflet>
+    <div id="navigation" ng-controller="FilterController">
+      <div ng-include src="'templates/navigation.html'"></div>
+      <div ng-include src="'templates/filter.html'"></div>
+    </div>
+
+    <leaflet cluster cluster-connection id="map" layers="layers" center="newYork" markers="markers" paths="paths" controls="controls" defaults="defaults" cluster="cluster" edges="edges"></leaflet>
 
     <a class="btn-floating btn-large waves-effect waves-light grey reset" ng-click="resetStation()"><i class="mdi-content-clear"></i></a>
 
