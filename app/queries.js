@@ -1,6 +1,7 @@
 var clientPool = require('./hana');
 var geo = require('./utils/geo');
 var Promise = require('bluebird');
+var fs = require('fs');
 
 var QueryHandler = {
   getClusterOutgoing: function(station, timeSpan, years, blockSize, box) {
@@ -242,6 +243,13 @@ var QueryHandler = {
       QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.blockSize, attr.box)
         .then(function(rows) {
           resultList.push({ lat: latLng.lat, lng: latLng.lng, endPoints: rows });
+          var path = '/tmp/' + String(latLng.lat) + 'x' + String(latLng.lng) + '.json';
+          fs.writeFile(path, JSON.stringify({ lat: latLng.lat, lng: latLng.lng, endPoints: rows }, null, '\t'), function(err) {
+            if(err) {
+              return console.log(err);
+            }
+            console.log("The file was saved!");
+          });
           QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject);
         })
         .catch(function(error) { reject(error); });
@@ -261,11 +269,14 @@ var QueryHandler = {
 
   insertRideEdges: function() {
     return new Promise(function(resolve, reject) {
-      QueryHandler.getAllClusterSequential(5000)
+      QueryHandler.getAllClusterSequential(700)
         .then(function(result) {
           var bulk = QueryHandler.edgesToRows(result);
           var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?)';
           clientPool.insertBulk(statement, bulk, resolve, reject);
+        })
+        .catch(function(error) {
+          console.log(error);
         });
     });
   }
