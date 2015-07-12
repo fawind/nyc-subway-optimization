@@ -195,7 +195,7 @@ var QueryHandler = {
       });
   },
 
-  getAllClusterSequential: function(blockSize) {
+  getAllClusterSequential: function(blockSize, exportFile, insertDB) {
     var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
     var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
     var years = [ '2010', '2011', '2012', '2013' ];
@@ -230,11 +230,11 @@ var QueryHandler = {
 
     // Execute a query for each lat-lng recursively
     return new Promise(function(resolve, reject) {
-      QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject);
+      QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject, exportFile, insertDB);
     });
   },
 
-  executeRecursive: function(queries, attr, resultList, resolve, reject) {
+  executeRecursive: function(queries, attr, resultList, resolve, reject, exportFile, insertDB) {
     if (queries.length === 0) {
       resolve(resultList);
     }
@@ -242,19 +242,23 @@ var QueryHandler = {
       latLng = queries.pop();
       QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.blockSize, attr.box)
         .then(function(rows) {
-          resultList.push({ lat: latLng.lat, lng: latLng.lng, endPoints: rows });
-          QueryHandler.saveToFile(latLng, rows);
+          var result = { lat: latLng.lat, lng: latLng.lng, endPoints: rows }
+          resultList.push(result);
+          if (exportFile)
+            QueryHandler.saveToFile(latLng, result);
+          if (insertDB)
+            QueryHandler.insertRideEdges(result);
 
-          QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject);
+          QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject, exportFile, insertDB);
         })
         .catch(function(error) { reject(error); });
     }
   },
 
-  saveToFile: function(latLng, rows) {
+  saveToFile: function(latLng, edges) {
     var path = '/tmp/' + String(latLng.lat) + 'x' + String(latLng.lng) + '.json';
-    fs.writeFile(path, JSON.stringify({ lat: latLng.lat, lng: latLng.lng, endPoints: rows }, null, '\t'), function(err) {
-      if(err)
+    fs.writeFile(path, JSON.stringify(edges, null, '\t'), function(err) {
+      if (err)
         console.log(err);
       else
         console.log("saved tmp data to:", path);
@@ -262,30 +266,21 @@ var QueryHandler = {
   },
 
   edgesToRows: function(edges) {
-    var rows = [];
-    for (i = 0; i < edges.length; i++) {
-      for (j = 0; j < edges[i].endPoints.length; j++) {
-        var temp = edges[i].endPoints[j];
-        rows.push([edges[i].lat, edges[i].lng, temp.count, temp.lat, temp.lng]);
-      }
+    rows = []
+    for (i = 0; i < edges.endPoints.length; i++) {
+      var temp = edges.endPoints[i];
+      rows.push([edges.lat, edges.lng, temp.count, Number(temp.lat), Number(temp.lng)]);
     }
     return rows;
   },
 
-  insertRideEdges: function() {
-    return new Promise(function(resolve, reject) {
-      QueryHandler.getAllClusterSequential(700)
-        .then(function(result) {
-          console.log(results);
-          /*
-          var bulk = QueryHandler.edgesToRows(result);
-          var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?)';
-          clientPool.insertBulk(statement, bulk, resolve, reject);
-          */
-        })
-        .catch(function(error) {
-          console.log(error);
-        });
+  insertRideEdges: function(result) {
+    var bulk = QueryHandler.edgesToRows(result);
+    var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?)';
+    clientPool.insertBulk(statement, bulk, function(affectedRows) {
+      console.log(affectedRows.length, 'rows affected by insert');
+    }, function(err) {
+      console.log(err);
     });
   }
 };
