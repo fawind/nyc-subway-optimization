@@ -2,6 +2,7 @@ var clientPool = require('./hana');
 var geo = require('./utils/geo');
 var Promise = require('bluebird');
 var fs = require('fs');
+require('array.prototype.findindex');
 
 var QueryHandler = {
   getClusterOutgoing: function(station, timeSpan, years, blockSize, box) {
@@ -305,12 +306,12 @@ var QueryHandler = {
     QueryHandler.getSubwayStations()
       .then(function(rows) {
         var length = edges.length;
-        edges.forEach(function(curVal, index) {
+        edges.forEach(function(curVal) {
           curVal.splice(2, 0, QueryHandler.subwayInReach(curVal[0], curVal[1], 700, rows));
           curVal.splice(6, 0, QueryHandler.subwayInReach(curVal[4], curVal[5], 700, rows));
         });
 
-        edges = edges.filter(function(curVal, index) {
+        edges = edges.filter(function(curVal) {
           return !(curVal[2] && curVal[6]);
         });
 
@@ -343,8 +344,43 @@ var QueryHandler = {
         function(error) { reject(error); }
       );
     });
-  }
+  },
 
+  convertToUndirectedExact: function(edges) {
+    for (i = edges.length - 1; i >= 0; i--) {
+      var index = edges.findIndex(function(curVal) {
+        // find reverse edges (in and out are swapped)
+        if (edges[i].lat_in == curVal.lat_out && edges[i].lng_in == curVal.lng_out
+          && edges[i].lat_out == curVal.lat_in && edges[i].lng_out == curVal.lng_in)
+          return true;
+        return false;
+      });
+
+      if (index >= 0) {
+        edges[index].counts = edges[index].counts + edges[i].counts
+        edges.splice(i, 1)
+      }
+    }
+    return edges;
+  },
+
+  convertToUndirectedGeo: function(edges) {
+    for (i = edges.length - 1; i >= 0; i--) {
+      var index = edges.findIndex(function(curVal) {
+        // find reverse edges (in and out are swapped)
+        if ((geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, curVal.lat_out, curVal.lng_out) < 10)
+          && (geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, curVal.lat_in, curVal.lng_in) < 10))
+          return true;
+        return false;
+      });
+
+      if (index >= 0) {
+        edges[index].counts = edges[index].counts + edges[i].counts
+        edges.splice(i, 1)
+      }
+    }
+    return edges;
+  },
 };
 
 module.exports = QueryHandler;
