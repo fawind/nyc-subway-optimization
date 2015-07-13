@@ -329,7 +329,22 @@ var QueryHandler = {
         return 1;
     }
     return 0;
+  },
+
+  getAllEdges: function() {
+    var query = 'SELECT LAT_IN as "lat_in", LNG_IN as "lng_in", LAT_OUT as "lat_out", LNG_OUT as "lng_out", ' +
+      'STATION_IN as "station_in", STATION_OUT as "station_out", COUNTS as "counts" ' +
+      'FROM NYCCAB.RIDE_EDGES';
+
+    return new Promise(function(resolve, reject) {
+      clientPool.query(
+        query,
+        function(rows) { resolve(rows); },
+        function(error) { reject(error); }
+      );
+    });
   }
+
 };
 
 module.exports = QueryHandler;
