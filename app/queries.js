@@ -275,13 +275,62 @@ var QueryHandler = {
   },
 
   insertRideEdges: function(result) {
+    // convert result to rows
     var bulk = QueryHandler.edgesToRows(result);
-    var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?)';
-    clientPool.insertBulk(statement, bulk, function(affectedRows) {
-      console.log(affectedRows.length, 'rows affected by insert');
-    }, function(err) {
-      console.log(err);
+    // add data about stations in cluster
+    QueryHandler.addSubwayToEdges(bulk, function(res) {
+      bulk = res;
+      console.log(bulk);
+      var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?, ?, ?)';
+      clientPool.insertBulk(statement, bulk, function(affectedRows) {
+        console.log(affectedRows.length, 'rows affected by insert');
+      }, function(err) {
+        console.log(err);
+      });
     });
+  },
+
+  getSubwayStations: function() {
+    var query = 'SELECT LATITUDE as "lat", LONGITUDE as "lng" FROM NYCCAB.SUBWAY_STATION';
+
+    return new Promise(function(resolve, reject) {
+      clientPool.query(
+        query,
+        function(rows) { resolve(rows); },
+        function(error) { reject(error); }
+      );
+    });
+  },
+
+  addSubwayToEdges: function(edges, cb) {
+    QueryHandler.getSubwayStations()
+      .then(function(rows) {
+        console.log(rows.length, 'stations');
+        var length = edges.length;
+        edges.forEach(function(curVal, index) {
+          curVal.splice(2, 0, QueryHandler.subwayInReach(curVal[0], curVal[1], 700, rows));
+          curVal.splice(6, 0, QueryHandler.subwayInReach(curVal[4], curVal[5], 700, rows));
+        });
+
+        edges = edges.filter(function(curVal, index) {
+          return !(curVal[2] && curVal[6]);
+        });
+
+        console.log('eliminated', length - edges.length, 'rows');
+
+        cb(edges);
+      })
+      .catch(function(err) {
+        console.log(err);
+      });
+  },
+
+  subwayInReach: function(lat, lng, range, stations) {
+    for(i = 0; i < stations.length; i++) {
+      if (geo.getDistance_m(lat, lng, stations[i].lat, stations[i].lng) < range)
+        return 1;
+    }
+    return 0;
   }
 };
 
