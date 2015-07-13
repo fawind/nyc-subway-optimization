@@ -1,4 +1,5 @@
 var clientPool = require('./hana');
+var edgesFilter = require('./utils/edgesFilter');
 var geo = require('./utils/geo');
 var Promise = require('bluebird');
 var fs = require('fs');
@@ -340,7 +341,10 @@ var QueryHandler = {
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
-        function(rows) { resolve(rows); },
+        function(rows) {
+          rows = edgesFilter.filter(rows);
+          resolve(rows);
+        },
         function(error) { reject(error); }
       );
     });
