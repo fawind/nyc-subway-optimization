@@ -280,7 +280,6 @@ var QueryHandler = {
     // add data about stations in cluster
     QueryHandler.addSubwayToEdges(bulk, function(res) {
       bulk = res;
-      console.log(bulk);
       var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?, ?, ?)';
       clientPool.insertBulk(statement, bulk, function(affectedRows) {
         console.log(affectedRows.length, 'rows affected by insert');
@@ -302,10 +301,9 @@ var QueryHandler = {
     });
   },
 
-  addSubwayToEdges: function(edges, cb) {
+  addSubwayToEdges: function(edges, cb, error) {
     QueryHandler.getSubwayStations()
       .then(function(rows) {
-        console.log(rows.length, 'stations');
         var length = edges.length;
         edges.forEach(function(curVal, index) {
           curVal.splice(2, 0, QueryHandler.subwayInReach(curVal[0], curVal[1], 700, rows));
@@ -321,7 +319,7 @@ var QueryHandler = {
         cb(edges);
       })
       .catch(function(err) {
-        console.log(err);
+        error(err);
       });
   },
 
