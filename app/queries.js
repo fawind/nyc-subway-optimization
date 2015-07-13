@@ -336,12 +336,14 @@ var QueryHandler = {
   getAllEdges: function() {
     var query = 'SELECT LAT_IN as "lat_in", LNG_IN as "lng_in", LAT_OUT as "lat_out", LNG_OUT as "lng_out", ' +
       'STATION_IN as "station_in", STATION_OUT as "station_out", COUNTS as "counts" ' +
-      'FROM NYCCAB.RIDE_EDGES';
+      'FROM NYCCAB.RIDE_EDGES WHERE counts >= ' + edgesFilter.count_threshold +
+      ' ORDER BY counts LIMIT ' + edgesFilter.amount_of_values;
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
         function(rows) {
+          rows = QueryHandler.convertToUndirectedGeo(rows);
           rows = edgesFilter.filter(rows);
           resolve(rows);
         },

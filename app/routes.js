@@ -13,7 +13,7 @@ router.post('/api/cluster/outgoing', function(req, res, next) {
     })
     .catch(function(err) {
       console.log(err);
-      res.json(500, { error: err });
+      res.status(500).json({ error: err });
     });
 });
 
@@ -27,7 +27,7 @@ router.post('/api/cluster/incoming', function(req, res, next) {
     })
     .catch(function(err) {
       console.log(err);
-      res.json(500, { error: err });
+      res.status(500).json({ error: err });
     });
 }),
 
@@ -39,7 +39,7 @@ router.post('/api/analyse', function(req, res, next) {
       res.json({ edges: rows });
     })
     .catch(function(err) {
-      res.json(500, { error: err });
+      res.status(500).json({ error: err });
     });
 }),
 
