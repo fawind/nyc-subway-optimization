@@ -6,26 +6,23 @@ var GeoUtils = {
   getLatDiff_sph: 0.243643,
   getLngDiff_sph: 0.240702,
 
-  getLatDiff_m: 27090,
-  getLngDiff_m: 20240,
-
   // return quite accurate value for border of our rectangle
   getLatDiff_m: function() {
     return this.getDistance_m(this.getTopLeft.lat, this.getTopLeft.lng,
-      this.getBottomRight.lat,this.getTopLeft.lng)
+      this.getBottomRight.lat,this.getTopLeft.lng);
   },
 
   getLngDiff_m: function() {
     return this.getDistance_m(this.getTopLeft.lat, this.getTopLeft.lng,
-      this.getTopLeft.lat,this.getBottomRight.lng)
+      this.getTopLeft.lat,this.getBottomRight.lng);
   },
 
   getLatDiff_n: function() {
-    return Math.abs(this.getTopLeft.lat - this.getBottomRight.lat)
+    return Math.abs(this.getTopLeft.lat - this.getBottomRight.lat);
   },
 
   getLngDiff_n: function() {
-    return Math.abs(this.getTopLeft.lng - this.getBottomRight.lng)
+    return Math.abs(this.getTopLeft.lng - this.getBottomRight.lng);
   },
 
   getDistance_m: function(lat1, lng1, lat2, lng2) {
@@ -46,7 +43,7 @@ var GeoUtils = {
   },
 
   degToRad: function(deg) {
-    return deg * (Math.PI/180)
+    return deg * (Math.PI/180);
   },
 
   getLatDiff: function(lat1, lat2, blockSize_m) {
@@ -60,6 +57,6 @@ var GeoUtils = {
       this.getTopLeft.lat, lng2);
     return Math.abs(lng1 -lng2) * (blockSize_m/d);
   }
-}
+};
 
 module.exports = GeoUtils;

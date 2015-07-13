@@ -17,10 +17,12 @@
   },
   "homepage": "https://github.com/fawind/epic-subway#readme",
   "dependencies": {
+    "array.prototype.findindex": "^1.0.0",
     "bluebird": "^2.9.32",
     "body-parser": "^1.13.1",
     "express": "^4.12.4",
     "fs": "0.0.2",
-    "hdb": "^0.4.4"
+    "hdb": "^0.4.4",
+    "lodash": "^3.10.0"
   }
 }
