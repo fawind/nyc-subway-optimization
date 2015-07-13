@@ -35,9 +35,14 @@ angular.module('epic-taxi')
         return $http.post('/api/cluster/outgoing', data);
     }
 
+    function getEdges() {
+      return $http.post('/api/analyse', {});
+    }
+
     return {
       getStations: getStations,
       getCluster: getCluster,
+      getEdges: getEdges,
       filter: filter,
       rides: rides,
       box: box,
