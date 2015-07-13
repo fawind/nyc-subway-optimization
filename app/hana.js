@@ -30,7 +30,7 @@ var clientPool = {
         return;
       }
 
-      console.log('DB Start Query');
+      console.log('DB Start Query', query.substring(0, 40), '...');
 
       mainClient.exec(query, function (err, rows) {
         if (err) {
@@ -38,7 +38,7 @@ var clientPool = {
           error('Execute error:', err);
           return;
         }
-        console.log('DB Finished Query');
+        console.log('DB Finished Query', query.substring(0, 40), '...');
         cb(rows);
       });
     });
@@ -57,7 +57,7 @@ var clientPool = {
         return;
       }
 
-      console.log('DB Start Query');
+      console.log('DB Start Query', query.substring(0, 40), '...');
 
       client.exec(query, function (err, rows) {
         client.end();
@@ -65,7 +65,7 @@ var clientPool = {
           error('Execute error:', err);
           return;
         }
-        console.log('DB Finished Query');
+        console.log('DB Finished Query', query.substring(0, 40), '...');
         cb(rows);
       });
     });
