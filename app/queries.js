@@ -341,7 +341,7 @@ var QueryHandler = {
       clientPool.query(
         query,
         function(rows) {
-          rows = edgesFilter.filterCount(rows);
+          rows = edgesFilter.filter(rows);
           resolve(rows);
         },
         function(error) { reject(error); }
