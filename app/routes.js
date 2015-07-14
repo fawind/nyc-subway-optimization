@@ -12,7 +12,7 @@ router.post('/api/cluster/outgoing', function(req, res, next) {
       res.json({ cluster: rows });
     })
     .catch(function(err) {
-      console.log(err);
+      console.log('[ERROR]', err);
       res.status(500).json({ error: err });
     });
 });
@@ -26,7 +26,7 @@ router.post('/api/cluster/incoming', function(req, res, next) {
       res.json({ cluster: rows });
     })
     .catch(function(err) {
-      console.log(err);
+      console.log('[ERROR]', err);
       res.status(500).json({ error: err });
     });
 }),
@@ -34,11 +34,13 @@ router.post('/api/cluster/incoming', function(req, res, next) {
 router.post('/api/analyse', function(req, res, next) {
   console.log('POST request to /api/analyse');
 
-  QueryHandler.getAllEdges()
+  QueryHandler.getAllEdges(req.body.filter.pathfinding, req.body.filter.countThreshold,
+    req.body.distanceThreshold, req.body.valueLimit)
     .then(function(rows) {
       res.json({ edges: rows });
     })
     .catch(function(err) {
+      console.log('[ERROR]', err);
       res.status(500).json({ error: err });
     });
 }),

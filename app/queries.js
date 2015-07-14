@@ -333,18 +333,18 @@ var QueryHandler = {
     return 0;
   },
 
-  getAllEdges: function() {
+  getAllEdges: function(pathfinding, countThreshold, distanceThreshold, valueLimit) {
     var query = 'SELECT LAT_IN as "lat_in", LNG_IN as "lng_in", LAT_OUT as "lat_out", LNG_OUT as "lng_out", ' +
       'STATION_IN as "station_in", STATION_OUT as "station_out", COUNTS as "counts" ' +
-      'FROM NYCCAB.RIDE_EDGES WHERE counts >= ' + edgesFilter.count_threshold +
-      ' ORDER BY counts LIMIT ' + edgesFilter.amount_of_values;
+      'FROM NYCCAB.RIDE_EDGES WHERE counts >= ' + countThreshold +
+      ' ORDER BY counts LIMIT ' + (valueLimit * 2);
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
         function(rows) {
           rows = QueryHandler.convertToUndirectedGeo(rows);
-          rows = edgesFilter.filter(rows);
+          rows = edgesFilter.filter(rows, distanceThreshold);
           resolve(rows);
         },
         function(error) { reject(error); }
@@ -356,15 +356,15 @@ var QueryHandler = {
     for (i = edges.length - 1; i >= 0; i--) {
       var index = edges.findIndex(function(curVal) {
         // find reverse edges (in and out are swapped)
-        if (edges[i].lat_in == curVal.lat_out && edges[i].lng_in == curVal.lng_out
-          && edges[i].lat_out == curVal.lat_in && edges[i].lng_out == curVal.lng_in)
+        if (edges[i].lat_in == curVal.lat_out && edges[i].lng_in == curVal.lng_out &&
+          edges[i].lat_out == curVal.lat_in && edges[i].lng_out == curVal.lng_in)
           return true;
         return false;
       });
 
       if (index >= 0) {
-        edges[index].counts = edges[index].counts + edges[i].counts
-        edges.splice(i, 1)
+        edges[index].counts = edges[index].counts + edges[i].counts;
+        edges.splice(i, 1);
       }
     }
     return edges;
@@ -374,15 +374,15 @@ var QueryHandler = {
     for (i = edges.length - 1; i >= 0; i--) {
       var index = edges.findIndex(function(curVal) {
         // find reverse edges (in and out are swapped)
-        if ((geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, curVal.lat_out, curVal.lng_out) < 10)
-          && (geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, curVal.lat_in, curVal.lng_in) < 10))
+        if ((geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, curVal.lat_out, curVal.lng_out) < 10) &&
+          (geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, curVal.lat_in, curVal.lng_in) < 10))
           return true;
         return false;
       });
 
       if (index >= 0) {
-        edges[index].counts = edges[index].counts + edges[i].counts
-        edges.splice(i, 1)
+        edges[index].counts = edges[index].counts + edges[i].counts;
+        edges.splice(i, 1);
       }
     }
     return edges;
