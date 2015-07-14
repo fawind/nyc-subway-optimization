@@ -245,7 +245,7 @@ var QueryHandler = {
       QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.blockSize, attr.box)
         .then(function(rows) {
           var result = { lat: latLng.lat, lng: latLng.lng, endPoints: rows }
-          resultList.push(result);
+          resultList.push('one_more');
           if (exportFile)
             QueryHandler.saveToFile(latLng, result);
           if (insertDB)
@@ -282,7 +282,7 @@ var QueryHandler = {
     // add data about stations in cluster
     QueryHandler.addSubwayToEdges(bulk, function(res) {
       bulk = res;
-      var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?, ?, ?)';
+      var statement = 'INSERT INTO NYCCAB.RIDE_EDGES_FG values (?, ?, ?, ?, ?, ?, ?)';
       clientPool.insertBulk(statement, bulk, function(affectedRows) {
         console.log(affectedRows.length, 'rows affected by insert');
       }, function(err) {
@@ -308,8 +308,8 @@ var QueryHandler = {
       .then(function(rows) {
         var length = edges.length;
         edges.forEach(function(curVal) {
-          curVal.splice(2, 0, QueryHandler.subwayInReach(curVal[0], curVal[1], 700, rows));
-          curVal.splice(6, 0, QueryHandler.subwayInReach(curVal[4], curVal[5], 700, rows));
+          curVal.splice(2, 0, QueryHandler.subwayInReach(curVal[0], curVal[1], 500, rows));
+          curVal.splice(6, 0, QueryHandler.subwayInReach(curVal[4], curVal[5], 500, rows));
         });
 
         edges = edges.filter(function(curVal) {
@@ -327,7 +327,7 @@ var QueryHandler = {
 
   subwayInReach: function(lat, lng, range, stations) {
     for(i = 0; i < stations.length; i++) {
-      if (geo.getDistance_m(lat, lng, stations[i].lat, stations[i].lng) < range)
+      if (geo.getDistance_m(lat, lng, stations[i].lat, stations[i].lng) <= range)
         return 1;
     }
     return 0;

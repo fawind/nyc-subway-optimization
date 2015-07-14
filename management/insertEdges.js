@@ -1,7 +1,7 @@
 var qhandler = require('./../app/queries');
 
-qhandler.getAllClusterSequential(700, false, true)
+qhandler.getAllClusterSequential(500, false, true)
   .then(function(result) {
-    console.log('finished queries. Size:', result.length);
+    console.log('Finished inserting Edges. Amount of clusters:', result.length);
   })
   .catch(function(err) { console.log(err); });
