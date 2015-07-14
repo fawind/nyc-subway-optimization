@@ -12,7 +12,7 @@ var edgesFilter = {
 
   filter: function(edges, distance) {
     return _.filter(edges, function(edge) {
-      return this.filterExpression(edge, distance);
+      return edgesFilter.filterExpression(edge, distance);
     });
   }
 };
