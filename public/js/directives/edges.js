@@ -35,10 +35,17 @@ angular.module('epic-taxi')
           var svg = overlayPane.append('svg').attr('class', 'leaflet-zoom-hide edges');
           var g = svg.append('g');
 
+          var min = _.min(edges, 'counts').counts;
+          var max = _.max(edges, 'counts').counts;
+
+          var color = d3.scale.linear()
+            .domain([min, max])
+            .range(['#FFCDD2', '#B71C1C']);
+
           edges = edges.map(function(edge) {
             return [
-                { x: edge.lat_in, y: edge.lng_in },
-                { x: edge.lat_out, y: edge.lng_out }
+                { x: edge.lat_in, y: edge.lng_in, count: edge.counts },
+                { x: edge.lat_out, y: edge.lng_out, count: edge.counts }
               ];
           });
 
@@ -47,14 +54,30 @@ angular.module('epic-taxi')
             .y(function(d) { return map.latLngToLayerPoint(new L.LatLng(d.x, d.y)).y; })
             .interpolate('cardinal');
 
+          var tooltip = d3.select('body')
+            .append('div')
+            .style('position', 'absolute')
+            .style('z-index', '10')
+            .style('visibility', 'hidden')
+            .text('edge');
+
           var feature = g.selectAll('path')
             .data(edges)
             .enter().append('path')
             .attr('class', 'line')
             .attr('d', line)
-            .attr('stroke', '#009688')
+            .attr('stroke', function(edge) { return color(edge[0].count); })
             .attr('stroke-width', 5)
-            .style('opacity', 0.6);
+            .style('opacity', 0.9)
+            .on('mouseover', function(d) {
+              return tooltip.style('visibility', 'visible').text(d[0].count + ' rides');
+            })
+            .on('mousemove', function() {
+              return tooltip.style('top', event.pageY + 'px').style('left', event.pageX + 20 + 'px');
+            })
+            .on('mouseout', function(d) {
+              return tooltip.style('visibility', 'hidden');
+            });
 
           map.on('viewreset', update);
           update();

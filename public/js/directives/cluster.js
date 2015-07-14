@@ -66,7 +66,7 @@ angular.module('epic-taxi')
             .style('fill', '#FFC107')
             .on('mouseover', function(d) {
               d3.select(this).style('fill', '#FFEB3B');
-              return tooltip.style('visibility', 'visible').text(d.properties.count);
+              return tooltip.style('visibility', 'visible').text(d.properties.count + ' rides');
             })
             .on('mousemove', function() {
               return tooltip.style('top', event.pageY + 'px').style('left', event.pageX + 20 + 'px');
