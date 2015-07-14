@@ -37,3 +37,15 @@ nav {
   position: absolute;
   top: 20px;
 }
+
+.tabs .tab a {
+  color: #009688;
+}
+
+.tabs .tab a:hover {
+  color: #B2DFDB;
+}
+
+.tabs .indicator {
+  background-color: #009688;
+}

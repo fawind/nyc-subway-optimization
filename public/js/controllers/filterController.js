@@ -8,6 +8,7 @@ angular.module('epic-taxi')
       $('#modalFilter').openModal();
 
       // Initialize child elements
+      $('ul.tabs').tabs();
       $('.collapsible').collapsible({});
       $('.datepicker').pickadate({
           container: '#navigation',
@@ -25,6 +26,7 @@ angular.module('epic-taxi')
         });
     };
 
+    /* Rides filter */
     $scope.ridesModel = 'incoming';
 
     $scope.gridSizeModel = 2000;
@@ -41,7 +43,31 @@ angular.module('epic-taxi')
       endDate: formatDate(maxDate)
     };
 
-    $scope.updateFilter = function() {
+    /* Optimization filter */
+    $scope.pathfindingModel = 'on';
+
+    $scope.countThresholdModel = 1000;
+
+    $scope.distanceThresholdModel = 2200;
+
+    $scope.valueLimitModel = 500;
+
+    $scope.updateOptimizationFilter = function() {
+      var filter = {};
+
+      if ($scope.pathfindingModel === 'on')
+        filter.pathfinding = true;
+      else
+        filter.pathfinding = false;
+
+      filter.countThreshold = $scope.countThresholdModel;
+      filter.distanceThreshold = $scope.distanceThresholdModel;
+      filter.valueLimit = $scope.valueLimitModel;
+
+      mainService.optimizationFilter = filter;
+    };
+
+    $scope.updateRidesFilter = function() {
       var startDate = new Date($scope.dateModel.startDate);
       var endDate = new Date($scope.dateModel.endDate);
 
@@ -82,5 +108,6 @@ angular.module('epic-taxi')
       return date.toISOString().slice(0, 10);
     }
 
-    $scope.updateFilter();
+    $scope.updateRidesFilter();
+    $scope.updateOptimizationFilter();
   }]);

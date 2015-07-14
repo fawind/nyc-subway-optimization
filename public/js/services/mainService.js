@@ -2,6 +2,7 @@ angular.module('epic-taxi')
   .factory('MainService', ['$http', function($http) {
 
     var filter = {};
+    var optimizationFilter = {};
     var rides = '';
     var gridSize;
 
@@ -35,8 +36,8 @@ angular.module('epic-taxi')
         return $http.post('/api/cluster/outgoing', data);
     }
 
-    function getEdges() {
-      return $http.post('/api/analyse', {});
+    function getEdges(filterObj) {
+      return $http.post('/api/analyse', { filter: filterObj });
     }
 
     return {
@@ -44,6 +45,7 @@ angular.module('epic-taxi')
       getCluster: getCluster,
       getEdges: getEdges,
       filter: filter,
+      optimizationFilter: optimizationFilter,
       rides: rides,
       box: box,
       gridSize: gridSize

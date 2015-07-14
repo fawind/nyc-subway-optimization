@@ -95,8 +95,8 @@ angular.module('epic-taxi')
         { lat_out: 40.794502, lng_out: -73.968446, lat_in: 40.800529, lng_in: -73.955278, count: 30 }
       ];
       */
-
-      mainService.getEdges()
+      var filter = mainService.optimizationFilter;
+      mainService.getEdges(filter)
         .success(function(edges) {
           console.log('got all edges!');
           angular.extend($scope, { edges: angular.copy(edges.edges) });
