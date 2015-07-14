@@ -35,7 +35,7 @@ router.post('/api/analyse', function(req, res, next) {
   console.log('POST request to /api/analyse');
 
   QueryHandler.getAllEdges(req.body.filter.pathfinding, req.body.filter.countThreshold,
-    req.body.distanceThreshold, req.body.filter.valueLimit)
+    req.body.filter.distanceThreshold, req.body.filter.valueLimit)
     .then(function(rows) {
       res.json({ edges: rows });
     })
