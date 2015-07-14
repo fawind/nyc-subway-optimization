@@ -68,6 +68,11 @@ angular.module('epic-taxi')
               cluster: angular.copy(cluster),
               loading: false
             });
+          })
+          .error(function(err) {
+            angular.extend($scope, { loading: false });
+            console.error('[ERROR]', err.error);
+            Materialize.toast('Error retrieving results!', 2000);
           });
       });
 
@@ -101,6 +106,11 @@ angular.module('epic-taxi')
           console.log('got all edges!');
           angular.extend($scope, { edges: angular.copy(edges.edges) });
           $scope.loading = false;
+        })
+        .error(function(err) {
+          angular.extend($scope, { loading: false });
+          console.error('[ERROR]', err.error);
+          Materialize.toast('Error retrieving results!', 2000);
         });
     };
 
