@@ -101,7 +101,9 @@ angular.module('epic-taxi')
       ];
       */
       var filter = mainService.optimizationFilter;
-      mainService.getEdges(filter)
+      var boundingBox = mainService.box;
+
+      mainService.getEdges(boundingBox, filter)
         .success(function(edges) {
           console.log('got all edges!');
           angular.extend($scope, { edges: angular.copy(edges.edges) });

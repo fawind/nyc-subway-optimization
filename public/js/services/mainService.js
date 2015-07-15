@@ -36,8 +36,11 @@ angular.module('epic-taxi')
         return $http.post('/api/cluster/outgoing', data);
     }
 
-    function getEdges(filterObj) {
-      return $http.post('/api/analyse', { filter: filterObj });
+    function getEdges(boundingBox, filterObj) {
+      if (boundingBox === null)
+        boundingBox = defaultBox;
+
+      return $http.post('/api/analyse', { box: boundingBox, filter: filterObj });
     }
 
     return {
