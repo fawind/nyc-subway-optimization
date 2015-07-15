@@ -1,63 +1,80 @@
-from django.core.management.base import BaseCommand
-from NYC_TAXI.settings import BASE_DIR
-from lxml import etree
 import os
-from NYCCAB.models import SubwayStation
 from decimal import *
+from lxml import etree
+import pyhdb
 
-class Command(BaseCommand):
+def _createTable():
+	query = 'CREATE TABLE "SUBWAY_STATION" ('\
+		'ID INTEGER,'\
+		'NAME VARCHAR(36)'\
+		'LINES VARCHAR(10)'\
+		'LAT REAL',\
+		'LNG REAL)'
 
-	xmlns = '{http://www.opengis.net/kml/2.2}'
+	cursor.execute(query)
 
-	def handle(self, *args, **options):
-		path = os.path.join(BASE_DIR,"data/Subway Stations.kml")
-		root = etree.parse(path)
-		root = etree.fromstring(etree.tostring(root))
+def _insertIntoDB(id, name, lat, lng, lines):
+	query = 'INSERT INTO "SUBWAY_STATION" VALUES('+id+','+name+','+lat+',',+lng+','+lines+')'
+	cursor.execute(query)
+	inserted = inserted + cursor.rowcount
 
-		SubwayStation.objects.all().delete()
+def _storeData(root, id):
+	# for each station go through the tags and work with the required information
+	for data in root:
+		if data.tag == xmlns + 'description':
+			name = _getStationName(data.text)
+			lines = _getLineNames(data.text)
 
-		set_count = 1
+		if data.tag == xmlns + 'LookAt':
+			longitude = Decimal(data[0].text)
+			latitude = Decimal(data[1].text)
 
-		for child in root[0]:
+	_insertIntoDB(id, name, latitude, longitude, lines)
 
-			# each station is a placemark (map representation) which contains 
-			# location information as well as name and line of the station
-			if child.tag == self.xmlns + 'Placemark':
-				self.storeData(child, set_count)
-				set_count = set_count + 1
+def _getStationName(text):
+	start = text.find('<ul class="textattributes">')
+	end = text.find('</ul>') + len('</ul>')
+	root = etree.XML(text[start:end])
+	return root[0][1].text
 
+def _getLineNames(text):
+	start = text.find('<ul class="textattributes">')
+	end = text.find('</ul>') + len('</ul>')
+	root = etree.XML(text[start:end])
+	lines = root[2][1].text.split('-')
 
-	def storeData(self, root, id):
-		# for each station go through the tags and work with the required information
-		for data in root:
-			if data.tag == self.xmlns + 'description':
-				name = self.getStationName(data.text)
-				lines = self.getLineNames(data.text)
+	for line in lines:
+		# remove express stations (subset of normal stations)
+		if len(line) > 1:
+			lines.remove(line)
 
-			if data.tag == self.xmlns + 'LookAt':
-				longitude = Decimal(data[0].text)
-				latitude = Decimal(data[1].text)
+	return '-'.join(lines)
 
-		sub_station = SubwayStation(id=id, name=name, latitude=latitude, longitude=longitude, lines=lines)
-		sub_station.save()
+""" Script to import Subway-Data as KML into a given HANA-Database """
+import credentials
 
+# establish connection with provided credentials
+connection = pyhdb.connect(
+	host = credentials.host,
+	port = credentials.port,
+	user = credentials.user,
+	password = credentials.password
+)
 
-	def getStationName(self, text):
-		start = text.find('<ul class="textattributes">')
-		end = text.find('</ul>') + len('</ul>')
-		root = etree.XML(text[start:end])
-		return root[0][1].text
+cursor = connection.cursor()
 
+xmlns = '{http://www.opengis.net/kml/2.2}'
+path = os.path.join(directory, "data/SubwayStations.kml")
+root = etree.parse(path)
+root = etree.fromstring(etree.tostring(root))
+set_count = 1
+inserted = 0
 
-	def getLineNames(self, text):
-		start = text.find('<ul class="textattributes">')
-		end = text.find('</ul>') + len('</ul>')
-		root = etree.XML(text[start:end])
-		lines = root[2][1].text.split('-')
+for child in root[0]:
+	# each station is a placemark (map representation) which contains
+	# location information as well as name and line of the station
+	if child.tag == xmlns + 'Placemark':
+		_storeData(child, set_count)
+		set_count = set_count + 1
 
-		for line in lines:
-			# remove express stations (subset of normal stations)
-			if len(line) > 1:
-				lines.remove(line)
-
-		return '-'.join(lines)
+connection.close()
