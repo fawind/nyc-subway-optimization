@@ -1,41 +1,48 @@
 import os
+import sys
 import json
 import math
 import pyhdb
 
 """ helper functions """
-def distance(self, lat1, long1, lat2, long2):
+def distance(lat1, long1, lat2, long2):
     # Convert latitude and longitude to
     # spherical coordinates in radians.
-    degrees_to_radians = math.pi/180.0
+	degrees_to_radians = math.pi/180.0
 
     # phi = 90 - latitude
-    phi1 = (90.0 - lat1)*degrees_to_radians
-    phi2 = (90.0 - lat2)*degrees_to_radians
+	phi1 = (90.0 - lat1)*degrees_to_radians
+	phi2 = (90.0 - lat2)*degrees_to_radians
 
     # theta = longitude
-    theta1 = long1*degrees_to_radians
-    theta2 = long2*degrees_to_radians
+	theta1 = long1*degrees_to_radians
+	theta2 = long2*degrees_to_radians
 
-    cos = (math.sin(phi1)*math.sin(phi2)*math.cos(theta1 - theta2) +
-           math.cos(phi1)*math.cos(phi2))
-    arc = math.acos( cos )
+	cos = (math.sin(phi1)*math.sin(phi2)*math.cos(theta1 - theta2) +
+		   math.cos(phi1)*math.cos(phi2))
+	if cos >= 1.0:
+		cos = 0.999999999999
+	arc = math.acos( cos )
 
     # return in kilometres
-    return (arc * 6371)
+	return (arc * 6371)
+
+def _createDoubleView():
+	query = "CREATE VIEW SUBWAY_STATION_PY AS SELECT ID, NAME, LINES, TO_DOUBLE(LAT) as LAT, TO_DOUBLE(LNG) as LNG FROM NYCCAB.SUBWAY_STATION"
+	cursor.execute(query)
 
 def _stationsByLine(line):
-	query = "SELECT * FROM NYCCAB.SUBWAY_STATION WHERE LINES LIKE \'%" + line + "%'"
+	query = "SELECT * FROM NYCCAB.SUBWAY_STATION_PY WHERE LINES LIKE \'%" + line + "%'"
 	cursor.execute(query)
 	return cursor.fetchall()
 
 def _stationsNameAndLine(name, line):
-	query = "SELECT * FROM NYCCAB.SUBWAY_STATION WHERE NAME LIKE \'%" + name + "%\' AND LINES LIKE \'%" + line + "%'"
+	query = "SELECT * FROM NYCCAB.SUBWAY_STATION_PY WHERE NAME LIKE \'%" + name + "%\' AND LINES LIKE \'%" + line + "%'"
 	cursor.execute(query)
 	return cursor.fetchall()
 
 def _numberOfStations():
-	query = "SELECT COUNT(*) FROM NYCCAB.SUBWAY_STATION"
+	query = "SELECT COUNT(*) FROM NYCCAB.SUBWAY_STATION_PY"
 	cursor.execute(query)
 	return cursor.fetchone()[0]
 
@@ -76,21 +83,23 @@ connection = pyhdb.connect(
 )
 
 cursor = connection.cursor()
-print(_numberOfStations())
+
+_createDoubleView()
+
 # Check if given data in Dictionary is valid regarding starting stations
 # otherwise print invalid data
 failed = False
 for station in start_stations:
 	testSet = _stationsNameAndLine(station['station'], station['line'])
 	if len(testSet) != 1:
-		#print station
-		#print testSet
+		print station
+		print testSet
 		failed = True
 
 if failed:
 	print("Failed - not only one matching station")
 	print(_numberOfStations())
-	exit()
+	sys.exit(1)
 
 routes = []
 
@@ -101,13 +110,12 @@ for station in start_stations:
 	stations = []
 
 	possible_stations = _stationsByLine(line)
-	print(possible_stations)
 
 	while len(possible_stations) > 0:
 		nearest_station = possible_stations[0]
 		for pos_station in possible_stations:
-			if distance(pos_station.latitude, pos_station.longitude, start.latitude, start.longitude) \
-				< distance(nearest_station.latitude, nearest_station.longitude, start.latitude, start.longitude):
+			if distance(pos_station[3], pos_station[4], start[3], start[4])\
+				< distance(nearest_station[3], nearest_station[4], start[3], start[4]):
 				nearest_station = pos_station
 
 		possible_stations.remove(nearest_station)
@@ -116,7 +124,7 @@ for station in start_stations:
 
 	station_js = []
 	for stat in stations:
-		station_js.append({'id': str(stat.id), 'name': str(stat.name), 'lat': str(stat.latitude), 'lng': str(stat.longitude)})
+		station_js.append({'id': str(stat[0]), 'name': str(stat[1]), 'lat': str(stat[3]), 'lng': str(stat[4])})
 
 	route = {'route': line, 'stations': station_js}
 	routes.append(route)
