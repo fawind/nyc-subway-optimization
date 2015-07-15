@@ -292,7 +292,7 @@ var QueryHandler = {
   },
 
   getSubwayStations: function() {
-    var query = 'SELECT LATITUDE as "lat", LONGITUDE as "lng" FROM NYCCAB.SUBWAY_STATION';
+    var query = 'SELECT LAT as "lat", LNG as "lng" FROM NYCCAB.SUBWAY_STATION';
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
