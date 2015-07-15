@@ -16,7 +16,7 @@ angular.module('epic-taxi')
       return $http.get('/data/subway-lines.json');
     }
 
-    function getCluster(id, lat, lng, ridesObj, blockSize, boundingBox, filterObj) {
+    function getCluster(id, lat, lng, ridesObj, radius, boundingBox, filterObj) {
       if (boundingBox === null)
         boundingBox = defaultBox;
 
@@ -26,7 +26,7 @@ angular.module('epic-taxi')
           lat: lat,
           lng: lng
         },
-        blockSize: blockSize,
+        radius: radius,
         box: boundingBox,
         filter: filterObj
       };
@@ -61,4 +61,3 @@ angular.module('epic-taxi')
       gridSize: gridSize
     };
   }]);
-
