@@ -1,7 +1,7 @@
 Epic-Taxi
 ===================
 
-### Installation 
+### Installation
 
 ```
 clone repo
@@ -46,3 +46,18 @@ app.js              -- Start server
   /utils         -- Geo Utils for Lat/Lng calculations
      |-...
 ```
+
+### Data Transformation and Insert
+
+Definitely working under Python 2.7.9 with the following requirements:
+
+* lxml==3.4.4
+* pyhdb==0.2.3
+
+Now download [Subway-Stations](https://data.cityofnewyork.us/api/geospatial/arq3-7z49?method=export&format=KML) and put it into /data in the directory of `importSubwayData.py`. Download [credentials.py](https://gist.github.com/AlexImmer/e85abf560ab5f85055ce), put it into the script´s directory and modify the data for your needs.
+
+```Bash
+python importSubwayData
+```
+
+Will then create a new Table inside *NYCCAB*-Database and insert all the subway stations.
