@@ -22,10 +22,14 @@ nav {
   background: #CDD2D4;
 }
 
-.reset {
+.buttons {
   position: absolute;
   left: 10px;
   bottom: 10px;
+}
+
+.buttons a {
+  margin: 1em;
 }
 
 .progress {

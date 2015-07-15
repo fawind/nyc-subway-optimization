@@ -93,13 +93,16 @@ angular.module('epic-taxi')
 
     $scope.optimizeRoutes = function() {
       $scope.loading = true;
+
       /*
-      var edges = [
-        { lat_out: 40.761807, lng_out: -73.983552, lat_in: 40.771393, lng_in: -73.983348, count: 10 },
-        { lat_out: 40.766833, lng_out: -73.957422, lat_in: 40.778659, lng_in: -73.954462, count: 20 },
-        { lat_out: 40.794502, lng_out: -73.968446, lat_in: 40.800529, lng_in: -73.955278, count: 30 }
+      var edgesCache = [
+        { lat_out: 40.761807, lng_out: -73.983552, lat_in: 40.771393, lng_in: -73.983348, counts: 10 },
+        { lat_out: 40.766833, lng_out: -73.957422, lat_in: 40.778659, lng_in: -73.954462, counts: 20 },
+        { lat_out: 40.794502, lng_out: -73.968446, lat_in: 40.800529, lng_in: -73.955278, counts: 30 }
       ];
+      angular.extend($scope, { edges: angular.copy(edgesCache), loading: false });
       */
+
       var filter = mainService.optimizationFilter;
       var boundingBox = mainService.box;
 
@@ -108,6 +111,25 @@ angular.module('epic-taxi')
           console.log('got all edges!');
           angular.extend($scope, { edges: angular.copy(edges.edges) });
           $scope.loading = false;
+        })
+        .error(function(err) {
+          angular.extend($scope, { loading: false });
+          console.error('[ERROR]', err.error);
+          Materialize.toast('Error retrieving results!', 2000);
+        });
+
+    };
+
+    $scope.findStations = function() {
+      $scope.loading = true;
+
+      var filter = mainService.pathfindingFilter;
+      var edges = $scope.edges;
+
+      mainService.findStations(edges, filter)
+        .success(function(results) {
+          angular.extend($scope, { loading: false });
+          console.log('got optimized stations:', stations);
         })
         .error(function(err) {
           angular.extend($scope, { loading: false });

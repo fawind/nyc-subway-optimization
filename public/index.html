@@ -25,6 +25,7 @@
   <script src="js/app.js"></script>
   <script src="js/controllers/mainController.js"></script>
   <script src="js/controllers/filterController.js"></script>
+  <script src="js/controllers/optimizationFilterController.js"></script>
   <script src="js/services/mainService.js"></script>
   <script src="js/services/mapService.js"></script>
   <script src="js/directives/cluster.js"></script>
@@ -45,7 +46,18 @@
 
     <leaflet cluster cluster-connection id="map" layers="layers" center="newYork" markers="markers" paths="paths" controls="controls" defaults="defaults" cluster="cluster" edges="edges"></leaflet>
 
-    <a class="btn-floating btn-large waves-effect waves-light grey reset" ng-click="resetStation()"><i class="mdi-content-clear"></i></a>
+    <div class="buttons" ng-controller="OptimizationFilterController">
+      <a class="btn-floating btn-large waves-effect waves-light green tooltipped button" data-position="top" data-delay="50" data-tooltip="Find stations"
+        ng-show="edges.length" ng-click="openOptimizationModal()">
+        <i class="mdi-maps-directions-subway"></i>
+      </a>
+      <a class="btn-floating btn-large waves-effect waves-light grey tooltipped button" data-position="top" data-delay="50" data-tooltip="Reset"
+        ng-click="resetStation()">
+        <i class="mdi-content-clear"></i>
+      </a>
+    </div>
+
+    <div ng-include src="'templates/optimizationFilter.html'" ng-controller="OptimizationFilterController"></div>
 
     <div ng-show="loading" class="progress">
       <div class="indeterminate"></div>

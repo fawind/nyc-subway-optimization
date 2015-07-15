@@ -1,0 +1,36 @@
+<div id="modalOptimization" class="modal">
+  <div class="modal-content">
+    <h4>Optimization modal</h4>
+
+    <ul class="collapsible" data-collapsible="accordion">
+      <!-- Rides Threshold -->
+      <li>
+        <div class="collapsible-header active"><i class="mdi-maps-directions-subway"></i>Max Distance Between Stations</div>
+        <div class="collapsible-body">
+          <p>
+            <label>Max Distance: {{stationDistanceModel}}m</label>
+          </p>
+          <p class="range-field">
+            <input type="range" id="stationDistance" min="500" max="5000" ng-model="$parent.stationDistanceModel" ng-change="updatePathfindingFilter()"/>
+          </p>
+        </div>
+      </li>
+      <!-- Distance Threshold -->
+      <li>
+        <div class="collapsible-header"><i class="mdi-action-swap-horiz"></i>Max Distance Between Loose Ends</div>
+        <div class="collapsible-body">
+          <p>
+            <label>Max Distance: {{looseEndsDistanceModel}}m</label>
+          </p>
+          <p class="range-field">
+            <input type="range" id="looseEndsDistance" min="0" max="5000" ng-model="$parent.looseEndsDistanceModel" ng-change="updatePathfindingFilter()"/>
+          </p>
+        </div>
+      </li>
+    </ul>
+
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="waves-effect waves-green btn modal-action modal-close" ng-click="findStations()">Find Stations</a>
+  </div>
+</div>

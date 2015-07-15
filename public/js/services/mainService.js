@@ -3,6 +3,7 @@ angular.module('epic-taxi')
 
     var filter = {};
     var optimizationFilter = {};
+    var pathfindingFilter = {};
     var rides = '';
     var gridSize;
 
@@ -43,12 +44,18 @@ angular.module('epic-taxi')
       return $http.post('/api/analyse', { box: boundingBox, filter: filterObj });
     }
 
+    function findStations(edges, filterObj) {
+      return $http.post('/api/analyse/stations', { edges: edges, filter: filterObj });
+    }
+
     return {
       getStations: getStations,
       getCluster: getCluster,
       getEdges: getEdges,
+      findStations: findStations,
       filter: filter,
       optimizationFilter: optimizationFilter,
+      pathfindingFilter: pathfindingFilter,
       rides: rides,
       box: box,
       gridSize: gridSize

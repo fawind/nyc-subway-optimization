@@ -3,6 +3,8 @@ var QueryHandler = require('./queries');
 
 var router = express.Router();
 
+var errorMsg = 'Internal server error';
+
 router.post('/api/cluster/outgoing', function(req, res, next) {
   console.log('POST request to ' + req.url + ' Station: ' + req.body.station.id);
 
@@ -13,7 +15,7 @@ router.post('/api/cluster/outgoing', function(req, res, next) {
     })
     .catch(function(err) {
       console.log('[ERROR]', err);
-      res.status(500).json({ error: err });
+      res.status(500).json({ error: errorMsg });
     });
 });
 
@@ -27,9 +29,9 @@ router.post('/api/cluster/incoming', function(req, res, next) {
     })
     .catch(function(err) {
       console.log('[ERROR]', err);
-      res.status(500).json({ error: err });
+      res.status(500).json({ error: errorMsg });
     });
-}),
+});
 
 router.post('/api/analyse', function(req, res, next) {
   console.log('POST request to /api/analyse');
@@ -41,8 +43,16 @@ router.post('/api/analyse', function(req, res, next) {
     })
     .catch(function(err) {
       console.log('[ERROR]', err);
-      res.status(500).json({ error: err });
+      res.status(500).json({ error: errorMsg });
     });
-}),
+});
+
+router.post('/api/analyse/stations', function(req, res, next) {
+  console.log('POST request to /api/analyse/stations');
+
+  /* TODO: Pathfinding */
+  res.status(500).json({ error: errorMsg });
+
+});
 
 module.exports = router;
