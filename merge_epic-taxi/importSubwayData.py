@@ -3,20 +3,23 @@ from decimal import *
 from lxml import etree
 import pyhdb
 
+""" Helper Functions to insert into DB and retrieve the data from .kml """
 def _createTable():
-	query = 'CREATE TABLE "SUBWAY_STATION" ('\
-		'ID INTEGER,'\
-		'NAME VARCHAR(36)'\
-		'LINES VARCHAR(10)'\
-		'LAT REAL',\
-		'LNG REAL)'
-
+	query = "CREATE TABLE NYCCAB.SUBWAY_STATION (ID INTEGER, NAME VARCHAR(36), LINES VARCHAR(10), LAT REAL, LNG REAL)"
+	print query
 	cursor.execute(query)
+	print("Table created")
+
+def _clearTable():
+	query = "DROP TABLE NYCCAB.SUBWAY_STATION"
+	cursor.execute(query)
+	print("Table flushed")
 
 def _insertIntoDB(id, name, lat, lng, lines):
-	query = 'INSERT INTO "SUBWAY_STATION" VALUES('+id+','+name+','+lat+',',+lng+','+lines+')'
+	query = "INSERT INTO NYCCAB.SUBWAY_STATION VALUES (%s, '%s', '%s', %s, %s)"\
+		% (str(id), name.replace('\'', ""), lines, str(lat), str(lng))
+	print(query)
 	cursor.execute(query)
-	inserted = inserted + cursor.rowcount
 
 def _storeData(root, id):
 	# for each station go through the tags and work with the required information
@@ -50,6 +53,7 @@ def _getLineNames(text):
 
 	return '-'.join(lines)
 
+
 """ Script to import Subway-Data as KML into a given HANA-Database """
 import credentials
 
@@ -64,11 +68,14 @@ connection = pyhdb.connect(
 cursor = connection.cursor()
 
 xmlns = '{http://www.opengis.net/kml/2.2}'
+directory = os.path.dirname(os.path.abspath(__file__))
 path = os.path.join(directory, "data/SubwayStations.kml")
 root = etree.parse(path)
 root = etree.fromstring(etree.tostring(root))
 set_count = 1
 inserted = 0
+
+_createTable()
 
 for child in root[0]:
 	# each station is a placemark (map representation) which contains
