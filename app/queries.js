@@ -436,10 +436,12 @@ var QueryHandler = {
     if (filtered) {
       filter = ' AND (station_out = 0 OR station_in = 0)';
     }
+    // exclude edges that are simply vertices with a count (rides within a cluster)
+    var excludeVertices = 150;
     var query = 'SELECT LAT_IN as "lat_in", LNG_IN as "lng_in", LAT_OUT as "lat_out", LNG_OUT as "lng_out",' +
       ' STATION_IN as "station_in", STATION_OUT as "station_out", COUNTS as "counts" FROM NYCCAB.RIDE_EDGES' +
       ' WHERE counts >= ' + countThreshold +
-      ' AND DISTANCE <= ' + distanceThreshold +
+      ' AND DISTANCE >= ' + excludeVertices + ' AND DISTANCE <= ' + distanceThreshold +
       ' AND lat_in <= ' + box.topLeft.lat + ' AND lat_in >= ' + box.bottomRight.lat +
       ' AND lat_out <= ' + box.topLeft.lat + ' AND lat_out >= ' + box.bottomRight.lat +
       ' AND lng_in >= ' + box.topLeft.lng + ' AND lng_in <= ' + box.bottomRight.lng +
