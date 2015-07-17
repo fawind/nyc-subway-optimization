@@ -36,7 +36,7 @@ router.post('/api/cluster/incoming', function(req, res, next) {
 router.post('/api/analyse', function(req, res, next) {
   console.log('POST request to /api/analyse');
 
-  QueryHandler.getAllEdges(req.body.filter.pathfinding, req.body.filter.countThreshold,
+  QueryHandler.getEdges(req.body.box, req.body.filter.filterEdges, req.body.filter.countThreshold,
     req.body.filter.distanceThreshold, req.body.filter.valueLimit)
     .then(function(rows) {
       res.json({ edges: rows });
