@@ -33,6 +33,34 @@ router.post('/api/cluster/incoming', function(req, res, next) {
     });
 });
 
+router.post('/api/cluster/outgoing/raw', function(req, res, next) {
+  console.log('POST request to ' + req.url + ' Station: ' + req.body.station.id);
+
+  QueryHandler.getPointsOutgoing(req.body.station, req.body.filter.date, req.body.filter.years,
+    req.body.radius, req.body.box)
+    .then(function(rows) {
+      res.json({ points: rows });
+    })
+    .catch(function(err) {
+      console.log('[ERROR]', err);
+      res.status(500).json({ error: errorMsg });
+    });
+});
+
+router.post('/api/cluster/incoming/raw', function(req, res, next) {
+  console.log('POST request to ' + req.url + ' Station: ' + req.body.station.id);
+
+  QueryHandler.getPointsIncoming(req.body.station, req.body.filter.date, req.body.filter.years,
+    req.body.radius, req.body.box)
+    .then(function(rows) {
+      res.json({ points: rows });
+    })
+    .catch(function(err) {
+      console.log('[ERROR]', err);
+      res.status(500).json({ error: errorMsg });
+    });
+});
+
 router.post('/api/analyse', function(req, res, next) {
   console.log('POST request to /api/analyse');
 

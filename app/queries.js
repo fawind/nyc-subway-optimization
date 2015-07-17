@@ -157,6 +157,88 @@ var QueryHandler = {
     });
   },
 
+  getPointsOutgoing: function(station, timeSpan, years, radius, box) {
+    var offsetLat = geo.getLatDiff(box.topLeft.lat, box.bottomRight.lat, radius);
+    var offsetLng = geo.getLngDiff(box.topLeft.lng, box.bottomRight.lng, radius);
+
+    // ================================================================
+    // All given filters are applied on the clustered rides. As base for the
+    // filters we have 'basePickup' which essentially is a station. We only focus
+    // on the rides going OUT from around that station (lat, lng).
+    // All other filters require the ride´s time and filter on it.
+
+    // filter rides which start in the area around the given station (box defined by 2*offsetX x 2*offsetY)
+    var basePickup = 'PICKUP_LONG < ' + (station.lng + offsetLng).toFixed(6) + ' AND PICKUP_LONG > ' + (station.lng - offsetLng).toFixed(6) +
+      ' AND PICKUP_LAT < ' + (station.lat + offsetLat).toFixed(6) + ' AND PICKUP_LAT > ' + (station.lat - offsetLat).toFixed(6);
+
+    // filter based on front-end settings for from-to value
+    var from = ((new Date(timeSpan[0])).toISOString().substring(0, 10));
+    var to = ((new Date(timeSpan[1])).toISOString().substring(0, 10));
+
+    var fromToFilter = " AND PICKUP_TIME >= '" + from + "' AND PICKUP_TIME <= '" + to + "'";
+
+    // filter based on the years we want to have a look at
+    var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN (' + years.join(', ') + ')';
+
+    // query - add +daytimeFilter later as it runs more than a minute with it.
+    var query = 'SELECT DROPOFF_LAT as "lat", DROPOFF_LONG as "lng" FROM NYCCAB.TRIP WHERE ' +
+      basePickup + fromToFilter + yearFilter + ' GROUP BY DROPOFF_LAT, DROPOFF_LONG';
+
+    // just for testing reasons
+    console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
+    //console.log(query);
+
+    // execute query
+    return new Promise(function(resolve, reject) {
+      clientPool.query(
+        query,
+        function(rows) { resolve(rows); },
+        function(error) { reject(error); }
+      );
+    });
+  },
+
+  getPointsIncoming: function(station, timeSpan, years, radius, box) {
+    var offsetLat = geo.getLatDiff(box.topLeft.lat, box.bottomRight.lat, radius);
+    var offsetLng = geo.getLngDiff(box.topLeft.lng, box.bottomRight.lng, radius);
+
+    // ================================================================
+    // All given filters are applied on the rides. As base for the
+    // filters we have 'basePickup' which essentially is a station. We only focus
+    // on the rides going IN from around that station (lat, lng).
+    // All other filters require the ride´s time and filter on it.
+
+    // filter rides which start in the area around the given station (box defined by 2*offsetX x 2*offsetY)
+    var basePickup = 'DROPOFF_LONG < ' + (station.lng + offsetLng).toFixed(6) + ' AND DROPOFF_LONG > ' + (station.lng - offsetLng).toFixed(6) +
+      ' AND DROPOFF_LAT < ' + (station.lat + offsetLat).toFixed(6) + ' AND DROPOFF_LAT > ' + (station.lat - offsetLat).toFixed(6);
+
+    // filter based on front-end settings for from-to value
+    var from = ((new Date(timeSpan[0])).toISOString().substring(0, 10));
+    var to = ((new Date(timeSpan[1])).toISOString().substring(0, 10));
+
+    var fromToFilter = " AND PICKUP_TIME >= '" + from + "' AND PICKUP_TIME <= '" + to + "'";
+
+    // filter based on the years we want to have a look at
+    var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN (' + years.join(', ') + ')';
+
+    // query - add +daytimeFilter later as it runs more than a minute with it.
+    var query = 'SELECT PICKUP_LAT as "lat", PICKUP_LONG as "lng" FROM NYCCAB.TRIP WHERE ' +
+      basePickup + fromToFilter + yearFilter + ' GROUP BY PICKUP_LAT, PICKUP_LONG';
+
+    // just for testing reasons
+    console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
+    //console.log(query);
+
+    // execute query
+    return new Promise(function(resolve, reject) {
+      clientPool.query(
+        query,
+        function(rows) { resolve(rows); },
+        function(error) { reject(error); }
+      );
+    });
+  },
+
   getAllCluster: function(radius) {
     var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
     var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
