@@ -280,7 +280,7 @@ var QueryHandler = {
     // convert result to rows
     var bulk = QueryHandler.edgesToRows(result);
     // add data about stations in cluster
-    QueryHandler.addSubwayToEdges(bulk, function(res) {
+    QueryHandler.addSubwayToEdges(bulk, false, function(res) {
       bulk = QueryHandler.addDistanceToEdges(res);
       var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?, ?, ?, ?)';
       clientPool.insertBulk(statement, bulk, function(affectedRows) {
@@ -303,7 +303,7 @@ var QueryHandler = {
     });
   },
 
-  addSubwayToEdges: function(edges, cb, error) {
+  addSubwayToEdges: function(edges, del, cb, error) {
     QueryHandler.getSubwayStations()
       .then(function(rows) {
         var length = edges.length;
@@ -312,9 +312,12 @@ var QueryHandler = {
           curVal.splice(6, 0, QueryHandler.subwayInReach(curVal[4], curVal[5], 500, rows));
         });
 
-        edges = edges.filter(function(curVal) {
-          return !(curVal[2] && curVal[6]);
-        });
+        if (del) {
+          // delete edges between two subway stations
+          edges = edges.filter(function(curVal) {
+            return !(curVal[2] && curVal[6]);
+          });
+        }
 
         console.log('eliminated', length - edges.length, 'rows');
 
