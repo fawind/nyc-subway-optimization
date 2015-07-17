@@ -268,7 +268,7 @@ var QueryHandler = {
   },
 
   edgesToRows: function(edges) {
-    rows = []
+    rows = [];
     for (i = 0; i < edges.endPoints.length; i++) {
       var temp = edges.endPoints[i];
       rows.push([edges.lat, edges.lng, temp.count, Number(temp.lat), Number(temp.lng)]);
@@ -281,8 +281,8 @@ var QueryHandler = {
     var bulk = QueryHandler.edgesToRows(result);
     // add data about stations in cluster
     QueryHandler.addSubwayToEdges(bulk, function(res) {
-      bulk = res;
-      var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?, ?, ?)';
+      bulk = QueryHandler.addDistanceToEdges(res);
+      var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?, ?, ?, ?)';
       clientPool.insertBulk(statement, bulk, function(affectedRows) {
         console.log(affectedRows.length, 'rows affected by insert');
       }, function(err) {
@@ -333,10 +333,23 @@ var QueryHandler = {
     return 0;
   },
 
-  getAllEdges: function(pathfinding, countThreshold, distanceThreshold, valueLimit) {
-    var query = 'SELECT LAT_IN as "lat_in", LNG_IN as "lng_in", LAT_OUT as "lat_out", LNG_OUT as "lng_out", ' +
-      'STATION_IN as "station_in", STATION_OUT as "station_out", COUNTS as "counts" ' +
-      'FROM NYCCAB.RIDE_EDGES_FG WHERE counts >= ' + countThreshold +
+  addDistanceToEdges: function(edges) {
+    for (i = 0; i < edges.length; i++) {
+      var distance = geo.getDistance_m(edges[i][0], edges[i][1], edges[i][4], edges[i][5]);
+      edges[i].push(distance);
+    }
+    return edges;
+  },
+
+  getEdges: function(box, filtered, countThreshold, distanceThreshold, valueLimit) {
+    var table = filtered ? 'NYCCAB.RIDE_EDGES_FG' : 'NYCCAB.RIDE_EDGES_UF';
+    var query = 'SELECT LAT_IN as "lat_in", LNG_IN as "lng_in", LAT_OUT as "lat_out", LNG_OUT as "lng_out",' +
+      ' STATION_IN as "station_in", STATION_OUT as "station_out", COUNTS as "counts" FROM ' + table +
+      ' WHERE counts >= ' + countThreshold +
+      ' AND lat_in <= ' + box.topLeft.lat + ' AND lat_in >= ' + box.bottomRight.lat +
+      ' AND lat_out <= ' + box.topLeft.lat + ' AND lat_out >= ' + box.bottomRight.lat +
+      ' AND lng_in >= ' + box.topLeft.lng + ' AND lng_in <= ' + box.bottomRight.lng +
+      ' AND lng_out >= ' + box.topLeft.lng + ' AND lng_out <= ' + box.bottomRight.lng +
       ' ORDER BY counts LIMIT ' + (valueLimit * 2);
 
     return new Promise(function(resolve, reject) {
