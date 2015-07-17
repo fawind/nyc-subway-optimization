@@ -2,36 +2,34 @@ Epic-Taxi
 ===================
 
 ### Installation
+Requires [node.js](https://nodejs.org/download/) and [bower](http://bower.io/#install-bower).
+```bash
+# clone the repository
+git clone https://github.com/fawind/epic-subway.git
+cd epic-subway
 
-```
-clone repo
-
-# install required packages (node, npm)
+# install required packages
 npm install
-
-# install frontend dependencies
-cd public
 bower install
 ```
 
-Finally add and modify the [credentials.js file](https://gist.github.com/AlexImmer/03ed4f3fd047b4d591e2) in the /app directory.
+Finally, modify the `credentials.js.default` file in the `/app` directory and save it as `credentials.js`.
 
-```
-# run the server
+### Run the app
+```bash
+# start the server
 node app.js
-# run the server in debug-mode
-DEBUG=[modules]:* node app.js
-
-# now open your browser with
-localhost:8080/index.html
 ```
+
+Now you can visit `localhost:8080` in your browser.
+
+---
 
 ### Structure
 
 ##### Backend: Node with Express: [docs](http://expressjs.com/api.html)
 
 ##### Frontend: Angular, d3.js
-
 
 ```
 app.js              -- Start server
