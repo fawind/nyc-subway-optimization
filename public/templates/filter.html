@@ -95,7 +95,7 @@
                 <label>Min Rides: {{countThresholdModel}}</label>
               </p>
               <p class="range-field">
-                <input type="range" id="countThreshold" min="0" max="3000" ng-model="$parent.countThresholdModel" ng-change="updateOptimizationFilter()"/>
+                <input type="range" id="countThreshold" min="100" max="20000" ng-model="$parent.countThresholdModel" ng-change="updateOptimizationFilter()"/>
               </p>
             </div>
           </li>
@@ -107,7 +107,7 @@
                 <label>Max Distance: {{distanceThresholdModel}}m</label>
               </p>
               <p class="range-field">
-                <input type="range" id="distanceThreshold" min="0" max="5000" ng-model="$parent.distanceThresholdModel" ng-change="updateOptimizationFilter()"/>
+                <input type="range" id="distanceThreshold" min="0" max="10000" ng-model="$parent.distanceThresholdModel" ng-change="updateOptimizationFilter()"/>
               </p>
             </div>
           </li>
