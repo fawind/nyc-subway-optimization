@@ -282,7 +282,7 @@ var QueryHandler = {
     // add data about stations in cluster
     QueryHandler.addSubwayToEdges(bulk, function(res) {
       bulk = res;
-      var statement = 'INSERT INTO NYCCAB.RIDE_EDGES_FG values (?, ?, ?, ?, ?, ?, ?)';
+      var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?, ?, ?)';
       clientPool.insertBulk(statement, bulk, function(affectedRows) {
         console.log(affectedRows.length, 'rows affected by insert');
       }, function(err) {
@@ -336,7 +336,7 @@ var QueryHandler = {
   getAllEdges: function(pathfinding, countThreshold, distanceThreshold, valueLimit) {
     var query = 'SELECT LAT_IN as "lat_in", LNG_IN as "lng_in", LAT_OUT as "lat_out", LNG_OUT as "lng_out", ' +
       'STATION_IN as "station_in", STATION_OUT as "station_out", COUNTS as "counts" ' +
-      'FROM NYCCAB.RIDE_EDGES WHERE counts >= ' + countThreshold +
+      'FROM NYCCAB.RIDE_EDGES_FG WHERE counts >= ' + countThreshold +
       ' ORDER BY counts LIMIT ' + (valueLimit * 2);
 
     return new Promise(function(resolve, reject) {
