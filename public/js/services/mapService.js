@@ -76,6 +76,14 @@ angular.module('epic-taxi')
       return colors[route];
     }
 
+    var iconScale = d3.scale.sqrt()
+      .domain([6, 8, 10, 12, 13, 16, 18])
+      .range([1, 3, 7, 13, 16, 35, 50]);
+
+    var pathScale = d3.scale.sqrt()
+      .domain([9, 12, 14, 16, 18])
+      .range([1, 3, 5, 8, 12]);
+
     /* Create marker object for each station */
     function createMarker(routes) {
       var marker = {};
@@ -125,11 +133,33 @@ angular.module('epic-taxi')
       return paths;
     }
 
+    /* Check if the given box is valid */
+    function validBounds(box) {
+      var maxTopLeft = clusterBounds.topLeft;
+      var maxBottomRight = clusterBounds.bottomRight;
+
+      function inArea(point) {
+        if ((point.lat <= maxTopLeft.lat && point.lat >= maxBottomRight.lat) &&
+        (point.lng >= maxTopLeft.lng && point.lng <= maxBottomRight.lng)) {
+          return true;
+        }
+        return false;
+      }
+
+      if (inArea(box.topLeft) && inArea(box.bottomRight)) {
+        return true;
+      }
+      return false;
+    }
+
     return {
       getConfig: getConfig,
       createMarker: createMarker,
       createPaths: createPaths,
-      clusterBounds: clusterBounds
+      clusterBounds: clusterBounds,
+      validBounds: validBounds,
+      iconScale: iconScale,
+      pathScale: pathScale
     };
   }]);
 

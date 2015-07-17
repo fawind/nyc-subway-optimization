@@ -1,6 +1,7 @@
 angular.module('epic-taxi')
   .factory('MainService', ['$http', function($http) {
 
+    /* Models */
     var filter = {};
     var optimizationFilter = {};
     var pathfindingFilter = {};
@@ -13,10 +14,12 @@ angular.module('epic-taxi')
     var defaultBox = { topLeft: topLeft, bottomRight: bottomRight };
     var box = null;
 
+    /* Load the subway network */
     function getStations() {
       return $http.get('/data/subway-lines.json');
     }
 
+    /* Get the cluster for a given station */
     function getCluster(id, lat, lng, ridesObj, radius, boundingBox, filterObj, visualization) {
       if (boundingBox === null)
         boundingBox = defaultBox;
@@ -46,6 +49,7 @@ angular.module('epic-taxi')
       }
     }
 
+    /* Get all edges */
     function getEdges(boundingBox, filterObj) {
       if (boundingBox === null)
         boundingBox = defaultBox;
@@ -53,6 +57,7 @@ angular.module('epic-taxi')
       return $http.post('/api/analyse', { box: boundingBox, filter: filterObj });
     }
 
+    /* Get all stations based on given edges */
     function findStations(edges, filterObj) {
       return $http.post('/api/analyse/stations', { edges: edges, filter: filterObj });
     }

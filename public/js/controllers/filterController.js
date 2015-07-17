@@ -54,6 +54,7 @@ angular.module('epic-taxi')
 
     $scope.valueLimitModel = 500;
 
+    /* Update filter for subway optimization */
     $scope.updateOptimizationFilter = function() {
       var filter = {};
 
@@ -69,6 +70,7 @@ angular.module('epic-taxi')
       mainService.optimizationFilter = filter;
     };
 
+    /* Update filter for clustering rides */
     $scope.updateRidesFilter = function() {
       var startDate = new Date($scope.dateModel.startDate);
       var endDate = new Date($scope.dateModel.endDate);
