@@ -175,6 +175,9 @@ var QueryHandler = {
     var from = ((new Date(timeSpan[0])).toISOString().substring(0, 10));
     var to = ((new Date(timeSpan[1])).toISOString().substring(0, 10));
 
+    var inBoxFilter = ' AND DROPOFF_LAT < ' + box.topLeft.lat + ' AND DROPOFF_LAT > ' + box.bottomRight.lat +
+      ' AND DROPOFF_LONG < ' + box.bottomRight.lng + ' AND DROPOFF_LONG > ' + box.topLeft.lng;
+
     var fromToFilter = " AND PICKUP_TIME >= '" + from + "' AND PICKUP_TIME <= '" + to + "'";
 
     // filter based on the years we want to have a look at
@@ -182,7 +185,7 @@ var QueryHandler = {
 
     // query - add +daytimeFilter later as it runs more than a minute with it.
     var query = 'SELECT DROPOFF_LAT as "lat", DROPOFF_LONG as "lng" FROM NYCCAB.TRIP WHERE ' +
-      basePickup + fromToFilter + yearFilter + ' GROUP BY DROPOFF_LAT, DROPOFF_LONG';
+      basePickup + inBoxFilter + fromToFilter + yearFilter + ' GROUP BY DROPOFF_LAT, DROPOFF_LONG';
 
     // just for testing reasons
     console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
@@ -216,6 +219,9 @@ var QueryHandler = {
     var from = ((new Date(timeSpan[0])).toISOString().substring(0, 10));
     var to = ((new Date(timeSpan[1])).toISOString().substring(0, 10));
 
+    var inBoxFilter = ' AND PICKUP_LAT < ' + box.topLeft.lat + ' AND PICKUP_LAT > ' + box.bottomRight.lat +
+      ' AND PICKUP_LONG < ' + box.bottomRight.lng + ' AND PICKUP_LONG > ' + box.topLeft.lng;
+
     var fromToFilter = " AND PICKUP_TIME >= '" + from + "' AND PICKUP_TIME <= '" + to + "'";
 
     // filter based on the years we want to have a look at
@@ -223,7 +229,7 @@ var QueryHandler = {
 
     // query - add +daytimeFilter later as it runs more than a minute with it.
     var query = 'SELECT PICKUP_LAT as "lat", PICKUP_LONG as "lng" FROM NYCCAB.TRIP WHERE ' +
-      basePickup + fromToFilter + yearFilter + ' GROUP BY PICKUP_LAT, PICKUP_LONG';
+      basePickup + inBoxFilter + fromToFilter + yearFilter + ' GROUP BY PICKUP_LAT, PICKUP_LONG';
 
     // just for testing reasons
     console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));

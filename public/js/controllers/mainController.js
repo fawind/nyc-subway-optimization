@@ -49,7 +49,7 @@ angular.module('epic-taxi')
           .success(function(response) {
             // Hexbin visualization
             if (visualization === 'hexbin')
-              $scope.hexbin.data = response.points.map(function(points) { return [ points.lng, points.lat ]; });
+              $scope.hexbin.data = response.points.map(function(point) { return [ point.lng, point.lat ]; });
             // Circular visualization
             else {
               // get the top 5 cluster
