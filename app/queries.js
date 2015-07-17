@@ -1,5 +1,4 @@
 var clientPool = require('./hana');
-var edgesFilter = require('./utils/edgesFilter');
 var geo = require('./utils/geo');
 var Promise = require('bluebird');
 var fs = require('fs');
@@ -345,22 +344,26 @@ var QueryHandler = {
   },
 
   getEdges: function(box, filtered, countThreshold, distanceThreshold, valueLimit) {
-    var table = filtered ? 'NYCCAB.RIDE_EDGES_FG' : 'NYCCAB.RIDE_EDGES_UF';
+    var filter = '';
+    if (filtered) {
+      filter = ' AND (station_out = 0 OR station_in = 0)';
+    }
     var query = 'SELECT LAT_IN as "lat_in", LNG_IN as "lng_in", LAT_OUT as "lat_out", LNG_OUT as "lng_out",' +
-      ' STATION_IN as "station_in", STATION_OUT as "station_out", COUNTS as "counts" FROM ' + table +
+      ' STATION_IN as "station_in", STATION_OUT as "station_out", COUNTS as "counts" FROM NYCCAB.RIDE_EDGES' +
       ' WHERE counts >= ' + countThreshold +
+      ' AND DISTANCE <= ' + distanceThreshold +
       ' AND lat_in <= ' + box.topLeft.lat + ' AND lat_in >= ' + box.bottomRight.lat +
       ' AND lat_out <= ' + box.topLeft.lat + ' AND lat_out >= ' + box.bottomRight.lat +
       ' AND lng_in >= ' + box.topLeft.lng + ' AND lng_in <= ' + box.bottomRight.lng +
       ' AND lng_out >= ' + box.topLeft.lng + ' AND lng_out <= ' + box.bottomRight.lng +
-      ' ORDER BY counts LIMIT ' + (valueLimit * 2);
+      filter + ' ORDER BY counts LIMIT ' + (valueLimit * 2);
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
         function(rows) {
           rows = QueryHandler.convertToUndirectedGeo(rows);
-          rows = edgesFilter.filter(rows, distanceThreshold);
+          rows = rows.slice(0, valueLimit);
           resolve(rows);
         },
         function(error) { reject(error); }
