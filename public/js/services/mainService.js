@@ -32,7 +32,7 @@ angular.module('epic-taxi')
       };
 
       if (ridesObj === 'incoming')
-        return $http.post('/api/cluster/incoming', data);
+        return $http.post('/api/cluster/incoming/raw', data);
       else
         return $http.post('/api/cluster/outgoing', data);
     }

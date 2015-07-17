@@ -17,12 +17,17 @@ angular.module('epic-taxi')
       iconSize: [13, 13]
     };
 
+    var hexbinConfig = {
+      radius: 50,
+      opacity: 0.7,
+      colorRange: ['#FFE0B2', '#E65100']
+    };
+
     /* Return map config */
     function getConfig() {
       return {
         newYork: { lat: 40.7304783951045, lng: -73.98880004882812, zoom: 12 },
-        paths: {
-        },
+        paths: {},
         layers: {
           baselayers: {
             mapbox_light: {
@@ -41,6 +46,7 @@ angular.module('epic-taxi')
             clusterBounds: { name: 'Cluster bounds', visible: false, type: 'group' }
           }
         },
+        hexbin: { data: [], config: hexbinConfig },
         events: {
           markers: { enable: [leafletEvents.click, leafletEvents.popupclose] }
         },

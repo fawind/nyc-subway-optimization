@@ -51,8 +51,14 @@ angular.module('epic-taxi')
         var rides = mainService.rides;
         var gridSize = mainService.gridSize;
         var boundingBox = mainService.box;
+
         mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, boundingBox, filter)
           .success(function(response) {
+
+            $scope.hexbin.data = response.points.map(function(points) { return [ points.lng, points.lat ]; });
+            $scope.loading = false;
+
+            /*
             // get the top 5 cluster
             var cluster = {
               station: {
@@ -68,6 +74,7 @@ angular.module('epic-taxi')
               cluster: angular.copy(cluster),
               loading: false
             });
+            */
           })
           .error(function(err) {
             angular.extend($scope, { loading: false });
@@ -85,10 +92,10 @@ angular.module('epic-taxi')
     // Dismiss cluster view
     $scope.resetStation = function() {
       showSubway();
-      angular.extend($scope, {
-        cluster: {},
-        edges: []
-      });
+
+      $scope.cluster = {};
+      $scope.edges = [];
+      $scope.hexbin.data = [];
     };
 
     $scope.optimizeRoutes = function() {
