@@ -27,6 +27,8 @@ angular.module('epic-taxi')
     };
 
     /* Rides filter */
+    $scope.visualizationModel = 'circular';
+
     $scope.ridesModel = 'incoming';
 
     $scope.gridSizeModel = 2000;
@@ -52,6 +54,7 @@ angular.module('epic-taxi')
 
     $scope.valueLimitModel = 500;
 
+    /* Update filter for subway optimization */
     $scope.updateOptimizationFilter = function() {
       var filter = {};
 
@@ -67,6 +70,7 @@ angular.module('epic-taxi')
       mainService.optimizationFilter = filter;
     };
 
+    /* Update filter for clustering rides */
     $scope.updateRidesFilter = function() {
       var startDate = new Date($scope.dateModel.startDate);
       var endDate = new Date($scope.dateModel.endDate);
@@ -86,6 +90,7 @@ angular.module('epic-taxi')
       mainService.filter = filter;
       mainService.rides = $scope.ridesModel;
       mainService.gridSize = $scope.gridSizeModel;
+      mainService.visualization = $scope.visualizationModel;
     };
 
     function validateDates(startDate, endDate) {

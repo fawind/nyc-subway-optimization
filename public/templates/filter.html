@@ -12,9 +12,22 @@
       <!-- Rides filter -->
       <div id="tab1" class="col s12">
         <ul class="collapsible" data-collapsible="accordion">
-           <!-- Incoming / Outgoing -->
+          <!-- Hexbin / Circular -->
           <li>
-            <div class="collapsible-header active"><i class="mdi-action-swap-horiz"></i>Incoming / Outgoing</div>
+            <div class="collapsible-header active"><i class="mdi-image-palette"></i>Visualization</div>
+            <div class="collapsible-body">
+              <p>
+                <input name="visualization" type="radio" id="circular" value="circular" ng-model="$parent.visualizationModel" ng-change="updateRidesFilter()"/>
+                <label for="circular">Circular</label>
+                <br>
+                <input name="visualization" type="radio" id="hexbin" value="hexbin" ng-model="$parent.visualizationModel" ng-change="updateRidesFilter()"/>
+                <label for="hexbin">Hexbin</label>
+              </p>
+            </div>
+          </li>
+          <!-- Incoming / Outgoing -->
+          <li>
+            <div class="collapsible-header"><i class="mdi-action-swap-horiz"></i>Incoming / Outgoing</div>
             <div class="collapsible-body">
               <p>
                 <input name="rides" type="radio" id="incoming" value="incoming" ng-model="$parent.ridesModel" ng-change="updateRidesFilter()"/>

@@ -8,6 +8,7 @@ angular.module('epic-taxi')
       angular.extend($scope, config);
       $scope.loading = false;
 
+      /* Draw a new bounding box on the map */
       leafletData.getMap('map').then(function(map) {
         var drawnItems = $scope.controls.edit.featureGroup;
         map.on('draw:created', function(e) {
@@ -20,54 +21,44 @@ angular.module('epic-taxi')
           var bottomRight = { lat: form[3][1], lng: form[3][0] };
           var box = { topLeft: topLeft, bottomRight: bottomRight };
 
-          if (validBounds(box)) {
+          if (mapService.validBounds(box)) {
             drawnItems.addLayer(layer);
             mainService.box = box;
           }
-          else {
+          else
             Materialize.toast('The bounding box is to big!', 2000);
-          }
         });
 
         map.on('draw:deleted', function(e) {
           mainService.box = null;
-       });
+        });
       });
 
+      /* Get cluster when clicking on a station */
       $scope.$on('leafletDirectiveMarker.click', function(event, args) {
         $scope.loading = true;
         hideSubway(args.model.stationId);
 
-        /*
-        // sample cluster
-        var cluster = {"station":{"id":"156","lat":40.7736203331,"lng":-73.9598739981},"cluster":[{"count":183898456,"lat":"40.755951","lng":"-73.948409"},{"count":99358022,"lat":"40.755951","lng":"-74.019760"},{"count":35405007,"lat":"40.809911","lng":"-73.948409"},{"count":26567890,"lat":"40.701992","lng":"-74.019760"},{"count":7146990,"lat":"40.755951","lng":"-73.877059"}], gridSize: 3000};
-        angular.extend($scope, {
-          cluster: angular.copy(cluster),
-          loading: false
-        });
-        */
-
+        var visualization = mainService.visualization;
         var filter = mainService.filter;
         var rides = mainService.rides;
         var gridSize = mainService.gridSize;
         var boundingBox = mainService.box;
-        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, boundingBox, filter)
-          .success(function(response) {
-            // get the top 5 cluster
-            var cluster = {
-              station: {
-                id: args.model.stationId,
-                lat: args.model.lat,
-                lng: args.model.lng
-              },
-              gridSize: gridSize,
-              cluster: _.sortBy(response.cluster, 'count').reverse().slice(0, 5)
-            };
 
-            angular.extend($scope, {
-              cluster: angular.copy(cluster),
-              loading: false
-            });
+        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, boundingBox, filter, visualization)
+          .success(function(response) {
+            // Hexbin visualization
+            if (visualization === 'hexbin')
+              $scope.hexbin.data = response.points.map(function(points) { return [ points.lng, points.lat ]; });
+            // Circular visualization
+            else {
+              // get the top 5 cluster
+              $scope.cluster = { station: { id: args.model.stationId, lat: args.model.lat, lng: args.model.lng },
+                gridSize: gridSize,
+                cluster: _.sortBy(response.cluster, 'count').reverse().slice(0, 5)
+              };
+            }
+            $scope.loading = false;
           })
           .error(function(err) {
             angular.extend($scope, { loading: false });
@@ -76,32 +67,26 @@ angular.module('epic-taxi')
           });
       });
 
+      /* Scale icons based on zoom level */
       $scope.$on('leafletDirectiveMap.zoomend', function(event, args) {
         var zoomLevel = args.leafletEvent.target.getZoom();
         updateRoutesAndStationIcons(zoomLevel);
       });
     };
 
-    // Dismiss cluster view
+    /* Reset the view */
     $scope.resetStation = function() {
       showSubway();
-      angular.extend($scope, {
-        cluster: {},
-        edges: []
-      });
+
+      $scope.cluster = {};
+      $scope.edges = [];
+      $scope.hexbin.data = [];
     };
 
+    /* Get clustered edges */
     $scope.optimizeRoutes = function() {
       $scope.loading = true;
-
-      /*
-      var edgesCache = [
-        { lat_out: 40.761807, lng_out: -73.983552, lat_in: 40.771393, lng_in: -73.983348, counts: 10 },
-        { lat_out: 40.766833, lng_out: -73.957422, lat_in: 40.778659, lng_in: -73.954462, counts: 20 },
-        { lat_out: 40.794502, lng_out: -73.968446, lat_in: 40.800529, lng_in: -73.955278, counts: 30 }
-      ];
-      angular.extend($scope, { edges: angular.copy(edgesCache), loading: false });
-      */
+      hideSubway();
 
       var filter = mainService.optimizationFilter;
       var boundingBox = mainService.box;
@@ -117,9 +102,9 @@ angular.module('epic-taxi')
           console.error('[ERROR]', err.error);
           Materialize.toast('Error retrieving results!', 2000);
         });
-
     };
 
+    /* Get new stations based on given edges */
     $scope.findStations = function() {
       $scope.loading = true;
 
@@ -138,6 +123,7 @@ angular.module('epic-taxi')
         });
     };
 
+    /* Decrease the subway-routes opacity except a given station */
     hideSubway = function(id) {
       _.each($scope.markers, function(marker){
         if (id === marker.stationId)
@@ -150,6 +136,7 @@ angular.module('epic-taxi')
       });
     };
 
+    /* Reset the subway-routes opacity */
     showSubway = function() {
       _.each($scope.markers, function(marker){
         marker.opacity = 1.0;
@@ -159,43 +146,18 @@ angular.module('epic-taxi')
       });
     };
 
+    /* Scale all icons to a given zoom level */
     function updateRoutesAndStationIcons(zoomLevel) {
       _.each($scope.markers, function(marker) {
-        marker.icon.iconSize = [iconScale(zoomLevel), iconScale(zoomLevel) ];
+        marker.icon.iconSize = [mapService.iconScale(zoomLevel), mapService.iconScale(zoomLevel) ];
       });
 
       _.each($scope.paths, function(path) {
-        path.weight = pathScale(zoomLevel);
+        path.weight = mapService.pathScale(zoomLevel);
       });
     }
 
-    function validBounds(box) {
-      var maxTopLeft = mapService.clusterBounds.topLeft;
-      var maxBottomRight = mapService.clusterBounds.bottomRight;
-
-      function inArea(point) {
-        if ((point.lat <= maxTopLeft.lat && point.lat >= maxBottomRight.lat) &&
-        (point.lng >= maxTopLeft.lng && point.lng <= maxBottomRight.lng)) {
-          return true;
-        }
-        return false;
-      }
-
-      if (inArea(box.topLeft) && inArea(box.bottomRight)) {
-        return true;
-      }
-      return false;
-    }
-
-    var iconScale = d3.scale.sqrt()
-      .domain([6, 8, 10, 12, 13, 16, 18])
-      .range([1, 3, 7, 13, 16, 35, 50]);
-
-    var pathScale = d3.scale.sqrt()
-      .domain([9, 12, 14, 16, 18])
-      .range([1, 3, 5, 8, 12]);
-
-    // init the Map and load the subway routes
+    /* Init the Map and load the subway routes */
     initMap();
 
     mainService.getStations()

@@ -17,12 +17,17 @@ angular.module('epic-taxi')
       iconSize: [13, 13]
     };
 
+    var hexbinConfig = {
+      radius: 50,
+      opacity: 0.7,
+      colorRange: ['#FFE0B2', '#E65100']
+    };
+
     /* Return map config */
     function getConfig() {
       return {
         newYork: { lat: 40.7304783951045, lng: -73.98880004882812, zoom: 12 },
-        paths: {
-        },
+        paths: {},
         layers: {
           baselayers: {
             mapbox_light: {
@@ -41,6 +46,7 @@ angular.module('epic-taxi')
             clusterBounds: { name: 'Cluster bounds', visible: false, type: 'group' }
           }
         },
+        hexbin: { data: [], config: hexbinConfig },
         events: {
           markers: { enable: [leafletEvents.click, leafletEvents.popupclose] }
         },
@@ -69,6 +75,14 @@ angular.module('epic-taxi')
 
       return colors[route];
     }
+
+    var iconScale = d3.scale.sqrt()
+      .domain([6, 8, 10, 12, 13, 16, 18])
+      .range([1, 3, 7, 13, 16, 35, 50]);
+
+    var pathScale = d3.scale.sqrt()
+      .domain([9, 12, 14, 16, 18])
+      .range([1, 3, 5, 8, 12]);
 
     /* Create marker object for each station */
     function createMarker(routes) {
@@ -119,11 +133,33 @@ angular.module('epic-taxi')
       return paths;
     }
 
+    /* Check if the given box is valid */
+    function validBounds(box) {
+      var maxTopLeft = clusterBounds.topLeft;
+      var maxBottomRight = clusterBounds.bottomRight;
+
+      function inArea(point) {
+        if ((point.lat <= maxTopLeft.lat && point.lat >= maxBottomRight.lat) &&
+        (point.lng >= maxTopLeft.lng && point.lng <= maxBottomRight.lng)) {
+          return true;
+        }
+        return false;
+      }
+
+      if (inArea(box.topLeft) && inArea(box.bottomRight)) {
+        return true;
+      }
+      return false;
+    }
+
     return {
       getConfig: getConfig,
       createMarker: createMarker,
       createPaths: createPaths,
-      clusterBounds: clusterBounds
+      clusterBounds: clusterBounds,
+      validBounds: validBounds,
+      iconScale: iconScale,
+      pathScale: pathScale
     };
   }]);
 
