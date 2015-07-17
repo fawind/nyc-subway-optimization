@@ -44,7 +44,7 @@ angular.module('epic-taxi')
     };
 
     /* Optimization filter */
-    $scope.pathfindingModel = 'on';
+    $scope.filterEdgesModel = 'on';
 
     $scope.countThresholdModel = 1000;
 
@@ -55,10 +55,10 @@ angular.module('epic-taxi')
     $scope.updateOptimizationFilter = function() {
       var filter = {};
 
-      if ($scope.pathfindingModel === 'on')
-        filter.pathfinding = true;
+      if ($scope.filterEdgesModel === 'on')
+        filter.filterEdges = true;
       else
-        filter.pathfinding = false;
+        filter.filterEdges = false;
 
       filter.countThreshold = $scope.countThresholdModel;
       filter.distanceThreshold = $scope.distanceThresholdModel;

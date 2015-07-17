@@ -76,13 +76,13 @@
       <div id="tab2" class="col s12">
         <ul class="collapsible" data-collapsible="accordion">
           <li>
-            <div class="collapsible-header active"><i class="mdi-maps-map"></i>Pathfinding</div>
+            <div class="collapsible-header active"><i class="mdi-maps-directions-subway"></i>Filter Edges based on Subway Stations</div>
             <div class="collapsible-body">
               <p>
-                <input name="pathfinding" type="radio" id="on" value="on" ng-model="$parent.pathfindingModel" ng-change="updateOptimizationFilter()"/>
+                <input name="filterEdges" type="radio" id="on" value="on" ng-model="$parent.filterEdgesModel" ng-change="updateOptimizationFilter()"/>
                 <label for="on">On</label>
                 <br>
-                <input name="pathfinding" type="radio" id="off" value="off" ng-model="$parent.pathfindingModel" ng-change="updateOptimizationFilter()"/>
+                <input name="filterEdges" type="radio" id="off" value="off" ng-model="$parent.filterEdgesModel" ng-change="updateOptimizationFilter()"/>
                 <label for="off">Off</label>
               </p>
             </div>
