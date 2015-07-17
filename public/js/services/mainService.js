@@ -4,8 +4,9 @@ angular.module('epic-taxi')
     var filter = {};
     var optimizationFilter = {};
     var pathfindingFilter = {};
-    var rides = '';
+    var rides;
     var gridSize;
+    var visualization;
 
     var topLeft = {lat: 40.864695, lng: -74.019760};
     var bottomRight = {lat: 40.621053, lng: -73.779058};
@@ -16,7 +17,7 @@ angular.module('epic-taxi')
       return $http.get('/data/subway-lines.json');
     }
 
-    function getCluster(id, lat, lng, ridesObj, radius, boundingBox, filterObj) {
+    function getCluster(id, lat, lng, ridesObj, radius, boundingBox, filterObj, visualization) {
       if (boundingBox === null)
         boundingBox = defaultBox;
 
@@ -31,10 +32,18 @@ angular.module('epic-taxi')
         filter: filterObj
       };
 
-      if (ridesObj === 'incoming')
-        return $http.post('/api/cluster/incoming/raw', data);
-      else
-        return $http.post('/api/cluster/outgoing', data);
+      if (ridesObj === 'incoming') {
+        if (visualization === 'hexbin')
+          return $http.post('/api/cluster/incoming/raw', data);
+        else
+          return $http.post('/api/cluster/incoming', data);
+      }
+      else {
+        if (visualization === 'hexbin')
+          return $http.post('/api/cluster/outgoing/raw', data);
+        else
+          return $http.post('/api/cluster/outgoing', data);
+      }
     }
 
     function getEdges(boundingBox, filterObj) {
@@ -58,6 +67,7 @@ angular.module('epic-taxi')
       pathfindingFilter: pathfindingFilter,
       rides: rides,
       box: box,
-      gridSize: gridSize
+      gridSize: gridSize,
+      visualization: visualization
     };
   }]);

@@ -27,6 +27,8 @@ angular.module('epic-taxi')
     };
 
     /* Rides filter */
+    $scope.visualizationModel = 'circular';
+
     $scope.ridesModel = 'incoming';
 
     $scope.gridSizeModel = 2000;
@@ -86,6 +88,7 @@ angular.module('epic-taxi')
       mainService.filter = filter;
       mainService.rides = $scope.ridesModel;
       mainService.gridSize = $scope.gridSizeModel;
+      mainService.visualization = $scope.visualizationModel;
     };
 
     function validateDates(startDate, endDate) {

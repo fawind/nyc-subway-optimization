@@ -38,43 +38,26 @@ angular.module('epic-taxi')
         $scope.loading = true;
         hideSubway(args.model.stationId);
 
-        /*
-        // sample cluster
-        var cluster = {"station":{"id":"156","lat":40.7736203331,"lng":-73.9598739981},"cluster":[{"count":183898456,"lat":"40.755951","lng":"-73.948409"},{"count":99358022,"lat":"40.755951","lng":"-74.019760"},{"count":35405007,"lat":"40.809911","lng":"-73.948409"},{"count":26567890,"lat":"40.701992","lng":"-74.019760"},{"count":7146990,"lat":"40.755951","lng":"-73.877059"}], gridSize: 3000};
-        angular.extend($scope, {
-          cluster: angular.copy(cluster),
-          loading: false
-        });
-        */
-
+        var visualization = mainService.visualization;
         var filter = mainService.filter;
         var rides = mainService.rides;
         var gridSize = mainService.gridSize;
         var boundingBox = mainService.box;
 
-        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, boundingBox, filter)
+        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, boundingBox, filter, visualization)
           .success(function(response) {
-
-            $scope.hexbin.data = response.points.map(function(points) { return [ points.lng, points.lat ]; });
+            // Hexbin
+            if (visualization === 'hexbin')
+              $scope.hexbin.data = response.points.map(function(points) { return [ points.lng, points.lat ]; });
+            // Circular
+            else {
+              // get the top 5 cluster
+              $scope.cluster = { station: { id: args.model.stationId, lat: args.model.lat, lng: args.model.lng },
+                gridSize: gridSize,
+                cluster: _.sortBy(response.cluster, 'count').reverse().slice(0, 5)
+              };
+            }
             $scope.loading = false;
-
-            /*
-            // get the top 5 cluster
-            var cluster = {
-              station: {
-                id: args.model.stationId,
-                lat: args.model.lat,
-                lng: args.model.lng
-              },
-              gridSize: gridSize,
-              cluster: _.sortBy(response.cluster, 'count').reverse().slice(0, 5)
-            };
-
-            angular.extend($scope, {
-              cluster: angular.copy(cluster),
-              loading: false
-            });
-            */
           })
           .error(function(err) {
             angular.extend($scope, { loading: false });
@@ -96,19 +79,11 @@ angular.module('epic-taxi')
       $scope.cluster = {};
       $scope.edges = [];
       $scope.hexbin.data = [];
-    };
-
+    }
+;
     $scope.optimizeRoutes = function() {
       $scope.loading = true;
-
-      /*
-      var edgesCache = [
-        { lat_out: 40.761807, lng_out: -73.983552, lat_in: 40.771393, lng_in: -73.983348, counts: 10 },
-        { lat_out: 40.766833, lng_out: -73.957422, lat_in: 40.778659, lng_in: -73.954462, counts: 20 },
-        { lat_out: 40.794502, lng_out: -73.968446, lat_in: 40.800529, lng_in: -73.955278, counts: 30 }
-      ];
-      angular.extend($scope, { edges: angular.copy(edgesCache), loading: false });
-      */
+      hideSubway();
 
       var filter = mainService.optimizationFilter;
       var boundingBox = mainService.box;
