@@ -111,10 +111,27 @@ angular.module('epic-taxi')
       var filter = mainService.pathfindingFilter;
       var edges = $scope.edges;
 
+      /*
+      var results = [{"stations":[{"lat":"40.779243","lng":"-73.999696"},{"lat":"40.784575","lng":"-73.990203"},{"lat":"40.788981","lng":"-73.996021"}]},{"stations":[{"lat":"40.771608","lng":"-73.975239"},{"lat":"40.776158","lng":"-73.967171"},{"lat":"40.789676","lng":"-73.962021"}]}];
+      $scope.loading = false;
+      results = mapService.sanitizePath(results);
+      var paths = mapService.createPaths(results);
+      var stations = mapService.createMarker(results);
+      _.assign($scope.paths, paths);
+      _.assign($scope.markers, stations);
+      */
+
       mainService.findStations(edges, filter)
         .success(function(results) {
-          angular.extend($scope, { loading: false });
           console.log('got optimized stations:', stations);
+          $scope.loading = false;
+
+          results = mapService.sanitizePath(results);
+          var paths = mapService.createPaths(results);
+          var stations = mapService.createMarker(results);
+
+          _.assign($scope.paths, paths);
+          _.assign($scope.markers, stations);
         })
         .error(function(err) {
           angular.extend($scope, { loading: false });
@@ -166,5 +183,6 @@ angular.module('epic-taxi')
 
         $scope.markers = mapService.createMarker(routes);
         $scope.paths = mapService.createPaths(routes);
+        $scope.paths.cluster = mapService.boundsBox;
       });
   }]);

@@ -43,6 +43,7 @@ angular.module('epic-taxi')
           },
           overlays: {
             subway: { name: 'Subway', visible: true, type: 'group' },
+            optimization: { name: 'Optimization', visible: true, type: 'group' },
             clusterBounds: { name: 'Cluster bounds', visible: false, type: 'group' }
           }
         },
@@ -73,7 +74,7 @@ angular.module('epic-taxi')
         Z: 'brown'
       };
 
-      return colors[route];
+      return colors[route] || 'red';
     }
 
     var iconScale = d3.scale.sqrt()
@@ -89,6 +90,10 @@ angular.module('epic-taxi')
       var marker = {};
 
       _.each(routes, function(route) {
+        var layer = 'subway';
+        if (route.route.includes('new'))
+          layer = 'optimization';
+
         _.each(route.stations, function(station, i) {
           marker[station.id] = {
             stationId: station.id,
@@ -98,7 +103,7 @@ angular.module('epic-taxi')
             focus: false,
             draggable: false,
             icon: stationIcon,
-            layer: 'subway'
+            layer: layer
           };
         });
       });
@@ -109,15 +114,18 @@ angular.module('epic-taxi')
     /* Create path object for each route */
     function createPaths(routes) {
       var paths = {};
-      paths.cluster = boundsBox;
 
       _.each(routes, function(route) {
+        var layer = 'subway';
+        if (route.route.includes('new'))
+          layer = 'optimization';
+
         var routePath = {
           color: getRouteColor(route.route),
           weight: 3,
           message: route.route,
           latlngs: [],
-          layer: 'subway'
+          layer: layer
         };
 
         _.each(route.stations, function(station) {
@@ -128,6 +136,24 @@ angular.module('epic-taxi')
         });
 
         paths[route.route] = routePath;
+      });
+
+      return paths;
+    }
+
+    function sanitizePath(paths) {
+      var pathCount = 0;
+      var stationCount = 0;
+      _.each(paths, function(path) {
+        path.route = 'new' + pathCount;
+
+        _.each(path.stations, function(station) {
+          station.id = stationCount;
+          station.name = 'Station ' + stationCount;
+          stationCount++;
+        });
+
+        pathCount++;
       });
 
       return paths;
@@ -158,6 +184,8 @@ angular.module('epic-taxi')
       createPaths: createPaths,
       clusterBounds: clusterBounds,
       validBounds: validBounds,
+      sanitizePath: sanitizePath,
+      boundsBox: boundsBox,
       iconScale: iconScale,
       pathScale: pathScale
     };
