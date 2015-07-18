@@ -1,5 +1,6 @@
 var express = require('express');
 var QueryHandler = require('./queries');
+var PathFinder = require('./pathfinder');
 
 var router = express.Router();
 
@@ -78,7 +79,7 @@ router.post('/api/analyse', function(req, res, next) {
 router.post('/api/analyse/stations', function(req, res, next) {
   console.log('POST request to /api/analyse/stations');
 
-  /* TODO: Pathfinding */
+  console.log(req.body);
   res.status(500).json({ error: errorMsg });
 
 });
