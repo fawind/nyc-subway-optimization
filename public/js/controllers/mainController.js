@@ -106,6 +106,7 @@ angular.module('epic-taxi')
 
     /* Get new stations based on given edges */
     $scope.findStations = function() {
+      $('#modalOptimization').closeModal();
       $scope.loading = true;
 
       var filter = mainService.pathfindingFilter;
@@ -123,6 +124,7 @@ angular.module('epic-taxi')
 
       mainService.findStations(edges, filter)
         .success(function(results) {
+          $scope.edges = [];
           console.log('got optimized stations:', stations);
           $scope.loading = false;
 
