@@ -5,7 +5,7 @@
     <ul class="collapsible" data-collapsible="accordion">
       <!-- Relational Comparison of Edges -->
       <li>
-        <div class="collapsible-header active"><i class="mdi-maps-directions-subway"></i>Weigh Edges based on Relation between Count and Length</div>
+        <div class="collapsible-header active"><i class="mdi-action-assessment"></i>Weigh Edges based on Relation between Count and Length</div>
         <div class="collapsible-body">
           <p>
             <input name="relational" type="radio" id="true" value="true" ng-model="$parent.relationalComparisonModel" ng-change="updatePathfindingFilter()"/>
@@ -16,15 +16,15 @@
           </p>
         </div>
       </li>
-      <!-- Rides Threshold -->
+      <!-- Lines Amount -->
       <li>
-        <div class="collapsible-header"><i class="mdi-maps-directions-subway"></i>Max Distance Between Stations</div>
+        <div class="collapsible-header"><i class="mdi-maps-directions-subway"></i>Number of new Lines</div>
         <div class="collapsible-body">
           <p>
-            <label>Max Distance: {{stationDistanceModel}}m</label>
+            <label>Lines: {{newLinesModel}}</label>
           </p>
           <p class="range-field">
-            <input type="range" id="stationDistance" min="500" max="5000" ng-model="$parent.stationDistanceModel" ng-change="updatePathfindingFilter()"/>
+            <input type="range" id="newLines" min="1" max="10" ng-model="$parent.newLinesModel" ng-change="updatePathfindingFilter()"/>
           </p>
         </div>
       </li>

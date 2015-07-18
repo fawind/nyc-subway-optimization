@@ -1,30 +1,18 @@
+// spans MAX area. We focus on manhatten area and east till JFK-airport
+const TopLeft = {lng: -74.019760, lat: 40.864695};
+const BottomRight = {lng: -73.779058, lat: 40.621053};
+const defaultLNG = -74.019760;
+const defaultLAT = 40.864695;
+
 var GeoUtils = {
-  // spans MAX area we focus on manhatten area and east till JFK-airport
-  getTopLeft: {lng: -74.019760, lat: 40.864695},
-  getBottomRight: {lng: -73.779058, lat: 40.621053},
-
-  getLatDiff_sph: 0.243643,
-  getLngDiff_sph: 0.240702,
-
-  // return quite accurate value for border of our rectangle
-  getLatDiff_m: function() {
-    return this.getDistance_m(this.getTopLeft.lat, this.getTopLeft.lng,
-      this.getBottomRight.lat,this.getTopLeft.lng);
-  },
-
-  getLngDiff_m: function() {
-    return this.getDistance_m(this.getTopLeft.lat, this.getTopLeft.lng,
-      this.getTopLeft.lat,this.getBottomRight.lng);
-  },
-
-  getLatDiff_n: function() {
-    return Math.abs(this.getTopLeft.lat - this.getBottomRight.lat);
-  },
-
-  getLngDiff_n: function() {
-    return Math.abs(this.getTopLeft.lng - this.getBottomRight.lng);
-  },
-
+  /**
+   * calculate the distance between to spatial points
+   * @param {Number} latitude point a
+   * @param {Number} longitude point a
+   * @param {Number} latitude point b
+   * @param {Number} longitude point b
+   * @return {Number} distance in meters
+   */
   getDistance_m: function(lat1, lng1, lat2, lng2) {
     var radius = 6371000;
 
@@ -46,15 +34,27 @@ var GeoUtils = {
     return deg * (Math.PI/180);
   },
 
+  /**
+   * calculate relative difference for lat-value to add a value in meters
+   * @param {Number} latitude of point
+   * @param {Number} longitude of point
+   * @param {Number} distance between lat-values
+   * @return {Number} Lat-diff approximately fitting blockSize_m in spatial
+   */
   getLatDiff: function(lat1, lat2, blockSize_m) {
-    var d = this.getDistance_m(lat1, this.getTopLeft.lng,
-      lat2, this.getTopLeft.lng);
+    var d = GeoUtils.getDistance_m(lat1, defaultLNG, lat2, defaultLNG);
     return Math.abs(lat1 - lat2) * (blockSize_m/d);
   },
 
+  /**
+   * calculate relative difference for lng-value to add a value in meters
+   * @param {Number} latitude of point
+   * @param {Number} longitude of point
+   * @param {Number} distance between lat-values
+   * @return {Number} Lng-diff approximately fitting blockSize_m in spatial
+   */
   getLngDiff: function(lng1, lng2, blockSize_m) {
-    var d = this.getDistance_m(this.getTopLeft.lat, lng1,
-      this.getTopLeft.lat, lng2);
+    var d = GeoUtils.getDistance_m(defaultLAT, lng1, defaultLAT, lng2);
     return Math.abs(lng1 -lng2) * (blockSize_m/d);
   }
 };

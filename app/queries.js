@@ -5,6 +5,15 @@ var fs = require('fs');
 require('array.prototype.findindex');
 
 var QueryHandler = {
+  /**
+   * Returns clusters with respective count of rides. Involve all rides going out from a given station
+   * @param {id: id, lat, lng} get rides going out from here
+   * @param {startDate, endDate} timeSpan of the rides
+   * @param {Tuple of years} also used as timeSpan ( mutually exclusive with timeSpan)
+   * @param {Number} Radius drawn around the station, 2*radius = cluster edges
+   * @param {box} box containing the rectangular coordinates to cluster in
+   * @return {Promise} which resolutes when query is finished
+   */
   getClusterOutgoing: function(station, timeSpan, years, radius, box) {
     // ================================================================
     // Generating the query by indvidiually generating each areas constraint.
@@ -36,7 +45,6 @@ var QueryHandler = {
     }
 
     var innerQuery = queryList.join(' UNION ALL ');
-
     // ================================================================
     // All given filters are applied on the clustered rides. As base for the
     // filters we have 'basePickup' which essentially is a station. We only focus
@@ -56,22 +64,11 @@ var QueryHandler = {
     // filter based on the years we want to have a look at
     var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN (' + years.join(', ') + ')';
 
-    /* filter based on specific daytimes (morning, midday, evening, night)
-    daytimes = daytimes.map(function(d) {
-      return '(hour(cast(PICKUP_TIME as SECONDDATE)) >= '+d[0]+' AND hour(cast(PICKUP_TIME as SECONDDATE)) <= '+d[1]+')'
-    }).join(' OR ');
-    var daytimeFilter = ' AND (' + daytimes + ')'
-    */
-
-    // query - add +daytimeFilter later as it runs more than a minute with it.
     var query = 'SELECT COUNT(ID) as "count", lat as "lat", lng as "lng" FROM(' + innerQuery + ') WHERE ' +
       basePickup + fromToFilter + yearFilter + ' GROUP BY lat, lng';
 
-    // just for testing reasons
     console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
-    //console.log(query);
 
-    // execute query
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
@@ -81,6 +78,15 @@ var QueryHandler = {
     });
   },
 
+  /**
+   * Returns clusters with respective count of rides. Involve all rides going in to the given station
+   * @param {id: id, lat, lng} get rides going in here
+   * @param {startDate, endDate} timeSpan of the rides
+   * @param {Tuple of years} also used as timeSpan ( mutually exclusive with timeSpan)
+   * @param {Number} Radius drawn around the station, 2*radius = cluster edges
+   * @param {box} box containing the rectangular coordinates to cluster in
+   * @return {Promise} which resolutes when query is finished
+   */
   getClusterIncoming: function(station, timeSpan, years, radius, box) {
     // ================================================================
     // Generating the query by indvidiually generating each areas constraint.
@@ -112,7 +118,6 @@ var QueryHandler = {
     }
 
     var innerQuery = queryList.join(' UNION ALL ');
-
     // ================================================================
     // All given filters are applied on the clustered rides. As base for the
     // filters we have 'basePickup' which essentially is a station. We only focus
@@ -132,22 +137,11 @@ var QueryHandler = {
     // filter based on the years we want to have a look at
     var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN (' + years.join(', ') + ')';
 
-    /* filter based on specific daytimes (morning, midday, evening, night)
-    daytimes = daytimes.map(function(d) {
-      return '(hour(cast(PICKUP_TIME as SECONDDATE)) >= '+d[0]+' AND hour(cast(PICKUP_TIME as SECONDDATE)) <= '+d[1]+')'
-    }).join(' OR ');
-    var daytimeFilter = ' AND (' + daytimes + ')'
-    */
-
-    // query - add +daytimeFilter later as it runs more than a minute with it.
     var query = 'SELECT COUNT(ID) as "count", lat as "lat", lng as "lng" FROM(' + innerQuery + ') WHERE ' +
       basePickup + fromToFilter+yearFilter + ' GROUP BY lat, lng';
 
-    // just for testing reasons
     console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
-    //console.log(query);
 
-    // execute query
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
@@ -157,10 +151,19 @@ var QueryHandler = {
     });
   },
 
+  /**
+   * Returns array of all rides filtered. Involve all rides going out from the given station.
+   * NB: Extremely high amount of data is possible - so long streaming time
+   * @param {id: id, lat, lng} get rides going out from here
+   * @param {startDate, endDate} timeSpan of the rides
+   * @param {Tuple of years} also used as timeSpan ( mutually exclusive with timeSpan)
+   * @param {Number} Radius drawn around the station, 2*radius = cluster edges
+   * @param {box} box containing the rectangular coordinates to cluster in
+   * @return {Promise} which resolutes when query is finished
+   */
   getPointsOutgoing: function(station, timeSpan, years, radius, box) {
     var offsetLat = geo.getLatDiff(box.topLeft.lat, box.bottomRight.lat, radius);
     var offsetLng = geo.getLngDiff(box.topLeft.lng, box.bottomRight.lng, radius);
-
     // ================================================================
     // All given filters are applied on the clustered rides. As base for the
     // filters we have 'basePickup' which essentially is a station. We only focus
@@ -183,15 +186,11 @@ var QueryHandler = {
     // filter based on the years we want to have a look at
     var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN (' + years.join(', ') + ')';
 
-    // query - add +daytimeFilter later as it runs more than a minute with it.
     var query = 'SELECT DROPOFF_LAT as "lat", DROPOFF_LONG as "lng" FROM NYCCAB.TRIP WHERE ' +
       basePickup + inBoxFilter + fromToFilter + yearFilter + ' GROUP BY DROPOFF_LAT, DROPOFF_LONG';
 
-    // just for testing reasons
     console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
-    //console.log(query);
 
-    // execute query
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
@@ -201,10 +200,19 @@ var QueryHandler = {
     });
   },
 
+  /**
+   * Returns array of all rides filtered. Involve all rides going in to the given station.
+   * NB: Extremely high amount of data is possible - so long streaming time
+   * @param {id: id, lat, lng} get rides going in here
+   * @param {startDate, endDate} timeSpan of the rides
+   * @param {Tuple of years} also used as timeSpan ( mutually exclusive with timeSpan)
+   * @param {Number} Radius drawn around the station, 2*radius = cluster edges
+   * @param {box} box containing the rectangular coordinates to cluster in
+   * @return {Promise} which resolutes when query is finished
+   */
   getPointsIncoming: function(station, timeSpan, years, radius, box) {
     var offsetLat = geo.getLatDiff(box.topLeft.lat, box.bottomRight.lat, radius);
     var offsetLng = geo.getLngDiff(box.topLeft.lng, box.bottomRight.lng, radius);
-
     // ================================================================
     // All given filters are applied on the rides. As base for the
     // filters we have 'basePickup' which essentially is a station. We only focus
@@ -231,155 +239,7 @@ var QueryHandler = {
     var query = 'SELECT PICKUP_LAT as "lat", PICKUP_LONG as "lng" FROM NYCCAB.TRIP WHERE ' +
       basePickup + inBoxFilter + fromToFilter + yearFilter + ' GROUP BY PICKUP_LAT, PICKUP_LONG';
 
-    // just for testing reasons
     console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
-    //console.log(query);
-
-    // execute query
-    return new Promise(function(resolve, reject) {
-      clientPool.query(
-        query,
-        function(rows) { resolve(rows); },
-        function(error) { reject(error); }
-      );
-    });
-  },
-
-  getAllCluster: function(radius) {
-    var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
-    var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
-    var years = [ '2010', '2011', '2012', '2013' ];
-    // ================================================================
-    // For each square containing the circle cluster all outgoing rides
-    // which would be equivalent to doing the same with incoming (=same edges).
-
-    var offsetLat = geo.getLatDiff(box.topLeft.lat, box.bottomRight.lat, radius);
-    var offsetLng = geo.getLngDiff(box.topLeft.lng, box.bottomRight.lng, radius);
-    var lat = box.bottomRight.lat + offsetLat;
-    var lng = box.topLeft.lng + offsetLng;
-
-    var promises = [];
-    var resultList = [];
-    // start in the south of NYC
-    while (lat < box.topLeft.lat) {
-      // start in the west of NYC
-      while (lng < box.bottomRight.lng) {
-        promises.push(QueryHandler.getClusterOutgoing({lng: lng, lat: lat}, dates, years, radius, box)
-          .then(function(rows) { resultList.push({ lat: lat, lng: lng, endPoints: rows }); })
-          .catch(function(err) { console.log(err); }));
-
-        // increase longitude for next iteration by one box-size
-        lng = lng + (2 * offsetLng);
-      }
-      // increase latitude for next iteration by one box-size
-      lat = lat + (2 * offsetLat);
-      // reset longitude
-      lng = box.topLeft.lng + offsetLng;
-    }
-
-    // resultList wanted here
-    return Promise.all(promises)
-      .then(function() {
-        return resultList;
-      });
-  },
-
-  getAllClusterSequential: function(radius, exportFile, insertDB) {
-    var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
-    var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
-    var years = [ '2010', '2011', '2012', '2013' ];
-    var attr = { dates: dates, years: years, radius: radius, box: box };
-    // ================================================================
-    // For each square containing the circle cluster all outgoing rides
-    // which would be equivalent to doing the same with incoming (=same edges).
-
-    var offsetLat = geo.getLatDiff(box.topLeft.lat, box.bottomRight.lat, radius);
-    var offsetLng = geo.getLngDiff(box.topLeft.lng, box.bottomRight.lng, radius);
-    var lat = box.bottomRight.lat + offsetLat;
-    var lng = box.topLeft.lng + offsetLng;
-
-    var queries = [];
-    var resultList = [];
-
-    /* Add lat-lngs to query-list */
-    // start in the south of NYC
-    while (lat < box.topLeft.lat) {
-      // start in the west of NYC
-      while (lng < box.bottomRight.lng) {
-        queries.push({ lng: lng, lat: lat });
-
-        // increase longitude for next iteration by one box-size
-        lng = lng + (2 * offsetLng);
-      }
-      // increase latitude for next iteration by one box-size
-      lat = lat + (2 * offsetLat);
-      // reset longitude
-      lng = box.topLeft.lng + offsetLng;
-    }
-
-    // Execute a query for each lat-lng recursively
-    return new Promise(function(resolve, reject) {
-      QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject, exportFile, insertDB);
-    });
-  },
-
-  executeRecursive: function(queries, attr, resultList, resolve, reject, exportFile, insertDB) {
-    if (queries.length === 0) {
-      resolve(resultList);
-    }
-    else {
-      latLng = queries.pop();
-      QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.radius, attr.box)
-        .then(function(rows) {
-          var result = { lat: latLng.lat, lng: latLng.lng, endPoints: rows }
-          resultList.push('one_more');
-          if (exportFile)
-            QueryHandler.saveToFile(latLng, result);
-          if (insertDB)
-            QueryHandler.insertRideEdges(result);
-
-          QueryHandler.executeRecursive(queries, attr, resultList, resolve, reject, exportFile, insertDB);
-        })
-        .catch(function(error) { reject(error); });
-    }
-  },
-
-  saveToFile: function(latLng, edges) {
-    var path = '/tmp/' + String(latLng.lat) + 'x' + String(latLng.lng) + '.json';
-    fs.writeFile(path, JSON.stringify(edges, null, '\t'), function(err) {
-      if (err)
-        console.log(err);
-      else
-        console.log("saved tmp data to:", path);
-    });
-  },
-
-  edgesToRows: function(edges) {
-    rows = [];
-    for (i = 0; i < edges.endPoints.length; i++) {
-      var temp = edges.endPoints[i];
-      rows.push([edges.lat, edges.lng, temp.count, Number(temp.lat), Number(temp.lng)]);
-    }
-    return rows;
-  },
-
-  insertRideEdges: function(result) {
-    // convert result to rows
-    var bulk = QueryHandler.edgesToRows(result);
-    // add data about stations in cluster
-    QueryHandler.addSubwayToEdges(bulk, false, function(res) {
-      bulk = QueryHandler.addDistanceToEdges(res);
-      var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?, ?, ?, ?)';
-      clientPool.insertBulk(statement, bulk, function(affectedRows) {
-        console.log(affectedRows.length, 'rows affected by insert');
-      }, function(err) {
-        console.log(err);
-      });
-    });
-  },
-
-  getSubwayStations: function() {
-    var query = 'SELECT LAT as "lat", LNG as "lng" FROM NYCCAB.SUBWAY_STATION';
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
@@ -390,51 +250,19 @@ var QueryHandler = {
     });
   },
 
-  addSubwayToEdges: function(edges, del, cb, error) {
-    QueryHandler.getSubwayStations()
-      .then(function(rows) {
-        var length = edges.length;
-        edges.forEach(function(curVal) {
-          curVal.splice(2, 0, QueryHandler.subwayInReach(curVal[0], curVal[1], 500, rows));
-          curVal.splice(6, 0, QueryHandler.subwayInReach(curVal[4], curVal[5], 500, rows));
-        });
-
-        if (del) {
-          // delete edges between two subway stations
-          edges = edges.filter(function(curVal) {
-            return !(curVal[2] && curVal[6]);
-          });
-        }
-
-        console.log('eliminated', length - edges.length, 'rows');
-
-        cb(edges);
-      })
-      .catch(function(err) {
-        error(err);
-      });
-  },
-
-  subwayInReach: function(lat, lng, range, stations) {
-    for(i = 0; i < stations.length; i++) {
-      if (geo.getDistance_m(lat, lng, stations[i].lat, stations[i].lng) <= range)
-        return 1;
-    }
-    return 0;
-  },
-
-  addDistanceToEdges: function(edges) {
-    for (i = 0; i < edges.length; i++) {
-      var distance = geo.getDistance_m(edges[i][0], edges[i][1], edges[i][4], edges[i][5]);
-      edges[i].push(distance);
-    }
-    return edges;
-  },
-
+  /**
+   * Get all edges which are generated by the EdgeCalculator. Apply optional filters
+   * @param {box} retrieve only edges within the box
+   * @param {Boolean} filter rides based on near subway stations
+   * @param {Number} minimum amount of counts for an edge
+   * @param {Number} maximum length for an edge
+   * @param {Number} amount of edges to be retrieved
+   * @param {Promise} resolutes to function with one parameter (result)
+   */
   getEdges: function(box, filtered, countThreshold, distanceThreshold, valueLimit) {
     var filter = '';
     if (filtered) {
-      filter = ' AND (station_out = 0 OR station_in = 0)';
+      filter = ' AND ((station_out = 0) OR (station_in = 0))';
     }
     // exclude edges that are simply vertices with a count (rides within a cluster)
     var excludeVertices = 150;
@@ -446,56 +274,43 @@ var QueryHandler = {
       ' AND lat_out <= ' + box.topLeft.lat + ' AND lat_out >= ' + box.bottomRight.lat +
       ' AND lng_in >= ' + box.topLeft.lng + ' AND lng_in <= ' + box.bottomRight.lng +
       ' AND lng_out >= ' + box.topLeft.lng + ' AND lng_out <= ' + box.bottomRight.lng +
-      filter + ' ORDER BY counts LIMIT ' + (valueLimit * 2);
+      filter + ' ORDER BY COUNTS DESC LIMIT ' + (valueLimit * 2);
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
         function(rows) {
-          rows = QueryHandler.convertToUndirectedGeo(rows);
+          rows = convertToUndirected(rows);
           rows = rows.slice(0, valueLimit);
           resolve(rows);
         },
         function(error) { reject(error); }
       );
     });
-  },
-
-  convertToUndirectedExact: function(edges) {
-    for (i = edges.length - 1; i >= 0; i--) {
-      var index = edges.findIndex(function(curVal) {
-        // find reverse edges (in and out are swapped)
-        if (edges[i].lat_in == curVal.lat_out && edges[i].lng_in == curVal.lng_out &&
-          edges[i].lat_out == curVal.lat_in && edges[i].lng_out == curVal.lng_in)
-          return true;
-        return false;
-      });
-
-      if (index >= 0) {
-        edges[index].counts = edges[index].counts + edges[i].counts;
-        edges.splice(i, 1);
-      }
-    }
-    return edges;
-  },
-
-  convertToUndirectedGeo: function(edges) {
-    for (i = edges.length - 1; i >= 0; i--) {
-      var index = edges.findIndex(function(curVal) {
-        // find reverse edges (in and out are swapped)
-        if ((geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, curVal.lat_out, curVal.lng_out) < 10) &&
-          (geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, curVal.lat_in, curVal.lng_in) < 10))
-          return true;
-        return false;
-      });
-
-      if (index >= 0) {
-        edges[index].counts = edges[index].counts + edges[i].counts;
-        edges.splice(i, 1);
-      }
-    }
-    return edges;
-  },
+  }
 };
+
+/**
+ * Convert directed edges to undirected (merge those edges)
+ * @param {Array of edges} to be merged if possible
+ * @return {Array of edges} containing only undirected edges
+ */
+function convertToUndirected(edges) {
+  for (i = edges.length - 1; i >= 0; i--) {
+    var index = edges.findIndex(function(curVal) {
+      // find reverse edges (in and out are swapped)
+      if ((geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, curVal.lat_out, curVal.lng_out) < 10) &&
+        (geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, curVal.lat_in, curVal.lng_in) < 10))
+        return true;
+      return false;
+    });
+
+    if (index >= 0) {
+      edges[index].counts = edges[index].counts + edges[i].counts;
+      edges.splice(i, 1);
+    }
+  }
+  return edges;
+}
 
 module.exports = QueryHandler;

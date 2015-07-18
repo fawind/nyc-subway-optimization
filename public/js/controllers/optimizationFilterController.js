@@ -6,13 +6,13 @@ angular.module('epic-taxi')
       $('.collapsible').collapsible({});
     };
 
-    $scope.stationDistanceModel = 2000;
+    $scope.newLinesModel = 1;
     $scope.looseEndsDistanceModel = 1000;
     $scope.relationalComparisonModel = 'true';
 
     $scope.updatePathfindingFilter = function() {
       var filter = {
-        stationDistance: $scope.stationDistanceModel,
+        newLines: $scope.newLinesModel,
         looseEndsDistance: $scope.looseEndsDistanceModel,
       };
 
