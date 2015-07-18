@@ -20,7 +20,10 @@ function maxCounts(edges, relational) {
       max = edges[i];
     }
   }
-  return max;
+  if (max.visited)
+    return null;
+  else
+    return max;
 }
 
 /**
@@ -53,9 +56,7 @@ function getNextEdge(vertex, edge, distance, start, edges, relational) {
       }
     }
   }
-  console.log(posEdges.length, 'edges possible');
   posEdges = filterByDistance(posEdges, vertex, start);
-  console.log(posEdges.length, 'after filtering');
   return posEdges.length > 0 ? maxCounts(posEdges, relational) : null;
 }
 
@@ -96,6 +97,20 @@ function getEndpointVertex(edge, vertex) {
 }
 
 /**
+ * The exact opposite of getEndpointVertex above
+ * @param {edge} edge to check
+ * @param {vertex} reference vertex
+ * @return {vertex} vertex of edge with higher distance
+ */
+function getStartpointVertex(edge, vertex) {
+  if (geo.getDistance_m(edge.lat_in, edge.lng_in, vertex.lat, vertex.lng) <
+      geo.getDistance_m(edge.lat_out, edge.lng_out, vertex.lat, vertex.lng))
+    return { lat: edge.lat_in, lng: edge.lng_in };
+  else
+    return { lat: edge.lat_out, lng: edge.lng_out };
+}
+
+/**
  * Calculate the distance between two vertices and return it
  * @param {vertex} first vertex
  * @param {vertex} second vertex
@@ -117,7 +132,7 @@ function getMidPointVertex(edge) {
 }
 
 var PathFinder = {
-  findBestLine: function(edges, looseDistance, stationDistance, relational, cb) {
+  getOptimizedLines: function(edges, looseDistance, stationDistance, relational, cb) {
     var paths = [];
     // catch possible errors
     if (edges.length == 0) {
@@ -125,21 +140,29 @@ var PathFinder = {
       cb(paths);
     }
 
+    for (j = 0; j < 3; j++) {
+      paths.push({ stations: JSON.parse(JSON.stringify(PathFinder.findBestLine(edges, looseDistance, relational)))});
+    }
+
+    cb(paths);
+  },
+
+  findBestLine: function(edges, looseDistance, relational) {
     var start = maxCounts(edges);
     start.visited = true;
 
     var nextEdge;
     var cur = start;
     var curVertex = {lat: cur.lat_in, lng: cur.lng_in};
-    // { lat: start.lat_out, lng: start.lng_out },
     var stations = [curVertex];
-    // while there are next vertices in range that can be pushed, work with them otherwise one path is finished
 
     while (nextEdge = getNextEdge(curVertex, cur, looseDistance, start, edges, relational)) {
+      //stations.push(getStartpointVertex(nextEdge, curVertex));
+      stations.push(getEndpointVertex(nextEdge, curVertex));
+
+      nextEdge.visited = true;
       cur = nextEdge;
       curVertex = getEndpointVertex(cur, curVertex);
-      cur.visited = true;
-      stations.push({lat: nextEdge.lat_out, lng: nextEdge.lng_out});
     }
     stations = stations.reverse()
 
@@ -147,20 +170,15 @@ var PathFinder = {
     curVertex = { lat: start.lat_out, lng: start.lng_out };
     stations.push(curVertex);
     while (nextEdge = getNextEdge(curVertex, cur, looseDistance, start, edges, relational)) {
+      //stations.push(getStartpointVertex(nextEdge, curVertex));
+      stations.push(getEndpointVertex(nextEdge, curVertex));
+
+      nextEdge.visited = true;
       cur = nextEdge;
       curVertex = getEndpointVertex(cur, curVertex);
-      cur.visited = true;
-      stations.push({lat: nextEdge.lat_out, lng: nextEdge.lng_out});
     }
-    paths.push({stations: stations});
-    console.log(stations);
-    /*
-    while (nextEdge = getNextEdge({lat: cur.lat_out, lng: cur.lng_out}, cur, looseDistance, start, edges, relational)) {
 
-    }
-    */
-
-    cb(paths);
+    return stations;
   }
 }
 
