@@ -53,8 +53,9 @@ function getNextEdge(vertex, edge, distance, start, edges, relational) {
       }
     }
   }
+  console.log(posEdges.length, 'edges possible');
   posEdges = filterByDistance(posEdges, vertex, start);
-  console.log(posEdges);
+  console.log(posEdges.length, 'after filtering');
   return posEdges.length > 0 ? maxCounts(posEdges, relational) : null;
 }
 
@@ -124,23 +125,35 @@ var PathFinder = {
       cb(paths);
     }
 
-    console.log('find max');
     var start = maxCounts(edges);
-    console.log('got max');
     start.visited = true;
 
     var nextEdge;
     var cur = start;
-    var stations = [{ lat: start.lat_out, lng: start.lng_out }, { lat: start.lat_in, lng: start.lat_in }];
+    var curVertex = {lat: cur.lat_in, lng: cur.lng_in};
+    // { lat: start.lat_out, lng: start.lng_out },
+    var stations = [curVertex];
     // while there are next vertices in range that can be pushed, work with them otherwise one path is finished
 
-    while (nextEdge = getNextEdge({lat: cur.lat_in, lng: cur.lng_in}, cur, looseDistance, start, edges, relational)) {
+    while (nextEdge = getNextEdge(curVertex, cur, looseDistance, start, edges, relational)) {
       cur = nextEdge;
+      curVertex = getEndpointVertex(cur, curVertex);
       cur.visited = true;
       stations.push({lat: nextEdge.lat_out, lng: nextEdge.lng_out});
-      if(stations.length > 20) cb(stations);
+    }
+    stations = stations.reverse()
+
+    cur = start;
+    curVertex = { lat: start.lat_out, lng: start.lng_out };
+    stations.push(curVertex);
+    while (nextEdge = getNextEdge(curVertex, cur, looseDistance, start, edges, relational)) {
+      cur = nextEdge;
+      curVertex = getEndpointVertex(cur, curVertex);
+      cur.visited = true;
+      stations.push({lat: nextEdge.lat_out, lng: nextEdge.lng_out});
     }
     paths.push({stations: stations});
+    console.log(stations);
     /*
     while (nextEdge = getNextEdge({lat: cur.lat_out, lng: cur.lng_out}, cur, looseDistance, start, edges, relational)) {
 
