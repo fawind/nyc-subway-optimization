@@ -42,22 +42,20 @@ function edgeLength(edge) {
  * @param {Boolean} weighting type
  * @return {Array of edges} edges having at least one vertex in range
  */
-function getNextEdges(vertex, edge, distance, start, edges, relational) {
+function getNextEdge(vertex, edge, distance, start, edges, relational) {
   var posEdges = [];
 
   for (i = 0; i < edges.length; i++) {
     if (!edges[i].visited) {
-      if (geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, vertex.lat, vertex.lng) < distance) {
-        edges[i].in = true;
+      if (geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, vertex.lat, vertex.lng) < distance ||
+          geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, vertex.lat, vertex.lng) < distance) {
+        posEdges.push(edges[i]);
       }
-      if (geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, vertex.lat, vertex.lng) < distance) {
-        edges[i].out = true;
-      }
-      if (edges[i].in || edges[i].out) { posEdges.append(edges[i]); }
     }
   }
   posEdges = filterByDistance(posEdges, vertex, start);
-  return getOptimalEdge(posEdges, start, vertex, relational);
+  console.log(posEdges);
+  return posEdges.length > 0 ? maxCounts(posEdges, relational) : null;
 }
 
 /**
@@ -65,6 +63,7 @@ function getNextEdges(vertex, edge, distance, start, edges, relational) {
  * @param {Array of edges} edges
  * @param {vertex} vertex where we are currently at
  * @param {start} start of the current pathfinding
+ * @return {Array of edges} filtered edges
  */
 function filterByDistance(edges, vertex, start) {
   var vertexStart = getMidPointVertex(start);
@@ -72,37 +71,13 @@ function filterByDistance(edges, vertex, start) {
 
   for (i = 0; i < edges.length; i++) {
     var vertexCur = getEndpointVertex(edges[i], vertex);
-    if (geo.getDistance_m(vertexCur.lat, vertexCur.lng, vertexStart,lat, vertexStart.lng) < vertexDistance)
+    if (geo.getDistance_m(vertexCur.lat, vertexCur.lng, vertexStart.lat, vertexStart.lng) < vertexDistance) {
       edges.splice(i, 1);
+      i--;
+    }
   }
 
   return edges;
-}
-
-/**
- * Get edge which is directed away from the start-edge (station) and has the maximum weight
- * @param {Array of edges} edges
- * @param {edge} start of pathfinding
- * @param {vertex} vertex currently looked at
- * @param {Boolean} weighting type
- * @return {edge} optimal edge
- */
-function getOptimalEdge(edges, start, vertex, relational) {
-  var opti = edges[0];
-  var coefM = relational ? edgeLength(opti) : 1;
-  var vertexM = getEndpointVertex(opti, vertex);
-
-  for (i = 0; i < edges.length; i++) {
-    var coefC = relational ? edgeLength(edges[i]) : 1;
-    var vertexC = getEndpointVertex(edges[i], vertex);
-
-    if ((edges[i].counts / coefC) > (opti.counts / coefM) &&
-        geo.getDistance_m()) {
-      coefM = coefC;
-      opti = edges[i];
-    }
-  }
-  return opti;
 }
 
 /**
@@ -149,16 +124,28 @@ var PathFinder = {
       cb(paths);
     }
 
+    console.log('find max');
     var start = maxCounts(edges);
+    console.log('got max');
     start.visited = true;
 
-    var nextEdgesA, nextEdgesB;
+    var nextEdge;
     var cur = start;
-    // while there are next vertexs in range that can be appended work with them otherwise one path is finished
-    while(nextEdgesA = getNextEdges({lat: cur.lat_in, lng: cur.lng_in}, cur, looseDistance, start, edges, relational)
-       && nextEdgesB = getNextEdges({lat: cur.lat_out, lng: cur.lng_out}, cur, looseDistance, start, edges, relational)) {
+    var stations = [{ lat: start.lat_out, lng: start.lng_out }, { lat: start.lat_in, lng: start.lat_in }];
+    // while there are next vertices in range that can be pushed, work with them otherwise one path is finished
+
+    while (nextEdge = getNextEdge({lat: cur.lat_in, lng: cur.lng_in}, cur, looseDistance, start, edges, relational)) {
+      cur = nextEdge;
+      cur.visited = true;
+      stations.push({lat: nextEdge.lat_out, lng: nextEdge.lng_out});
+      if(stations.length > 20) cb(stations);
+    }
+    paths.push({stations: stations});
+    /*
+    while (nextEdge = getNextEdge({lat: cur.lat_out, lng: cur.lng_out}, cur, looseDistance, start, edges, relational)) {
 
     }
+    */
 
     cb(paths);
   }
