@@ -13,7 +13,12 @@ angular.module('epic-taxi')
     };
 
     var stationIcon = {
-      iconUrl: 'assets/station-marker2.png',
+      iconUrl: 'assets/station-marker.png',
+      iconSize: [13, 13]
+    };
+
+    var newStationIcon = {
+      iconUrl: 'assets/station-marker-new.png',
       iconSize: [13, 13]
     };
 
@@ -74,7 +79,7 @@ angular.module('epic-taxi')
         Z: 'brown'
       };
 
-      return colors[route] || 'red';
+      return colors[route] || '#FFC107';
     }
 
     var iconScale = d3.scale.sqrt()
@@ -91,8 +96,11 @@ angular.module('epic-taxi')
 
       _.each(routes, function(route) {
         var layer = 'subway';
-        if (route.route.includes('new'))
+        var icon = stationIcon;
+        if (route.route.includes('new')) {
           layer = 'optimization';
+          icon = newStationIcon;
+        }
 
         _.each(route.stations, function(station, i) {
           marker[station.id] = {
@@ -102,7 +110,7 @@ angular.module('epic-taxi')
             message: station.name,
             focus: false,
             draggable: false,
-            icon: stationIcon,
+            icon: icon,
             layer: layer
           };
         });
