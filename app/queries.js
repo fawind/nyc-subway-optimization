@@ -56,22 +56,11 @@ var QueryHandler = {
     // filter based on the years we want to have a look at
     var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN (' + years.join(', ') + ')';
 
-    /* filter based on specific daytimes (morning, midday, evening, night)
-    daytimes = daytimes.map(function(d) {
-      return '(hour(cast(PICKUP_TIME as SECONDDATE)) >= '+d[0]+' AND hour(cast(PICKUP_TIME as SECONDDATE)) <= '+d[1]+')'
-    }).join(' OR ');
-    var daytimeFilter = ' AND (' + daytimes + ')'
-    */
-
-    // query - add +daytimeFilter later as it runs more than a minute with it.
     var query = 'SELECT COUNT(ID) as "count", lat as "lat", lng as "lng" FROM(' + innerQuery + ') WHERE ' +
       basePickup + fromToFilter + yearFilter + ' GROUP BY lat, lng';
 
-    // just for testing reasons
     console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
-    //console.log(query);
 
-    // execute query
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
@@ -132,22 +121,11 @@ var QueryHandler = {
     // filter based on the years we want to have a look at
     var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN (' + years.join(', ') + ')';
 
-    /* filter based on specific daytimes (morning, midday, evening, night)
-    daytimes = daytimes.map(function(d) {
-      return '(hour(cast(PICKUP_TIME as SECONDDATE)) >= '+d[0]+' AND hour(cast(PICKUP_TIME as SECONDDATE)) <= '+d[1]+')'
-    }).join(' OR ');
-    var daytimeFilter = ' AND (' + daytimes + ')'
-    */
-
-    // query - add +daytimeFilter later as it runs more than a minute with it.
     var query = 'SELECT COUNT(ID) as "count", lat as "lat", lng as "lng" FROM(' + innerQuery + ') WHERE ' +
       basePickup + fromToFilter+yearFilter + ' GROUP BY lat, lng';
 
-    // just for testing reasons
     console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
-    //console.log(query);
 
-    // execute query
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
@@ -160,7 +138,6 @@ var QueryHandler = {
   getPointsOutgoing: function(station, timeSpan, years, radius, box) {
     var offsetLat = geo.getLatDiff(box.topLeft.lat, box.bottomRight.lat, radius);
     var offsetLng = geo.getLngDiff(box.topLeft.lng, box.bottomRight.lng, radius);
-
     // ================================================================
     // All given filters are applied on the clustered rides. As base for the
     // filters we have 'basePickup' which essentially is a station. We only focus
@@ -183,15 +160,11 @@ var QueryHandler = {
     // filter based on the years we want to have a look at
     var yearFilter = ' AND year(cast(PICKUP_TIME as DATE)) IN (' + years.join(', ') + ')';
 
-    // query - add +daytimeFilter later as it runs more than a minute with it.
     var query = 'SELECT DROPOFF_LAT as "lat", DROPOFF_LONG as "lng" FROM NYCCAB.TRIP WHERE ' +
       basePickup + inBoxFilter + fromToFilter + yearFilter + ' GROUP BY DROPOFF_LAT, DROPOFF_LONG';
 
-    // just for testing reasons
     console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
-    //console.log(query);
 
-    // execute query
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
@@ -204,7 +177,6 @@ var QueryHandler = {
   getPointsIncoming: function(station, timeSpan, years, radius, box) {
     var offsetLat = geo.getLatDiff(box.topLeft.lat, box.bottomRight.lat, radius);
     var offsetLng = geo.getLngDiff(box.topLeft.lng, box.bottomRight.lng, radius);
-
     // ================================================================
     // All given filters are applied on the rides. As base for the
     // filters we have 'basePickup' which essentially is a station. We only focus
@@ -231,11 +203,8 @@ var QueryHandler = {
     var query = 'SELECT PICKUP_LAT as "lat", PICKUP_LONG as "lng" FROM NYCCAB.TRIP WHERE ' +
       basePickup + inBoxFilter + fromToFilter + yearFilter + ' GROUP BY PICKUP_LAT, PICKUP_LONG';
 
-    // just for testing reasons
     console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
-    //console.log(query);
 
-    // execute query
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
