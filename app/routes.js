@@ -80,6 +80,8 @@ router.post('/api/analyse/stations', function(req, res, next) {
   console.log('POST request to /api/analyse/stations');
 
   console.log(req.body);
+  PathFinder.findBestLine(req.body.edges, req.body.filter.looseEndsDistance,
+    req.body.filter.stationDistance)
   res.status(500).json({ error: errorMsg });
 
 });
