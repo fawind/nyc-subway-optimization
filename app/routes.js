@@ -81,7 +81,7 @@ router.post('/api/analyse/stations', function(req, res, next) {
 
   console.log(req.body);
   PathFinder.findBestLine(req.body.edges, req.body.filter.looseEndsDistance,
-    req.body.filter.stationDistance, false, function(stations) {
+    req.body.filter.stationDistance, req.body.filter.relational, function(stations) {
       res.json({ stations: stations });
     });
 });
