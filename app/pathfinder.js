@@ -9,7 +9,11 @@ var geo = require('./utils/geo');
  * @return {edge} max
  */
 function maxCounts(edges, relational) {
-  var max = edges[0];
+  var max = edges[0]
+  for (j = 0; j < edges.length; j++) {
+    if (!edges[j].visited)
+      max = edges[j];
+  }
   var coefM = relational ? edgeLength(max) : 1;
 
   for (i = 0; i < edges.length; i++) {
@@ -149,8 +153,8 @@ var PathFinder = {
       cb(paths);
     }
 
-    for (j = 0; j < lines; j++) {
-      paths.push({ stations: JSON.parse(JSON.stringify(PathFinder.findBestLine(edges, looseDistance, relational)))});
+    for (l = 0; l < lines; l++) {
+      paths.push({ stations: PathFinder.findBestLine(edges, looseDistance, relational)});
     }
 
     cb(paths);
@@ -163,6 +167,7 @@ var PathFinder = {
    */
   findBestLine: function(edges, looseDistance, relational) {
     var start = maxCounts(edges);
+    if (!start) return [];
     start.visited = true;
 
     var nextEdge;

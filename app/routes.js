@@ -79,11 +79,9 @@ router.post('/api/analyse', function(req, res, next) {
 router.post('/api/analyse/stations', function(req, res, next) {
   console.log('POST request to /api/analyse/stations');
 
-  console.log(req.body.filter.Lines);
   PathFinder.getOptimizedLines(req.body.edges, req.body.filter.looseEndsDistance,
     req.body.filter.relational, req.body.filter.newLines, function(stations) {
       res.json(stations);
-      console.log({paths: stations});
     });
 });
 
