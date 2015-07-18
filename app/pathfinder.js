@@ -10,7 +10,6 @@ var geo = require('./utils/geo');
  * @return {edge} max
  */
 function maxCounts(edges, relational) {
-  /
   var max = edges[0],
       coefM = relational ? edgeLength(max) : 1;
 
@@ -35,32 +34,73 @@ function edgeLength(edge) {
 }
 
 /**
- * Find all edges, that contain a vertice which is in range of distance from the current vertex
- * @param {vertice} vertice (current position in graph)
+ * Find all edges, that contain a vertex which is in range of distance from the current vertex
+ * @param {vertex} vertex (current position in graph)
  * @param {edge} edge (edge of the given vertex)
- * @param {distance} distance (max distance between two vertices)
+ * @param {distance} distance (max distance between two vertexs)
  * @param {edge} start of the current path
  * @param {Array of edges} edges
+ * @param {Boolean} weighting type
  * @return {Array of edges} edges having at least one vertex in range
  */
-function getNextEdges(vertice, edge, distance, start, edges) {
+function getNextEdges(vertex, edge, distance, start, edges, relational) {
   var posEdges = [];
 
   for (i = 0; i < edges.length; i++) {
     if (!edges[i].visited) {
-      if (geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, vertice.lat, vertice.lng) < distance) {
-        posEdges.append(edges[i]);
+      if (geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, vertex.lat, vertex.lng) < distance) {
+        edges[i].in = true;
       }
-      if (geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, vertice.lat, vertice.lng) < distance) {
-        posEdges.append(edges[i]);
+      if (geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, vertex.lat, vertex.lng) < distance) {
+        edges[i].out = true;
       }
+      if (edges[i].in || edges[i].out) { posEdges.append(edges[i]); }
     }
   }
-  return posEdges;
+  return getOptimalEdge(posEdges, start, vertex, relational);
 }
 
 /**
- * Get the rounded midpoint of a given edge (not made for huge edges on spherical object)
+ * Get edge which is directed away from the start-edge (station) and has the maximum weight
+ * @param {Array of edges} edges
+ * @param {edge} start of pathfinding
+ * @param {vertex} vertex currently looked at
+ * @param {Boolean} weighting type
+ * @return {edge} optimal edge
+ */
+function getOptimalEdge(edges, start, vertex, relational) {
+  var opti = edges[0],
+      coefM = relational ? edgeLength(opti) : 1;
+
+  for (i = 0; i < edges.length; i++) {
+    var coefC = relational ? edgeLength(edges[i]) : 1;
+    if (geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, vertex.lat, vertex.lng) <
+        geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, vertex.lat, vertex.lng))
+      var vertexComp = { lat: edges[i].lat_in, lng: edges[i].lng_in };
+    else
+      var vertexComp = { lat: edges[i].lat_out, lng: edges[i].lng_out };
+
+    if ((edges[i].counts / coefC) > (opti.counts / coefM) &&
+        geo.getDistance_m()) {
+      coefM = coefC;
+      opti = edges[i];
+    }
+  }
+  return opti;
+}
+
+/**
+ * Calculate the distance between two vertices and return it
+ * @param {vertex} first vertex
+ * @param {vertex} second vertex
+ * @return {Number} distance
+ */
+function vertexDistance(vertexA, vertexB) {
+  return geo.getDistance_m(vertexA.lat, vertexA.lng, vertexB.lat, vertexB.lng);
+}
+
+/**
+ * Get vague midpoint of a given edge (not made for huge edges on spherical object)
  * @param {edge} edge
  * @return {lat: lat, lng: lng} midpoint
  */
@@ -84,9 +124,9 @@ var PathFinder = {
 
     var nextEdgesA, nextEdgesB;
     var cur = start;
-    // while there are next vertices in range that can be appended work with them otherwise one path is finished
-    while(nextEdgesA = getNextEdges({lat: cur.lat_in, lng: cur.lng_in}, cur, looseDistance, start, edges)
-       && nextEdgesB = getNextEdges({lat: cur.lat_out, lng: cur.lng_out}, cur, looseDistance, start, edges)) {
+    // while there are next vertexs in range that can be appended work with them otherwise one path is finished
+    while(nextEdgesA = getNextEdges({lat: cur.lat_in, lng: cur.lng_in}, cur, looseDistance, start, edges, relational)
+       && nextEdgesB = getNextEdges({lat: cur.lat_out, lng: cur.lng_out}, cur, looseDistance, start, edges, relational)) {
 
     }
 
