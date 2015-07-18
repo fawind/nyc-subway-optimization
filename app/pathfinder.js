@@ -1,7 +1,6 @@
 var clientPool = require('./hana');
 var geo = require('./utils/geo');
 
-
 /**
  * Searches in the array of edges for the highest weighted edge.
  * relational param adds length to weight in comparison.
@@ -10,8 +9,8 @@ var geo = require('./utils/geo');
  * @return {edge} max
  */
 function maxCounts(edges, relational) {
-  var max = edges[0],
-      coefM = relational ? edgeLength(max) : 1;
+  var max = edges[0];
+  var coefM = relational ? edgeLength(max) : 1;
 
   for (i = 0; i < edges.length; i++) {
     var coefC = relational ? edgeLength(edges[i]) : 1;
@@ -57,7 +56,27 @@ function getNextEdges(vertex, edge, distance, start, edges, relational) {
       if (edges[i].in || edges[i].out) { posEdges.append(edges[i]); }
     }
   }
+  posEdges = filterByDistance(posEdges, vertex, start);
   return getOptimalEdge(posEdges, start, vertex, relational);
+}
+
+/**
+ * Remove all edges which do not lead away from the startPoint of our current path
+ * @param {Array of edges} edges
+ * @param {vertex} vertex where we are currently at
+ * @param {start} start of the current pathfinding
+ */
+function filterByDistance(edges, vertex, start) {
+  var vertexStart = getMidPointVertex(start);
+  var vertexDistance = geo.getDistance_m(vertex.lat, vertex.lng, vertexStart.lat, vertexStart.lng);
+
+  for (i = 0; i < edges.length; i++) {
+    var vertexCur = getEndpointVertex(edges[i], vertex);
+    if (geo.getDistance_m(vertexCur.lat, vertexCur.lng, vertexStart,lat, vertexStart.lng) < vertexDistance)
+      edges.splice(i, 1);
+  }
+
+  return edges;
 }
 
 /**
@@ -69,16 +88,13 @@ function getNextEdges(vertex, edge, distance, start, edges, relational) {
  * @return {edge} optimal edge
  */
 function getOptimalEdge(edges, start, vertex, relational) {
-  var opti = edges[0],
-      coefM = relational ? edgeLength(opti) : 1;
+  var opti = edges[0];
+  var coefM = relational ? edgeLength(opti) : 1;
+  var vertexM = getEndpointVertex(opti, vertex);
 
   for (i = 0; i < edges.length; i++) {
     var coefC = relational ? edgeLength(edges[i]) : 1;
-    if (geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, vertex.lat, vertex.lng) <
-        geo.getDistance_m(edges[i].lat_out, edges[i].lng_out, vertex.lat, vertex.lng))
-      var vertexComp = { lat: edges[i].lat_in, lng: edges[i].lng_in };
-    else
-      var vertexComp = { lat: edges[i].lat_out, lng: edges[i].lng_out };
+    var vertexC = getEndpointVertex(edges[i], vertex);
 
     if ((edges[i].counts / coefC) > (opti.counts / coefM) &&
         geo.getDistance_m()) {
@@ -87,6 +103,20 @@ function getOptimalEdge(edges, start, vertex, relational) {
     }
   }
   return opti;
+}
+
+/**
+ * Get vertex of an edge which is further away from another given vertex
+ * @param {edge} edge to check
+ * @param {vertex} reference vertex
+ * @return {vertex} vertex of edge with higher distance
+ */
+function getEndpointVertex(edge, vertex) {
+  if (geo.getDistance_m(edge.lat_in, edge.lng_in, vertex.lat, vertex.lng) <
+      geo.getDistance_m(edge.lat_out, edge.lng_out, vertex.lat, vertex.lng))
+    return { lat: edge.lat_out, lng: edge.lng_out };
+  else
+    return { lat: edge.lat_in, lng: edge.lng_in };
 }
 
 /**
@@ -104,7 +134,7 @@ function vertexDistance(vertexA, vertexB) {
  * @param {edge} edge
  * @return {lat: lat, lng: lng} midpoint
  */
-function getMidPoint(edge) {
+function getMidPointVertex(edge) {
   var lat = (edge.lat_in + edge.lat_out) / 2;
   var lng = (edge.lng_in + edge.lng_out) / 2;
   return {lat: lat, lng: lng};
