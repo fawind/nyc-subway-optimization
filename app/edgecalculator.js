@@ -5,6 +5,13 @@ var QueryHandler = require('./queries');
 var geo = require('./utils/geo');
 
 var EdgeCalculator = {
+  /**
+   * run getClusterOutgoing from queries for each cluster so that you get all edges weighted with the amount of rides
+   * @param {Number} radius defining the cluster granularity
+   * @param {Boolean} enable saving temporary files for each cluster to /temp
+   * @param {Boolean} enable inserting the retrieved data into the Database
+   * @return {Promise} resoluting when finished
+   */
   getAllClusterSequential: function(radius, exportFile, insertDB) {
     var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
     var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
@@ -44,6 +51,9 @@ var EdgeCalculator = {
     });
   },
 
+  /**
+   * Helper for getAllClusterSequential working with Promises to hold a sequential order
+   */
   executeRecursive: function(queries, attr, resultList, resolve, reject, exportFile, insertDB) {
     if (queries.length === 0) {
       resolve(resultList);
@@ -65,6 +75,10 @@ var EdgeCalculator = {
     }
   },
 
+  /**
+   * get all subway stations from the Database
+   * @return {Promise} resulting to function taking the result parameter
+   */
   getSubwayStations: function() {
     var query = 'SELECT LAT as "lat", LNG as "lng" FROM NYCCAB.SUBWAY_STATION';
 
@@ -77,6 +91,11 @@ var EdgeCalculator = {
     });
   },
 
+  /**
+   * insert the edges into the defined table in /management/RIDE_EDGES.sql
+   * with the additionally generated information such as station_in and _out
+   * @param {Array of data} matching the database table
+   */
   insertRideEdges: function(result) {
     // convert result to rows
     var bulk = edgesToRows(result);
@@ -93,6 +112,9 @@ var EdgeCalculator = {
   }
 }
 
+/**
+ * write edges as JSON to file in /tmp if wanted - called while clustering all
+ */
 function saveToFile(latLng, edges) {
   var path = '/tmp/' + String(latLng.lat) + 'x' + String(latLng.lng) + '.json';
   fs.writeFile(path, JSON.stringify(edges, null, '\t'), function(err) {
@@ -103,6 +125,10 @@ function saveToFile(latLng, edges) {
   });
 }
 
+/**
+ * convert edges (JSON-structure) to rows that can be inserted into the database
+ * @param {edges} JSON structure defining edges (retrieved from DB and extended)
+ */
 function edgesToRows(edges) {
   rows = [];
   for (i = 0; i < edges.endPoints.length; i++) {
@@ -112,6 +138,12 @@ function edgesToRows(edges) {
   return rows;
 }
 
+/**
+ * add station_out and station_in to edges. Says if a station is near one point.
+ * @param {edges} edges to work on
+ * @param {del} says of edges connecting to subway-stations have to be deleted
+ * @return with callback taking one argument (resultEdges)
+ */
 function addSubwayToEdges(edges, del, cb, error) {
   EdgeCalculator.getSubwayStations()
     .then(function(rows) {
@@ -137,6 +169,9 @@ function addSubwayToEdges(edges, del, cb, error) {
     });
 }
 
+/**
+ * Helper function for addSubwayToEdges calculating if a subway station is nearby
+ */
 function subwayInReach(lat, lng, range, stations) {
   for(i = 0; i < stations.length; i++) {
     if (geo.getDistance_m(lat, lng, stations[i].lat, stations[i].lng) <= range)
@@ -145,6 +180,9 @@ function subwayInReach(lat, lng, range, stations) {
   return 0;
 }
 
+/**
+ * Add information about the edges distance to the array of edges (in meters)
+ */
 function addDistanceToEdges(edges) {
   for (i = 0; i < edges.length; i++) {
     var distance = geo.getDistance_m(edges[i][0], edges[i][1], edges[i][4], edges[i][5]);
