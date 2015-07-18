@@ -83,7 +83,7 @@ var EdgeCalculator = {
     // add data about stations in cluster
     addSubwayToEdges(bulk, false, function(res) {
       bulk = addDistanceToEdges(res);
-      var statement = 'INSERT INTO NYCCAB.RIDE_EDGESDFASD values (?, ?, ?, ?, ?, ?, ?, ?)';
+      var statement = 'INSERT INTO NYCCAB.RIDE_EDGES values (?, ?, ?, ?, ?, ?, ?, ?)';
       clientPool.insertBulk(statement, bulk, function(affectedRows) {
         console.log(affectedRows.length, 'rows affected by insert');
       }, function(err) {
