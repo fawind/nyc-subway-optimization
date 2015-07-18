@@ -132,7 +132,7 @@ function getMidPointVertex(edge) {
 }
 
 var PathFinder = {
-  getOptimizedLines: function(edges, looseDistance, stationDistance, relational, cb) {
+  getOptimizedLines: function(edges, looseDistance, relational, lines, cb) {
     var paths = [];
     // catch possible errors
     if (edges.length == 0) {
@@ -140,7 +140,7 @@ var PathFinder = {
       cb(paths);
     }
 
-    for (j = 0; j < 3; j++) {
+    for (j = 0; j < lines; j++) {
       paths.push({ stations: JSON.parse(JSON.stringify(PathFinder.findBestLine(edges, looseDistance, relational)))});
     }
 
