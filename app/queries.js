@@ -434,7 +434,7 @@ var QueryHandler = {
   getEdges: function(box, filtered, countThreshold, distanceThreshold, valueLimit) {
     var filter = '';
     if (filtered) {
-      filter = ' AND (station_out = 0 OR station_in = 0)';
+      filter = ' AND ((station_out = 0) OR (station_in = 0))';
     }
     // exclude edges that are simply vertices with a count (rides within a cluster)
     var excludeVertices = 150;
@@ -446,7 +446,7 @@ var QueryHandler = {
       ' AND lat_out <= ' + box.topLeft.lat + ' AND lat_out >= ' + box.bottomRight.lat +
       ' AND lng_in >= ' + box.topLeft.lng + ' AND lng_in <= ' + box.bottomRight.lng +
       ' AND lng_out >= ' + box.topLeft.lng + ' AND lng_out <= ' + box.bottomRight.lng +
-      filter + ' ORDER BY counts LIMIT ' + (valueLimit * 2);
+      filter + ' ORDER BY COUNTS DESC LIMIT ' + (valueLimit * 2);
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
