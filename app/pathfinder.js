@@ -133,14 +133,14 @@ function getMidPointVertex(edge) {
 
 var PathFinder = {
   /**
-  * Handles request defined in routes and returns possible new subway lines on given edges
-  * @param {Array of edges} to optimize on
-  * @param {Number} max distance to merge nodes (when transforming into graph)
-  * @param {Boolean} base weight also on edges length
-  * @param {lines} number of new subway lines wanted
-  * @param {callback} taking the result as only argument
-  * @return via callback(paths)
-  */
+   * Handles request defined in routes and returns possible new subway lines on given edges
+   * @param {Array of edges} to optimize on
+   * @param {Number} max distance to merge nodes (when transforming into graph)
+   * @param {Boolean} base weight also on edges length
+   * @param {lines} number of new subway lines wanted
+   * @param {callback} taking the result as only argument
+   * @return via callback(paths)
+   */
   getOptimizedLines: function(edges, looseDistance, relational, lines, cb) {
     var paths = [];
     // catch possible errors
@@ -157,10 +157,10 @@ var PathFinder = {
   },
 
   /**
-  * Calculates the ideal lines based on the edges and their prior use
-  * @param All parameters based on getOptimizedLines above.
-  * @return {stations} list of vertices (stations) forming the new line
-  */
+   * Calculates the ideal lines based on the edges and their prior use
+   * @param All parameters based on getOptimizedLines above.
+   * @return {stations} list of vertices (stations) forming the new line
+   */
   findBestLine: function(edges, looseDistance, relational) {
     var start = maxCounts(edges);
     start.visited = true;
