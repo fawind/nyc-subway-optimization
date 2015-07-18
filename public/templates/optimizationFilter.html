@@ -1,11 +1,24 @@
 <div id="modalOptimization" class="modal">
   <div class="modal-content">
-    <h4>Optimization modal</h4>
+    <h4>Optimization Settings</h4>
 
     <ul class="collapsible" data-collapsible="accordion">
+      <!-- Relational Comparison of Edges -->
+      <li>
+        <div class="collapsible-header active"><i class="mdi-maps-directions-subway"></i>Weigh Edges based on Relation between Count and Length</div>
+        <div class="collapsible-body">
+          <p>
+            <input name="relational" type="radio" id="true" value="true" ng-model="$parent.relationalComparisonModel" ng-change="updatePathfindingFilter()"/>
+            <label for="true">On</label>
+            <br>
+            <input name="relational" type="radio" id="false" value="false" ng-model="$parent.relationalComparisonModel" ng-change="updatePathfindingFilter()"/>
+            <label for="false">Off</label>
+          </p>
+        </div>
+      </li>
       <!-- Rides Threshold -->
       <li>
-        <div class="collapsible-header active"><i class="mdi-maps-directions-subway"></i>Max Distance Between Stations</div>
+        <div class="collapsible-header"><i class="mdi-maps-directions-subway"></i>Max Distance Between Stations</div>
         <div class="collapsible-body">
           <p>
             <label>Max Distance: {{stationDistanceModel}}m</label>
@@ -23,7 +36,7 @@
             <label>Max Distance: {{looseEndsDistanceModel}}m</label>
           </p>
           <p class="range-field">
-            <input type="range" id="looseEndsDistance" min="0" max="5000" ng-model="$parent.looseEndsDistanceModel" ng-change="updatePathfindingFilter()"/>
+            <input type="range" id="looseEndsDistance" min="100" max="5000" ng-model="$parent.looseEndsDistanceModel" ng-change="updatePathfindingFilter()"/>
           </p>
         </div>
       </li>
