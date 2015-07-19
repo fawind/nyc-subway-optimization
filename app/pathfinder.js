@@ -1,5 +1,6 @@
 var clientPool = require('./hana');
 var geo = require('./utils/geo');
+var antiAliase = require('./utils/pathantialiasing');
 
 /**
  * Searches in the array of edges for the highest weighted edge.
@@ -202,7 +203,7 @@ var PathFinder = {
     }
 
     return {
-      line: stations,
+      line: antiAliase(stations),
       counts: accumCounts
     };
   }
