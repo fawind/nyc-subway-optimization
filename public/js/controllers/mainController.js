@@ -36,35 +36,7 @@ angular.module('epic-taxi')
 
       /* Get cluster when clicking on a station */
       $scope.$on('leafletDirectiveMarker.click', function(event, args) {
-        $scope.loading = true;
-        hideSubway(args.model.stationId);
-
-        var visualization = mainService.visualization;
-        var filter = mainService.filter;
-        var rides = mainService.rides;
-        var gridSize = mainService.gridSize;
-        var boundingBox = mainService.box;
-
-        mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, boundingBox, filter, visualization)
-          .success(function(response) {
-            // Hexbin visualization
-            if (visualization === 'hexbin')
-              $scope.hexbin.data = response.points.map(function(point) { return [ point.lng, point.lat ]; });
-            // Circular visualization
-            else {
-              // get the top 5 cluster
-              $scope.cluster = { station: { id: args.model.stationId, lat: args.model.lat, lng: args.model.lng },
-                gridSize: gridSize,
-                cluster: _.sortBy(response.cluster, 'count').reverse().slice(0, 5)
-              };
-            }
-            $scope.loading = false;
-          })
-          .error(function(err) {
-            angular.extend($scope, { loading: false });
-            console.error('[ERROR]', err.error);
-            Materialize.toast('Error retrieving results!', 2000);
-          });
+        clusterStation(args);
       });
 
       /* Scale icons based on zoom level */
@@ -73,6 +45,39 @@ angular.module('epic-taxi')
         updateRoutesAndStationIcons(zoomLevel);
       });
     };
+
+    /* Get cluster when clicking on a station */
+    function clusterStation(args) {
+      $scope.loading = true;
+      hideSubway(args.model.stationId);
+
+      var visualization = mainService.visualization;
+      var filter = mainService.filter;
+      var rides = mainService.rides;
+      var gridSize = mainService.gridSize;
+      var boundingBox = mainService.box;
+
+      mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, boundingBox, filter, visualization)
+        .success(function(response) {
+          // Hexbin visualization
+          if (visualization === 'hexbin')
+            $scope.hexbin.data = response.points.map(function(point) { return [ point.lng, point.lat ]; });
+          // Circular visualization
+          else {
+            // get the top 5 cluster
+            $scope.cluster = { station: { id: args.model.stationId, lat: args.model.lat, lng: args.model.lng },
+              gridSize: gridSize,
+              cluster: _.sortBy(response.cluster, 'count').reverse().slice(0, 5)
+            };
+          }
+          $scope.loading = false;
+        })
+        .error(function(err) {
+          $scope.loading = false;
+          console.error('[ERROR]', err.error);
+          Materialize.toast('Error retrieving results!', 2000);
+        });
+    }
 
     /* Reset the view */
     $scope.resetStation = function() {
@@ -106,7 +111,7 @@ angular.module('epic-taxi')
           $scope.loading = false;
         })
         .error(function(err) {
-          angular.extend($scope, { loading: false });
+          $scope.loading = false;
           console.error('[ERROR]', err.error);
           Materialize.toast('Error retrieving results!', 2000);
         });
@@ -122,7 +127,6 @@ angular.module('epic-taxi')
 
       mainService.findStations(edges, filter)
         .success(function(results) {
-          console.log('got optimized stations:', stations);
           $scope.edges = [];
           $scope.loading = false;
 
@@ -134,7 +138,7 @@ angular.module('epic-taxi')
           _.assign($scope.markers, stations);
         })
         .error(function(err) {
-          angular.extend($scope, { loading: false });
+          $scope.loading = false;
           console.error('[ERROR]', err.error);
           Materialize.toast('Error retrieving results!', 2000);
         });
@@ -176,11 +180,8 @@ angular.module('epic-taxi')
 
     /* Init the Map and load the subway routes */
     initMap();
-
     mainService.getStations()
       .success(function(routes) {
-        console.log('Got all stations...');
-
         $scope.markers = mapService.createMarker(routes);
         $scope.paths = mapService.createPaths(routes);
         $scope.paths.cluster = mapService.boundsBox;
