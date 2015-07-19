@@ -203,7 +203,7 @@ var PathFinder = {
     }
 
     return {
-      line: path.antiAliase(stations),
+      line: path.antiAliasePath(stations),
       counts: accumCounts
     };
   }
