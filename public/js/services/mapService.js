@@ -79,7 +79,16 @@ angular.module('epic-taxi')
         Z: 'brown'
       };
 
-      return colors[route] || '#FFC107';
+      var newRoutes = d3.scale.linear()
+        .domain([1, 10])
+        .range(['#E65100', '#FFF59D']);
+
+      var color = colors[route];
+
+      if (!color)
+        color = newRoutes(route.split('new')[1]);
+
+      return color;
     }
 
     var iconScale = d3.scale.sqrt()
