@@ -40,6 +40,18 @@
           </p>
         </div>
       </li>
+      <!-- Max distace between two stations -->
+      <li>
+        <div class="collapsible-header"><i class="mdi-maps-directions-subway"></i>Max Distance Between two Stations</div>
+        <div class="collapsible-body">
+          <p>
+            <label>Max Distance: {{stationDistanceModel}}m</label>
+          </p>
+          <p class="range-field">
+            <input type="range" id="stationDistance" min="800" max="3000" ng-model="$parent.stationDistanceModel" ng-change="updatePathfindingFilter()"/>
+          </p>
+        </div>
+      </li>
     </ul>
 
   </div>
