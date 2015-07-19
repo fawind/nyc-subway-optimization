@@ -19,7 +19,7 @@ angular.module('epic-taxi')
         updateRoutesAndStationIcons(zoomLevel);
       });
     };
-//
+
     /* Get cluster when clicking on a station */
     function clusterStation(args) {
       $scope.loading = true;
@@ -33,22 +33,22 @@ angular.module('epic-taxi')
 
       mainService.getCluster(args.model.stationId, args.model.lat, args.model.lng, rides, gridSize, boundingBox, filter, visualization)
         .success(function(response) {
-          // Hexbin visualization
+          // Hexbin visualization or circular visualization
           if (visualization === 'hexbin')
             $scope.hexbin.data = response.points.map(function(point) { return [ point.lng, point.lat ]; });
-          // Circular visualization
           else {
             // get the top 5 cluster
-            $scope.cluster = { station: { id: args.model.stationId, lat: args.model.lat, lng: args.model.lng },
+            $scope.cluster = {
+              station: { id: args.model.stationId, lat: args.model.lat, lng: args.model.lng },
               gridSize: gridSize,
               cluster: _.sortBy(response.cluster, 'count').reverse().slice(0, 5)
             };
           }
           $scope.loading = false;
         })
-        .error(function(err) {
+        .error(function(error) {
           $scope.loading = false;
-          console.error('[ERROR]', err.error);
+          console.error('[ERROR]', error.error);
           Materialize.toast('Error retrieving results!', 2000);
         });
     }
@@ -84,9 +84,9 @@ angular.module('epic-taxi')
           angular.extend($scope, { edges: angular.copy(edges.edges) });
           $scope.loading = false;
         })
-        .error(function(err) {
+        .error(function(error) {
           $scope.loading = false;
-          console.error('[ERROR]', err.error);
+          console.error('[ERROR]', error.error);
           Materialize.toast('Error retrieving results!', 2000);
         });
     };
@@ -111,9 +111,9 @@ angular.module('epic-taxi')
           _.assign($scope.paths, paths);
           _.assign($scope.markers, stations);
         })
-        .error(function(err) {
+        .error(function(error) {
           $scope.loading = false;
-          console.error('[ERROR]', err.error);
+          console.error('[ERROR]', error.error);
           Materialize.toast('Error retrieving results!', 2000);
         });
     };
@@ -159,7 +159,7 @@ angular.module('epic-taxi')
         path.opacity = 0.2;
       });
     }
-//
+
     /* Reset the subway-routes opacity */
     function showSubway() {
       _.each($scope.markers, function(marker){
@@ -169,7 +169,7 @@ angular.module('epic-taxi')
         path.opacity = 1.0;
       });
     }
-//
+
     /* Scale all icons to a given zoom level */
     function updateRoutesAndStationIcons(zoomLevel) {
       _.each($scope.markers, function(marker) {
@@ -180,7 +180,7 @@ angular.module('epic-taxi')
         path.weight = mapService.pathScale(zoomLevel);
       });
     }
-//
+
     /* Init the Map and load the subway routes */
     initMap();
     mainService.getStations()

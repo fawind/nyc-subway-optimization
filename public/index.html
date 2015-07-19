@@ -51,11 +51,11 @@
     <leaflet cluster cluster-connection id="map" layers="layers" center="newYork" markers="markers" paths="paths" data-hexbin="hexbin" controls="controls" defaults="defaults" cluster="cluster" edges="edges"></leaflet>
 
     <div class="buttons" ng-controller="OptimizationFilterController">
-      <a class="btn-floating btn-large waves-effect waves-light green tooltipped button" data-position="top" data-delay="50" data-tooltip="Find stations"
+      <a class="btn-floating btn-large waves-effect waves-light green tooltipped button z-depth-4" data-position="top" data-delay="50" data-tooltip="Find stations"
         ng-show="edges.length" ng-click="openOptimizationModal()">
         <i class="mdi-maps-directions-subway"></i>
       </a>
-      <a class="btn-floating btn-large waves-effect waves-light grey tooltipped button" data-position="top" data-delay="50" data-tooltip="Reset"
+      <a class="btn-floating btn-large waves-effect waves-light grey tooltipped button z-depth-4" data-position="top" data-delay="50" data-tooltip="Reset"
         ng-click="resetStation()">
         <i class="mdi-content-clear"></i>
       </a>
