@@ -80,7 +80,8 @@ router.post('/api/analyse/stations', function(req, res, next) {
   console.log('POST request to /api/analyse/stations');
 
   PathFinder.getOptimizedLines(req.body.edges, req.body.filter.looseEndsDistance,
-    req.body.filter.relational, req.body.filter.newLines, function(stations) {
+    req.body.filter.relational, req.body.filter.newLines, req.body.filter.stationDistance,
+    function(stations) {
       res.json(stations);
     });
 });

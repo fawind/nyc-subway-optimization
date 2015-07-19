@@ -1,5 +1,84 @@
 var clientPool = require('./hana');
 var geo = require('./utils/geo');
+var path = require('./utils/paths');
+
+var PathFinder = {
+  /**
+   * Handles request defined in routes and returns possible new subway lines on given edges
+   * @param {Array of edges} to optimize on
+   * @param {Number} max distance to merge nodes (when transforming into graph)
+   * @param {Boolean} base weight also on edges length
+   * @param {lines} number of new subway lines wanted
+   * @param {callback} taking the result as only argument
+   * @return via callback(paths)
+   */
+  getOptimizedLines: function(edges, looseDistance, relational, lines, stationDistance, cb) {
+    var paths = [];
+    // catch possible errors
+    if (edges.length == 0) {
+      console.log('No edges given');
+      cb(paths);
+    }
+
+    for (l = 0; l < lines; l++) {
+      var newLine = PathFinder.findBestLine(edges, looseDistance, relational, stationDistance);
+      paths.push({ stations: newLine.line, counts: newLine.counts });
+    }
+
+    cb(paths);
+  },
+
+  /**
+   * Calculates the ideal lines based on the edges and their prior use
+   * @param All parameters based on getOptimizedLines above.
+   * @return {stations} list of vertices (stations) forming the new line
+   */
+  findBestLine: function(edges, looseDistance, relational, stationDistance) {
+    var start = maxCounts(edges);
+    if (!start) return [];
+    start.visited = true;
+    var accumCounts = start.counts;
+
+    var nextEdge;
+    var cur = start;
+    var curVertex = {lat: cur.lat_in, lng: cur.lng_in};
+    var stations = [curVertex];
+
+    while (nextEdge = getNextEdge(curVertex, cur, looseDistance, start, edges, relational)) {
+      //stations.push(getStartpointVertex(nextEdge, curVertex));
+      stations.push(getEndpointVertex(nextEdge, curVertex));
+      accumCounts += nextEdge.counts;
+
+      nextEdge.visited = true;
+      cur = nextEdge;
+      curVertex = getEndpointVertex(cur, curVertex);
+    }
+    stations = stations.reverse()
+
+    cur = start;
+    curVertex = { lat: start.lat_out, lng: start.lng_out };
+    stations.push(curVertex);
+    while (nextEdge = getNextEdge(curVertex, cur, looseDistance, start, edges, relational)) {
+      //stations.push(getStartpointVertex(nextEdge, curVertex));
+      stations.push(getEndpointVertex(nextEdge, curVertex));
+      accumCounts += nextEdge.counts;
+
+      nextEdge.visited = true;
+      cur = nextEdge;
+      curVertex = getEndpointVertex(cur, curVertex);
+    }
+
+    // smoothen the path
+    stations = path.antiAliasePath(stations);
+    // add stations if wanted
+    stations = path.completePath(stations, stationDistance);
+
+    return {
+      line: stations,
+      counts: accumCounts
+    };
+  }
+};
 
 /**
  * Searches in the array of edges for the highest weighted edge.
@@ -133,79 +212,6 @@ function getMidPointVertex(edge) {
   var lat = (edge.lat_in + edge.lat_out) / 2;
   var lng = (edge.lng_in + edge.lng_out) / 2;
   return {lat: lat, lng: lng};
-}
-
-var PathFinder = {
-  /**
-   * Handles request defined in routes and returns possible new subway lines on given edges
-   * @param {Array of edges} to optimize on
-   * @param {Number} max distance to merge nodes (when transforming into graph)
-   * @param {Boolean} base weight also on edges length
-   * @param {lines} number of new subway lines wanted
-   * @param {callback} taking the result as only argument
-   * @return via callback(paths)
-   */
-  getOptimizedLines: function(edges, looseDistance, relational, lines, cb) {
-    var paths = [];
-    // catch possible errors
-    if (edges.length == 0) {
-      console.log('No edges given');
-      cb(paths);
-    }
-
-    for (l = 0; l < lines; l++) {
-      var newLine = PathFinder.findBestLine(edges, looseDistance, relational);
-      paths.push({ stations: newLine.line, counts: newLine.counts });
-    }
-
-    cb(paths);
-  },
-
-  /**
-   * Calculates the ideal lines based on the edges and their prior use
-   * @param All parameters based on getOptimizedLines above.
-   * @return {stations} list of vertices (stations) forming the new line
-   */
-  findBestLine: function(edges, looseDistance, relational) {
-    var start = maxCounts(edges);
-    if (!start) return [];
-    start.visited = true;
-    var accumCounts = start.counts;
-
-    var nextEdge;
-    var cur = start;
-    var curVertex = {lat: cur.lat_in, lng: cur.lng_in};
-    var stations = [curVertex];
-
-    while (nextEdge = getNextEdge(curVertex, cur, looseDistance, start, edges, relational)) {
-      //stations.push(getStartpointVertex(nextEdge, curVertex));
-      stations.push(getEndpointVertex(nextEdge, curVertex));
-      accumCounts += nextEdge.counts;
-
-      nextEdge.visited = true;
-      cur = nextEdge;
-      curVertex = getEndpointVertex(cur, curVertex);
-    }
-    stations = stations.reverse()
-
-    cur = start;
-    curVertex = { lat: start.lat_out, lng: start.lng_out };
-    stations.push(curVertex);
-    while (nextEdge = getNextEdge(curVertex, cur, looseDistance, start, edges, relational)) {
-      //stations.push(getStartpointVertex(nextEdge, curVertex));
-      stations.push(getEndpointVertex(nextEdge, curVertex));
-      accumCounts += nextEdge.counts;
-
-      nextEdge.visited = true;
-      cur = nextEdge;
-      curVertex = getEndpointVertex(cur, curVertex);
-    }
-
-    return {
-      line: stations,
-      counts: accumCounts
-    };
-  }
 }
 
 module.exports = PathFinder;
