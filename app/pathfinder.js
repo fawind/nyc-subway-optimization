@@ -154,7 +154,8 @@ var PathFinder = {
     }
 
     for (l = 0; l < lines; l++) {
-      paths.push({ stations: PathFinder.findBestLine(edges, looseDistance, relational)});
+      var newLine = PathFinder.findBestLine(edges, looseDistance, relational);
+      paths.push({ stations: newLine.line, counts: newLine.counts });
     }
 
     cb(paths);
@@ -169,6 +170,7 @@ var PathFinder = {
     var start = maxCounts(edges);
     if (!start) return [];
     start.visited = true;
+    var accumCounts = start.counts;
 
     var nextEdge;
     var cur = start;
@@ -178,6 +180,7 @@ var PathFinder = {
     while (nextEdge = getNextEdge(curVertex, cur, looseDistance, start, edges, relational)) {
       //stations.push(getStartpointVertex(nextEdge, curVertex));
       stations.push(getEndpointVertex(nextEdge, curVertex));
+      accumCounts += nextEdge.counts;
 
       nextEdge.visited = true;
       cur = nextEdge;
@@ -191,13 +194,17 @@ var PathFinder = {
     while (nextEdge = getNextEdge(curVertex, cur, looseDistance, start, edges, relational)) {
       //stations.push(getStartpointVertex(nextEdge, curVertex));
       stations.push(getEndpointVertex(nextEdge, curVertex));
+      accumCounts += nextEdge.counts;
 
       nextEdge.visited = true;
       cur = nextEdge;
       curVertex = getEndpointVertex(cur, curVertex);
     }
 
-    return stations;
+    return {
+      line: stations,
+      counts: accumCounts
+    };
   }
 }
 
