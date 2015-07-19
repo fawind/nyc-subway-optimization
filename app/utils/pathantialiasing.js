@@ -1,3 +1,5 @@
+var geo = require('./geo');
+
 const refPts = 2;
 const cur = 0.3;
 const oneOff = 0.2;
@@ -23,7 +25,7 @@ function antiAliase(stations) {
  * Helper function for antiAliasePath which cumulates the data around a station which
  * is one point off the end.
  */
-function antiAliasEndpoints(stations) {
+function antiAliaseEndpoints(stations) {
   var m = middle;
   stations[m].lat = stations[m].lat * 0.4
         + stations[m-1].lat * 0.3 + stations[m+1].lat * 0.3;
@@ -44,8 +46,8 @@ var PathUtils = {
     if (stations.length < (2 * refPts) + 1) return stations;
 
     var len = stations.length;
-    stations[1] = antiAliasEndpoints(stations.slice(0, 3));
-    stations[len-2] = antiAliasEndpoints(stations.slice(len-3, len));
+    stations[1] = antiAliaseEndpoints(stations.slice(0, 3));
+    stations[len-2] = antiAliaseEndpoints(stations.slice(len-3, len));
 
     for (k = refPts; k < len - refPts; k++) {
       stations[k] = antiAliase(stations.slice(k - refPts, k + refPts + 1));
@@ -53,6 +55,20 @@ var PathUtils = {
 
     return stations;
   },
+
+  /**
+   * check for each gap between two stations if another station has to be inserted
+   * @param {Array of stations} to be extended
+   * @param {Number} max distance between a pair of stations
+   * @return {Array of stations} in extended form
+   */
+  completePath: function(stations, maxDistance) {
+    for (k = 1; k < stations.length - 1; k++) {
+      if (geo.getDistance_m(stations[k-1].lat, stations[k-1].lng,
+                            stations[k].lat, stations[k].lng) > maxDistance)
+        return;
+    }
+  }
 
 }
 
