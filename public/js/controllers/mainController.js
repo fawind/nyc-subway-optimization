@@ -1,38 +1,12 @@
 angular.module('epic-taxi')
   .controller('MainController', ['$scope', 'lodash', 'MainService', 'MapService', 'leafletData', function ($scope, _, mainService, mapService, leafletData) {
 
-    var currentBoundingBoxLayer = null;
-
     initMap = function() {
       var config = mapService.getConfig();
       angular.extend($scope, config);
       $scope.loading = false;
 
-      /* Draw a new bounding box on the map */
-      leafletData.getMap('map').then(function(map) {
-        var drawnItems = $scope.controls.edit.featureGroup;
-        map.on('draw:created', function(e) {
-          drawnItems.removeLayer(currentBoundingBoxLayer);
-          var layer = e.layer;
-          currentBoundingBoxLayer = layer;
-
-          var form = layer.toGeoJSON().geometry.coordinates[0];
-          var topLeft = { lat: form[1][1], lng: form[1][0] };
-          var bottomRight = { lat: form[3][1], lng: form[3][0] };
-          var box = { topLeft: topLeft, bottomRight: bottomRight };
-
-          if (mapService.validBounds(box)) {
-            drawnItems.addLayer(layer);
-            mainService.box = box;
-          }
-          else
-            Materialize.toast('The bounding box is to big!', 2000);
-        });
-
-        map.on('draw:deleted', function(e) {
-          mainService.box = null;
-        });
-      });
+      addDrawHandler();
 
       /* Get cluster when clicking on a station */
       $scope.$on('leafletDirectiveMarker.click', function(event, args) {
@@ -45,7 +19,7 @@ angular.module('epic-taxi')
         updateRoutesAndStationIcons(zoomLevel);
       });
     };
-
+//
     /* Get cluster when clicking on a station */
     function clusterStation(args) {
       $scope.loading = true;
@@ -144,8 +118,37 @@ angular.module('epic-taxi')
         });
     };
 
+    /* Draw a new bounding box on the map */
+    function addDrawHandler() {
+      var currentBoundingBoxLayer = null;
+      leafletData.getMap('map').then(function(map) {
+        var drawnItems = $scope.controls.edit.featureGroup;
+        map.on('draw:created', function(e) {
+          drawnItems.removeLayer(currentBoundingBoxLayer);
+          var layer = e.layer;
+          currentBoundingBoxLayer = layer;
+
+          var form = layer.toGeoJSON().geometry.coordinates[0];
+          var topLeft = { lat: form[1][1], lng: form[1][0] };
+          var bottomRight = { lat: form[3][1], lng: form[3][0] };
+          var box = { topLeft: topLeft, bottomRight: bottomRight };
+
+          if (mapService.validBounds(box)) {
+            drawnItems.addLayer(layer);
+            mainService.box = box;
+          }
+          else
+            Materialize.toast('The bounding box is to big!', 2000);
+        });
+
+        map.on('draw:deleted', function(e) {
+          mainService.box = null;
+        });
+      });
+    }
+
     /* Decrease the subway-routes opacity except a given station */
-    hideSubway = function(id) {
+    function hideSubway(id) {
       _.each($scope.markers, function(marker){
         if (id === marker.stationId)
           marker.opacity = 1.0;
@@ -155,18 +158,18 @@ angular.module('epic-taxi')
       _.each($scope.paths, function(path){
         path.opacity = 0.2;
       });
-    };
-
+    }
+//
     /* Reset the subway-routes opacity */
-    showSubway = function() {
+    function showSubway() {
       _.each($scope.markers, function(marker){
         marker.opacity = 1.0;
       });
       _.each($scope.paths, function(path){
         path.opacity = 1.0;
       });
-    };
-
+    }
+//
     /* Scale all icons to a given zoom level */
     function updateRoutesAndStationIcons(zoomLevel) {
       _.each($scope.markers, function(marker) {
@@ -177,7 +180,7 @@ angular.module('epic-taxi')
         path.weight = mapService.pathScale(zoomLevel);
       });
     }
-
+//
     /* Init the Map and load the subway routes */
     initMap();
     mainService.getStations()
