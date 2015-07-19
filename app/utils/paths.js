@@ -63,13 +63,18 @@ var PathUtils = {
    * @return {Array of stations} in extended form
    */
   completePath: function(stations, maxDistance) {
-    for (k = 1; k < stations.length - 1; k++) {
-      if (geo.getDistance_m(stations[k-1].lat, stations[k-1].lng,
-                            stations[k].lat, stations[k].lng) > maxDistance)
-        return;
+    for (n = 1; n < stations.length - 1; n++) {
+      if (geo.getDistance_m(stations[n-1].lat, stations[n-1].lng,
+          stations[n].lat, stations[n].lng) > maxDistance) {
+        var newStation = {
+          lat: (stations[n-1].lat * 0.5 + stations[n].lat * 0.5),
+          lng: (stations[n-1].lng * 0.5 + stations[n].lng * 0.5)
+        }
+        stations.splice(n, 0, newStation);
+      }
     }
+    return stations;
   }
-
-}
+};
 
 module.exports = PathUtils;
