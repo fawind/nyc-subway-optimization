@@ -71,6 +71,7 @@ var PathUtils = {
           lng: (stations[n-1].lng * 0.5 + stations[n].lng * 0.5)
         }
         stations.splice(n, 0, newStation);
+        n--;
       }
     }
     return stations;
