@@ -22,6 +22,12 @@ nav {
   background: #CDD2D4;
 }
 
+.stats {
+  position: absolute;
+  right: 1em;
+  bottom: 1em;
+}
+
 .buttons {
   position: absolute;
   left: 10px;

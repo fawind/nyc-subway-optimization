@@ -63,6 +63,8 @@
       <div ng-include src="'templates/optimizationFilter.html'"></div>
     </div>
 
+    <div ng-show="savedRides != 0" ng-include src="'templates/optimizationStats.html'"></div>
+
     <div ng-show="loading" class="progress">
       <div class="indeterminate"></div>
     </div>

@@ -5,6 +5,7 @@ angular.module('epic-taxi')
       var config = mapService.getConfig();
       angular.extend($scope, config);
       $scope.loading = false;
+      $scope.savedRides = 0;
 
       addDrawHandler();
 
@@ -65,6 +66,7 @@ angular.module('epic-taxi')
         return marker.layer === 'subway';
       });
 
+      $scope.savedRides = 0;
       $scope.cluster = {};
       $scope.edges = [];
       $scope.hexbin.data = [];
@@ -101,8 +103,15 @@ angular.module('epic-taxi')
 
       mainService.findStations(edges, filter)
         .success(function(results) {
+          console.log(results);
+
           $scope.edges = [];
           $scope.loading = false;
+
+          $scope.savedRides = 0;
+          _.each(results, function(route) {
+            $scope.savedRides += route.counts;
+          });
 
           results = mapService.sanitizePath(results);
           var routes = mapService.createPaths(results);
@@ -150,14 +159,13 @@ angular.module('epic-taxi')
     /* Decrease the subway-routes opacity except a given station */
     function hideSubway(id) {
       _.each($scope.markers, function(marker){
-        if (id === marker.stationId || marker.layer === 'optimization')
+        if (id === marker.stationId)
           marker.opacity = 1.0;
         else
           marker.opacity = 0.2;
       });
       _.each($scope.paths, function(path){
-        if (path.layer !== 'optimization')
-          path.opacity = 0.2;
+        path.opacity = 0.2;
       });
     }
 
