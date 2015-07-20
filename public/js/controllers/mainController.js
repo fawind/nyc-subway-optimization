@@ -103,8 +103,6 @@ angular.module('epic-taxi')
 
       mainService.findStations(edges, filter)
         .success(function(results) {
-          console.log(results);
-
           $scope.edges = [];
           $scope.loading = false;
 
