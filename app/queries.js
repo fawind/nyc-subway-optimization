@@ -269,18 +269,25 @@ var QueryHandler = {
     var query = 'SELECT LAT_IN as "lat_in", LNG_IN as "lng_in", LAT_OUT as "lat_out", LNG_OUT as "lng_out",' +
       ' STATION_IN as "station_in", STATION_OUT as "station_out", COUNTS as "counts" FROM NYCCAB.RIDE_EDGES' +
       ' WHERE counts >= ' + countThreshold +
-      ' AND DISTANCE >= ' + excludeVertices + ' AND DISTANCE <= ' + distanceThreshold +
       ' AND lat_in <= ' + box.topLeft.lat + ' AND lat_in >= ' + box.bottomRight.lat +
       ' AND lat_out <= ' + box.topLeft.lat + ' AND lat_out >= ' + box.bottomRight.lat +
       ' AND lng_in >= ' + box.topLeft.lng + ' AND lng_in <= ' + box.bottomRight.lng +
       ' AND lng_out >= ' + box.topLeft.lng + ' AND lng_out <= ' + box.bottomRight.lng +
-      filter + ' ORDER BY COUNTS DESC LIMIT ' + (valueLimit * 2);
+      filter + ' ORDER BY COUNTS DESC LIMIT ' + (valueLimit * 8);
+
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
         function(rows) {
           rows = convertToUndirected(rows);
+          addDistance(rows);
+          rows = rows.filter(function(val) {
+            if (val.distance > distanceThreshold)
+              return false;
+            else
+              return true;
+          })
           rows = rows.slice(0, valueLimit);
           resolve(rows);
         },
@@ -289,6 +296,12 @@ var QueryHandler = {
     });
   }
 };
+
+function addDistance(edges) {
+  for (i = 0; i < edges.length; i++) {
+    edges[i].distance = geo.getDistance_m(edges[i].lat_in, edges[i].lng_in, edges[i].lat_out, edges[i].lng_out);
+  }
+}
 
 /**
  * Convert directed edges to undirected (merge those edges)

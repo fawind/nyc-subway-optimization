@@ -50,7 +50,7 @@ angular.module('epic-taxi')
 
     $scope.countThresholdModel = 1000;
 
-    $scope.distanceThresholdModel = 2200;
+    $scope.distanceThresholdModel = 3300;
 
     $scope.valueLimitModel = 500;
 
