@@ -1,6 +1,5 @@
 var clientPool = require('./hana');
 var geo = require('./utils/geo');
-var path = require('./utils/paths');
 
 var PathFinder = {
   /**
