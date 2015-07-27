@@ -63,7 +63,7 @@ angular.module('epic-taxi')
 
       /* smoothen line for frontend representation */
       for (n = 0; n < retStations.length; n++) {
-        retStations[n].stations = PathUtils.antiAliasePath(retStations[n].stations);
+        retStations[n].stations = antiAliasePath(retStations[n].stations);
       }
 
       return retStations;
