@@ -12,7 +12,7 @@ const middle = 1;
  * @param {Number} longitude point b
  * @return {Number} distance in meters
  */
-getDistance_m: function(lat1, lng1, lat2, lng2) {
+function getDistance_m(lat1, lng1, lat2, lng2) {
   var radius = 6371000;
 
   var phi = this.degToRad(lat1);
@@ -27,7 +27,7 @@ getDistance_m: function(lat1, lng1, lat2, lng2) {
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
   return radius * c;
-},
+}
 
 /**
  * Helper function for antiAliasePath which cumulates the data around a station
