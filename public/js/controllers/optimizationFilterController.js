@@ -9,13 +9,11 @@ angular.module('epic-taxi')
     $scope.newLinesModel = 1;
     $scope.looseEndsDistanceModel = 1000;
     $scope.relationalComparisonModel = 'true';
-    $scope.stationDistanceModel = 1500;
 
     $scope.updatePathfindingFilter = function() {
       var filter = {
         newLines: $scope.newLinesModel,
         looseEndsDistance: $scope.looseEndsDistanceModel,
-        stationDistance: $scope.stationDistanceModel
       };
 
       if ($scope.relationalComparisonModel === 'true')
