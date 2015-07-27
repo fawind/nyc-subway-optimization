@@ -287,6 +287,18 @@ var QueryHandler = {
         function(error) { reject(error); }
       );
     });
+  },
+
+  getSubwayWeight: function(stations) {
+    
+
+    return new Promise(function(resolve, reject) {
+      clientPool.query(
+        query,
+        function(rows) { resolve(rows[0].count); },
+        function(error) { reject(error); }
+      );
+    });
   }
 };
 
