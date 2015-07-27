@@ -31,7 +31,11 @@ var GeoUtils = {
   },
 
   degToRad: function(deg) {
-    return deg * (Math.PI/180);
+    return deg * (Math.PI / 180);
+  },
+
+  radToDeg: function(rad) {
+    return rad * (180 / Math.PI);
   },
 
   /**
@@ -56,6 +60,33 @@ var GeoUtils = {
   getLngDiff: function(lng1, lng2, blockSize_m) {
     var d = GeoUtils.getDistance_m(defaultLAT, lng1, defaultLAT, lng2);
     return Math.abs(lng1 -lng2) * (blockSize_m/d);
+  },
+
+  /**
+   * calculate a point transferred by a distance and a given bearing
+   * @param {Number} latitude of point
+   * @param {Number} longitude of point
+   * @param {Number} distance in meters
+   * @param {Number} bearing in degrees
+   */
+  getTranslatedPoint: function(lat, lng, distance, bearing) {
+    var radius = 6371000;
+    var raDist = Number(distance) / radius; // angular distance in radians
+    var raBear = GeoUtils.degToRad(bearing);
+
+    var lat = GeoUtils.degToRad(lat);
+    var lng = GeoUtils.degToRad(lng);
+
+    var newLat = Math.asin( Math.sin(lat)*Math.cos(raDist) +
+                        Math.cos(lat)*Math.sin(raDist)*Math.cos(raBear) );
+    var newLng = lng + Math.atan2(Math.sin(raBear)*Math.sin(raDist)*Math.cos(lat),
+                             Math.cos(raDist)-Math.sin(lat)*Math.sin(newLat));
+    newLng = (newLng+3*Math.PI) % (2*Math.PI) - Math.PI; // normalise to -180..+180Â°
+
+    return {
+      lat: GeoUtils.radToDeg(newLat),
+      lng: GeoUtils.radToDeg(newLng)
+    };
   }
 };
 
