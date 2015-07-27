@@ -86,4 +86,17 @@ router.post('/api/analyse/stations', function(req, res, next) {
     });
 });
 
+router.post('/api/analyse/stations/countrides', function(req, res, next) {
+  console.log('POST request to /api/analyse/stations/countrides');
+
+  QueryHandler.getSubwayWeight(req.body.stations)
+    .then(function(count) {
+      res.json({ stations: req.body.stations, count: count });
+    })
+    .catch(function(err) {
+      console.log('[ERROR]', err);
+      res.status(500).json({ error: errorMsg });
+    });
+});
+
 module.exports = router;
