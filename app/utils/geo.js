@@ -77,11 +77,11 @@ var GeoUtils = {
     var lat = GeoUtils.degToRad(lat);
     var lng = GeoUtils.degToRad(lng);
 
-    var newLat = Math.asin( Math.sin(lat)*Math.cos(raDist) +
-                        Math.cos(lat)*Math.sin(raDist)*Math.cos(raBear) );
-    var newLng = lng + Math.atan2(Math.sin(raBear)*Math.sin(raDist)*Math.cos(lat),
-                             Math.cos(raDist)-Math.sin(lat)*Math.sin(newLat));
-    newLng = (newLng+3*Math.PI) % (2*Math.PI) - Math.PI; // normalise to -180..+180Â°
+    var newLat = Math.asin(Math.sin(lat) * Math.cos(raDist) +
+                 Math.cos(lat) * Math.sin(raDist) * Math.cos(raBear));
+    var newLng = lng + Math.atan2(Math.sin(raBear) * Math.sin(raDist) * Math.cos(lat),
+                 Math.cos(raDist) - Math.sin(lat) * Math.sin(newLat));
+    newLng = (newLng + 3 * Math.PI) % (2 * Math.PI) - Math.PI; // normalise to -180..+180Â°
 
     return {
       lat: GeoUtils.radToDeg(newLat),

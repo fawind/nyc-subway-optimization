@@ -290,7 +290,21 @@ var QueryHandler = {
   },
 
   getSubwayWeight: function(stations) {
-    
+    /* for each station get all the rides ending there and filter by rides
+       starting at the current posititon. thus we get every wanted count */
+    var queryList = [];
+    var latMax, latMin, lngMax, lngMin;
+
+    for(i = 0; i < stations.length; i++) {
+      var baseQuery = 'SELECT SUM(counts) FROM .... WHERE PICKUP_LAT .., PICKUP_LONG';
+      for(j = 0; j < stations.length; j++) {
+        if (j == i) continue;
+        queryList.push(
+
+        );
+
+      }
+    }
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
@@ -323,6 +337,17 @@ function convertToUndirected(edges) {
     }
   }
   return edges;
+}
+
+function getStationQuery(station) {
+  var latMax = geo.getTranslatedPoint(station.lat, station.lng, 500, 0);
+  var latMin = geo.getTranslatedPoint(station.lat, station.lng, 500, 180);
+  var lngMax = geo.getTranslatedPoint(station.lat, station.lng, 500, 90);
+  var lngMin = geo.getTranslatedPoint(station.lat, station.lng, 500, 270);
+  var query = '(DROPOFF_LAT <= ' + latMax.toFixed(6) + ' AND DROPOFF_LAT >= ' + latMin.toFixed(6) +
+              ' AND DROPOFF_LONG <= ' + lngMax.toFixed(6) + ' AND DROPOFF_LONG >= ' + lngMin.toFixed(6) + ')';
+              
+  return query;
 }
 
 module.exports = QueryHandler;
