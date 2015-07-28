@@ -292,7 +292,7 @@ var QueryHandler = {
   /**
    * Get all rides covered by a given line of stations and radius
    * @param {Array} of stations with lat and lng
-   * @param {Number} block size to span on station
+   * @param {Number} block size to span on station (radius)
    * @return {Promise} Promise resolving with sum of counts
    */
   getSubwayWeight: function(stations) {
@@ -314,6 +314,9 @@ var QueryHandler = {
     }
 
     var query = 'SELECT SUM(count) FROM (' + queryList.join(' UNION ALL ') + ')';
+
+    console.log(query);
+    return;
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
@@ -348,11 +351,20 @@ function convertToUndirected(edges) {
   return edges;
 }
 
+/**
+ * Get the box for a station given a 'radius' which is then half of one edge
+ * @param {Number} station with lat and lng
+ * @param {Number} radius
+ * @return {Extent} range of latitude and longitude
+ */
 function getExtent(station) {
-  var latMax = geo.getTranslatedPoint(station.lat, station.lng, 500, 0);
-  var latMin = geo.getTranslatedPoint(station.lat, station.lng, 500, 180);
-  var lngMax = geo.getTranslatedPoint(station.lat, station.lng, 500, 90);
-  var lngMin = geo.getTranslatedPoint(station.lat, station.lng, 500, 270);
+  console.log(station.lat, station.lng);
+  var latMax = geo.getTranslatedPoint(station.lat, station.lng, 500, 0).lat;
+  var latMin = geo.getTranslatedPoint(station.lat, station.lng, 500, 180).lat;
+  var lngMax = geo.getTranslatedPoint(station.lat, station.lng, 500, 90).lng;
+  var lngMin = geo.getTranslatedPoint(station.lat, station.lng, 500, 270).lng;
+
+  console.log(latMax, lngMax, lngMin, latMin);
 
   return {
     latMax: latMax,
@@ -362,6 +374,12 @@ function getExtent(station) {
   };
 }
 
+/**
+ * Generate query to get rides which end around a station
+ * @param {Station} with lat and lng value
+ * @param {radius} around the station
+ * @return {String} Query part
+ */
 function getStationQuery(station) {
   var ext = getExtent(station)
   var query = '(DROPOFF_LAT <= ' + ext.latMax.toFixed(6) + ' AND DROPOFF_LAT >= ' + ext.latMin.toFixed(6) +
