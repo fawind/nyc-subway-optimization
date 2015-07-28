@@ -12,10 +12,7 @@ var EdgeCalculator = {
    * @param {Boolean} enable inserting the retrieved data into the Database
    * @return {Promise} resoluting when finished
    */
-  getAllClusterSequential: function(radius, exportFile, insertDB) {
-    var box = {topLeft: { lat: 40.864695, lng: -74.01976 }, bottomRight: { lat: 40.621053, lng: -73.779058 }};
-    var dates = [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ];
-    var years = [ '2010', '2011', '2012', '2013' ];
+  getAllClusterSequential: function(radius, exportFile, insertDB, box, dates, years) {
     var attr = { dates: dates, years: years, radius: radius, box: box };
     // ================================================================
     // For each square containing the circle cluster all outgoing rides
@@ -27,7 +24,7 @@ var EdgeCalculator = {
     var lng = box.topLeft.lng + offsetLng;
 
     var queries = [];
-    var resultList = [];
+    var countCluster = 0;
 
     /* Add lat-lngs to query-list */
     // start in the south of NYC
@@ -47,29 +44,30 @@ var EdgeCalculator = {
 
     // Execute a query for each lat-lng recursively
     return new Promise(function(resolve, reject) {
-      EdgeCalculator.executeRecursive(queries, attr, resultList, resolve, reject, exportFile, insertDB);
+      EdgeCalculator.executeRecursive(queries, attr, countCluster, resolve, reject, exportFile, insertDB);
     });
   },
 
   /**
    * Helper for getAllClusterSequential working with Promises to hold a sequential order
    */
-  executeRecursive: function(queries, attr, resultList, resolve, reject, exportFile, insertDB) {
+  executeRecursive: function(queries, attr, countCluster, resolve, reject, exportFile, insertDB) {
     if (queries.length === 0) {
-      resolve(resultList);
+      resolve(countCluster);
     }
     else {
       latLng = queries.pop();
       QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.radius, attr.box)
         .then(function(rows) {
           var result = { lat: latLng.lat, lng: latLng.lng, endPoints: rows }
-          resultList.push('one_more');
+          countCluster++;
+
           if (exportFile)
             saveToFile(latLng, result);
           if (insertDB)
             EdgeCalculator.insertRideEdges(result);
 
-          EdgeCalculator.executeRecursive(queries, attr, resultList, resolve, reject, exportFile, insertDB);
+          EdgeCalculator.executeRecursive(queries, attr, countCluster, resolve, reject, exportFile, insertDB);
         })
         .catch(function(error) { reject(error); });
     }
