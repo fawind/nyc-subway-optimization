@@ -289,21 +289,31 @@ var QueryHandler = {
     });
   },
 
+  /**
+   * Get all rides covered by a given line of stations and radius
+   * @param {Array} of stations with lat and lng
+   * @param {Number} block size to span on station
+   * @return {Promise} Promise resolving with sum of counts
+   */
   getSubwayWeight: function(stations) {
-    /* for each station get all the rides ending there and filter by rides
-       starting at the current posititon. thus we get every wanted count */
     var queryList = [];
-    var latMax, latMin, lngMax, lngMin;
 
     for(i = 0; i < stations.length; i++) {
+      var ext = getExtent(stations[i]);
+      var baseQuery = 'SELECT COUNT(ID) as count FROM NYCCAB.TRIP' +
+        ' WHERE PICKUP_LAT <= ' + ext.latMax.toFixed(6) + ' AND PICKUP_LAT >= ' + ext.latMin.toFixed(6) +
+        ' AND PICKUP_LONG <= ' + ext.lngMax.toFixed(6) + ' AND PICKUP_LONG >= ' + ext.lngMin.toFixed(6);
+      var subQueryList = [];
 
-      var baseQuery = 'SELECT COUNT(ID) FROM NYCCAB.TRIP' +
-        ' WHERE PICKUP_LAT .., PICKUP_LONG';
       for(j = 0; j < stations.length; j++) {
         if (j == i) continue;
-        queryList.push(getStationQuery(stations[j]));
+        subQueryList.push(getStationQuery(stations[j]));
       }
+
+      queryList.push(baseQuery + ' AND (' + subQueryList.join(' OR ') + ')');
     }
+
+    var query = 'SELECT SUM(count) FROM (' + queryList.join(' UNION ALL ') + ')';
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
