@@ -296,13 +296,12 @@ var QueryHandler = {
     var latMax, latMin, lngMax, lngMin;
 
     for(i = 0; i < stations.length; i++) {
-      var baseQuery = 'SELECT SUM(counts) FROM .... WHERE PICKUP_LAT .., PICKUP_LONG';
+
+      var baseQuery = 'SELECT COUNT(ID) FROM NYCCAB.TRIP' +
+        ' WHERE PICKUP_LAT .., PICKUP_LONG';
       for(j = 0; j < stations.length; j++) {
         if (j == i) continue;
-        queryList.push(
-
-        );
-
+        queryList.push(getStationQuery(stations[j]));
       }
     }
 
@@ -339,14 +338,25 @@ function convertToUndirected(edges) {
   return edges;
 }
 
-function getStationQuery(station) {
+function getExtent(station) {
   var latMax = geo.getTranslatedPoint(station.lat, station.lng, 500, 0);
   var latMin = geo.getTranslatedPoint(station.lat, station.lng, 500, 180);
   var lngMax = geo.getTranslatedPoint(station.lat, station.lng, 500, 90);
   var lngMin = geo.getTranslatedPoint(station.lat, station.lng, 500, 270);
-  var query = '(DROPOFF_LAT <= ' + latMax.toFixed(6) + ' AND DROPOFF_LAT >= ' + latMin.toFixed(6) +
-              ' AND DROPOFF_LONG <= ' + lngMax.toFixed(6) + ' AND DROPOFF_LONG >= ' + lngMin.toFixed(6) + ')';
-              
+
+  return {
+    latMax: latMax,
+    latMin: latMin,
+    lngMax: lngMax,
+    lngMin: lngMin
+  };
+}
+
+function getStationQuery(station) {
+  var ext = getExtent(station)
+  var query = '(DROPOFF_LAT <= ' + ext.latMax.toFixed(6) + ' AND DROPOFF_LAT >= ' + ext.latMin.toFixed(6) +
+              ' AND DROPOFF_LONG <= ' + ext.lngMax.toFixed(6) + ' AND DROPOFF_LONG >= ' + ext.lngMin.toFixed(6) + ')';
+
   return query;
 }
 
