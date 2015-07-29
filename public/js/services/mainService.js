@@ -59,7 +59,7 @@ angular.module('epic-taxi')
 
     /* Get all stations based on given edges */
     function findStations(edges, filterObj) {
-      return $http.post('/api/analyse/stations', { edges: edges, filter: filterObj });
+      return retStations = $http.post('/api/analyse/stations', { edges: edges, filter: filterObj });
     }
 
     return {

@@ -1,6 +1,5 @@
 var clientPool = require('./hana');
 var geo = require('./utils/geo');
-var path = require('./utils/paths');
 
 var PathFinder = {
   /**
@@ -12,7 +11,7 @@ var PathFinder = {
    * @param {callback} taking the result as only argument
    * @return via callback(paths)
    */
-  getOptimizedLines: function(edges, looseDistance, relational, lines, stationDistance, cb) {
+  getOptimizedLines: function(edges, looseDistance, relational, lines, cb) {
     var paths = [];
     // catch possible errors
     if (edges.length == 0) {
@@ -21,7 +20,7 @@ var PathFinder = {
     }
 
     for (l = 0; l < lines; l++) {
-      var newLine = PathFinder.findBestLine(edges, looseDistance, relational, stationDistance);
+      var newLine = PathFinder.findBestLine(edges, looseDistance, relational);
       paths.push({ stations: newLine.line, counts: newLine.counts });
     }
 
@@ -33,7 +32,7 @@ var PathFinder = {
    * @param All parameters based on getOptimizedLines above.
    * @return {stations} list of vertices (stations) forming the new line
    */
-  findBestLine: function(edges, looseDistance, relational, stationDistance) {
+  findBestLine: function(edges, looseDistance, relational) {
     var start = maxCounts(edges);
     if (!start) return [];
     start.visited = true;
@@ -67,11 +66,6 @@ var PathFinder = {
       cur = nextEdge;
       curVertex = getEndpointVertex(cur, curVertex);
     }
-
-    // smoothen the path
-    stations = path.antiAliasePath(stations);
-    // add stations if wanted
-    stations = path.completePath(stations, stationDistance);
 
     return {
       line: stations,
