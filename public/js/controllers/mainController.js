@@ -109,6 +109,7 @@ angular.module('epic-taxi')
           $scope.savedRides = 0;
           _.each(results, function(route) {
             $scope.savedRides += route.counts;
+            route.stations = antiAliasePath(route.stations);
           });
 
           results = mapService.sanitizePath(results);
