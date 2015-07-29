@@ -307,6 +307,8 @@ var QueryHandler = {
     var query = 'SELECT SUM(COUNTS) as "sum" FROM NYCCAB.RIDE_EDGES WHERE ' +
       '(' + incomingList.join(' OR ') + ') AND (' + outgoingList.join(' OR ') + ')';
 
+    console.log('DB Query size: ' + String(encodeURI(query).split(/%..|./).length - 1));
+
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
