@@ -313,8 +313,8 @@ var QueryHandler = {
       queryList.push(baseQuery + ' AND (' + subQueryList.join(' OR ') + ')');
     }
 
-    var query = 'SELECT SUM(count) as sum FROM (' + queryList.join(' UNION ALL ') + ')';
-    
+    var query = 'SELECT SUM(count) as "sum" FROM (' + queryList.join(' UNION ALL ') + ')';
+
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,

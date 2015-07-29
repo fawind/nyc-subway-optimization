@@ -92,8 +92,8 @@ router.post('/api/analyse/stations/countrides', function(req, res, next) {
   console.log('POST request to /api/analyse/stations/countrides');
 
   QueryHandler.getSubwayWeight(req.body.stations, RADIUS)
-    .then(function(count) {
-      res.json({ stations: req.body.stations, count: count });
+    .then(function(sum) {
+      res.json({ stations: req.body.stations, count: sum });
     })
     .catch(function(err) {
       console.log('[ERROR]', err);
