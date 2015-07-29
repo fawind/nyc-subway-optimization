@@ -296,24 +296,16 @@ var QueryHandler = {
    * @return {Promise} Promise resolving with sum of counts
    */
   getSubwayWeight: function(stations, radius) {
-    var queryList = [];
+    var incomingList = [];
+    var outgoingList = [];
 
     for(i = 0; i < stations.length; i++) {
-      var ext = getExtent(stations[i], radius);
-      var baseQuery = 'SELECT COUNT(ID) as count FROM NYCCAB.TRIP' +
-        ' WHERE PICKUP_LAT <= ' + ext.latMax.toFixed(6) + ' AND PICKUP_LAT >= ' + ext.latMin.toFixed(6) +
-        ' AND PICKUP_LONG <= ' + ext.lngMax.toFixed(6) + ' AND PICKUP_LONG >= ' + ext.lngMin.toFixed(6);
-      var subQueryList = [];
-
-      for(j = 0; j < stations.length; j++) {
-        if (j == i) continue;
-        subQueryList.push(getStationQuery(stations[j], radius));
-      }
-
-      queryList.push(baseQuery + ' AND (' + subQueryList.join(' OR ') + ')');
+      incomingList.push(getQueryStationIn(stations[i], radius));
+      outgoingList.push(getQueryStationOut(stations[i], radius));
     }
 
-    var query = 'SELECT SUM(count) as "sum" FROM (' + queryList.join(' UNION ALL ') + ')';
+    var query = 'SELECT SUM(COUNTS) as "sum" FROM NYCCAB.RIDE_EDGES WHERE ' +
+      '(' + incomingList.join(' OR ') + ') AND (' + outgoingList.join(' OR ') + ')';
 
     return new Promise(function(resolve, reject) {
       clientPool.query(
@@ -369,15 +361,29 @@ function getExtent(station, radius) {
 }
 
 /**
+ * Generate query to get rides which start around a station
+ * @param {Station} with lat and lng value
+ * @param {radius} around the station
+ * @return {String} Query part
+ */
+function getQueryStationOut(station, radius) {
+  var ext = getExtent(station, radius)
+  var query = '(LAT_OUT <= ' + ext.latMax.toFixed(6) + ' AND LAT_OUT >= ' + ext.latMin.toFixed(6) +
+              ' AND LNG_OUT <= ' + ext.lngMax.toFixed(6) + ' AND LNG_OUT >= ' + ext.lngMin.toFixed(6) + ')';
+
+  return query;
+}
+
+/**
  * Generate query to get rides which end around a station
  * @param {Station} with lat and lng value
  * @param {radius} around the station
  * @return {String} Query part
  */
-function getStationQuery(station, radius) {
+function getQueryStationIn(station, radius) {
   var ext = getExtent(station, radius)
-  var query = '(DROPOFF_LAT <= ' + ext.latMax.toFixed(6) + ' AND DROPOFF_LAT >= ' + ext.latMin.toFixed(6) +
-              ' AND DROPOFF_LONG <= ' + ext.lngMax.toFixed(6) + ' AND DROPOFF_LONG >= ' + ext.lngMin.toFixed(6) + ')';
+  var query = '(LAT_IN <= ' + ext.latMax.toFixed(6) + ' AND LAT_IN >= ' + ext.latMin.toFixed(6) +
+              ' AND LNG_IN <= ' + ext.lngMax.toFixed(6) + ' AND LNG_IN >= ' + ext.lngMin.toFixed(6) + ')';
 
   return query;
 }
