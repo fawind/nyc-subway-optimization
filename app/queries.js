@@ -287,6 +287,41 @@ var QueryHandler = {
         function(error) { reject(error); }
       );
     });
+  },
+
+  /**
+   * Get all rides covered by a given line of stations and radius
+   * @param {Array} of stations with lat and lng
+   * @param {Number} block size to span on station (radius)
+   * @return {Promise} Promise resolving with sum of counts
+   */
+  getSubwayWeight: function(stations, radius) {
+    var queryList = [];
+
+    for(i = 0; i < stations.length; i++) {
+      var ext = getExtent(stations[i], radius);
+      var baseQuery = 'SELECT COUNT(ID) as count FROM NYCCAB.TRIP' +
+        ' WHERE PICKUP_LAT <= ' + ext.latMax.toFixed(6) + ' AND PICKUP_LAT >= ' + ext.latMin.toFixed(6) +
+        ' AND PICKUP_LONG <= ' + ext.lngMax.toFixed(6) + ' AND PICKUP_LONG >= ' + ext.lngMin.toFixed(6);
+      var subQueryList = [];
+
+      for(j = 0; j < stations.length; j++) {
+        if (j == i) continue;
+        subQueryList.push(getStationQuery(stations[j], radius));
+      }
+
+      queryList.push(baseQuery + ' AND (' + subQueryList.join(' OR ') + ')');
+    }
+
+    var query = 'SELECT SUM(count) as "sum" FROM (' + queryList.join(' UNION ALL ') + ')';
+
+    return new Promise(function(resolve, reject) {
+      clientPool.query(
+        query,
+        function(rows) { resolve(rows[0].sum); },
+        function(error) { reject(error); }
+      );
+    });
   }
 };
 
@@ -311,6 +346,40 @@ function convertToUndirected(edges) {
     }
   }
   return edges;
+}
+
+/**
+ * Get the box for a station given a 'radius' which is then half of one edge
+ * @param {Number} station with lat and lng
+ * @param {Number} radius
+ * @return {Extent} range of latitude and longitude
+ */
+function getExtent(station, radius) {
+  var latMax = geo.getTranslatedPoint(station.lat, station.lng, radius, 0).lat;
+  var latMin = geo.getTranslatedPoint(station.lat, station.lng, radius, 180).lat;
+  var lngMax = geo.getTranslatedPoint(station.lat, station.lng, radius, 90).lng;
+  var lngMin = geo.getTranslatedPoint(station.lat, station.lng, radius, 270).lng;
+
+  return {
+    latMax: latMax,
+    latMin: latMin,
+    lngMax: lngMax,
+    lngMin: lngMin
+  };
+}
+
+/**
+ * Generate query to get rides which end around a station
+ * @param {Station} with lat and lng value
+ * @param {radius} around the station
+ * @return {String} Query part
+ */
+function getStationQuery(station, radius) {
+  var ext = getExtent(station, radius)
+  var query = '(DROPOFF_LAT <= ' + ext.latMax.toFixed(6) + ' AND DROPOFF_LAT >= ' + ext.latMin.toFixed(6) +
+              ' AND DROPOFF_LONG <= ' + ext.lngMax.toFixed(6) + ' AND DROPOFF_LONG >= ' + ext.lngMin.toFixed(6) + ')';
+
+  return query;
 }
 
 module.exports = QueryHandler;

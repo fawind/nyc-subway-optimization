@@ -6,6 +6,8 @@ var router = express.Router();
 
 var errorMsg = 'Internal server error';
 
+const RADIUS = 500;
+
 router.post('/api/cluster/outgoing', function(req, res, next) {
   console.log('POST request to ' + req.url + ' Station: ' + req.body.station.id);
 
@@ -83,6 +85,19 @@ router.post('/api/analyse/stations', function(req, res, next) {
     req.body.filter.relational, req.body.filter.newLines,
     function(stations) {
       res.json(stations);
+    });
+});
+
+router.post('/api/analyse/stations/countrides', function(req, res, next) {
+  console.log('POST request to /api/analyse/stations/countrides');
+
+  QueryHandler.getSubwayWeight(req.body.stations, RADIUS)
+    .then(function(sum) {
+      res.json({ stations: req.body.stations, count: sum });
+    })
+    .catch(function(err) {
+      console.log('[ERROR]', err);
+      res.status(500).json({ error: errorMsg });
     });
 });
 
