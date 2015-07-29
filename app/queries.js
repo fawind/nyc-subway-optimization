@@ -369,15 +369,29 @@ function getExtent(station, radius) {
 }
 
 /**
+ * Generate query to get rides which start around a station
+ * @param {Station} with lat and lng value
+ * @param {radius} around the station
+ * @return {String} Query part
+ */
+function getStationOut(station, radius) {
+  var ext = getExtent(station, radius)
+  var query = '(LAT_OUT <= ' + ext.latMax.toFixed(6) + ' AND LAT_OUT >= ' + ext.latMin.toFixed(6) +
+              ' AND LNG_OUT <= ' + ext.lngMax.toFixed(6) + ' AND LNG_OUT >= ' + ext.lngMin.toFixed(6) + ')';
+
+  return query;
+}
+
+/**
  * Generate query to get rides which end around a station
  * @param {Station} with lat and lng value
  * @param {radius} around the station
  * @return {String} Query part
  */
-function getStationQuery(station, radius) {
+function getStationIn(station, radius) {
   var ext = getExtent(station, radius)
-  var query = '(DROPOFF_LAT <= ' + ext.latMax.toFixed(6) + ' AND DROPOFF_LAT >= ' + ext.latMin.toFixed(6) +
-              ' AND DROPOFF_LONG <= ' + ext.lngMax.toFixed(6) + ' AND DROPOFF_LONG >= ' + ext.lngMin.toFixed(6) + ')';
+  var query = '(LAT_IN <= ' + ext.latMax.toFixed(6) + ' AND LAT_IN >= ' + ext.latMin.toFixed(6) +
+              ' AND LNG_IN <= ' + ext.lngMax.toFixed(6) + ' AND LNG_IN >= ' + ext.lngMin.toFixed(6) + ')';
 
   return query;
 }
