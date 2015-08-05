@@ -1,5 +1,6 @@
 angular.module('epic-taxi')
-  .controller('MainController', ['$scope', 'lodash', 'MainService', 'MapService', 'leafletData', function ($scope, _, mainService, mapService, leafletData) {
+  .controller('MainController', ['$scope', 'lodash', 'MainService', 'MapService', 'PathService', 'leafletData',
+    function ($scope, _, mainService, mapService, pathService, leafletData) {
 
     initMap = function() {
       var config = mapService.getConfig();
@@ -114,7 +115,7 @@ angular.module('epic-taxi')
           $scope.savedRides = 0;
           _.each(results, function(route) {
             $scope.savedRides += route.counts;
-            route.stations = antiAliasePath(route.stations);
+            route.stations = pathService.antiAliasePath(route.stations);
           });
 
           results = mapService.sanitizePath(results);
