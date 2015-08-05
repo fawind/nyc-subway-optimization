@@ -15,7 +15,7 @@ angular.module('epic-taxi')
       });
 
       $scope.$on('leafletDirectivePath.click', function(event, args) {
-        getSavedRides(args);
+        getCoveredLines(args);
       });
 
       /* Scale icons based on zoom level */
@@ -70,7 +70,8 @@ angular.module('epic-taxi')
         return marker.layer === 'subway';
       });
 
-      $scope.savedRides = 0;
+      $scope.savedRides = null;
+      $scope.lineRides = null;
       $scope.cluster = {};
       $scope.edges = [];
       $scope.hexbin.data = [];
@@ -160,16 +161,19 @@ angular.module('epic-taxi')
       });
     }
 
-    function getSavedRides(args) {
+    /* Get the number of rides covered by a subway line */
+    function getCoveredLines(args) {
       var lineName = args.modelName;
-      if (lineName.indexOf('new') === -1)
-        return;
 
-      var line = _.find($scope.results, function(result) { return result.route === lineName });
+      var lines = $scope.routes;
+      if ($scope.results)
+        lines = lines.concat($scope.results);
+
+      var line = _.find(lines, function(line) { return line.route === lineName; });
 
       mainService.getRidesCount(line.stations)
         .success(function(results) {
-          $scope.savedRides = results.count;
+          $scope.lineRides = results.count;
         });
     }
 
@@ -211,6 +215,7 @@ angular.module('epic-taxi')
     initMap();
     mainService.getStations()
       .success(function(routes) {
+        $scope.routes = routes;
         $scope.markers = mapService.createMarker(routes);
         $scope.paths = mapService.createPaths(routes);
         $scope.paths.cluster = mapService.boundsBox;

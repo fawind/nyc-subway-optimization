@@ -38,7 +38,7 @@
 
   <!-- Own Utils -->
   <script src="js/paths.js"></script>
-    
+
   <!-- Styles -->
   <link type="text/css" rel="stylesheet" href="css/main.css" />
 
@@ -66,7 +66,10 @@
       <div ng-include src="'templates/optimizationFilter.html'"></div>
     </div>
 
-    <div ng-show="savedRides != 0" ng-include src="'templates/optimizationStats.html'"></div>
+    <div class="stats">
+      <div ng-show="lineRides" ng-include src="'templates/lineStats.html'"></div>
+      <div ng-show="savedRides" ng-include src="'templates/optimizationStats.html'"></div>
+    </div>
 
     <div ng-show="loading" class="progress">
       <div class="indeterminate"></div>
