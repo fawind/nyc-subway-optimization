@@ -59,13 +59,19 @@ angular.module('epic-taxi')
 
     /* Get all stations based on given edges */
     function findStations(edges, filterObj) {
-      return retStations = $http.post('/api/analyse/stations', { edges: edges, filter: filterObj });
+      return $http.post('/api/analyse/stations', { edges: edges, filter: filterObj });
+    }
+
+    /* Get saved counts */
+    function getRidesCount(stations) {
+      return $http.post('/api/analyse/stations/countrides', { stations: stations });
     }
 
     return {
       getStations: getStations,
       getCluster: getCluster,
       getEdges: getEdges,
+      getRidesCount: getRidesCount,
       findStations: findStations,
       filter: filter,
       optimizationFilter: optimizationFilter,

@@ -54,7 +54,8 @@ angular.module('epic-taxi')
         },
         hexbin: { data: [], config: hexbinConfig },
         events: {
-          markers: { enable: [leafletEvents.click, leafletEvents.popupclose] }
+          markers: { enable: [leafletEvents.click, leafletEvents.popupclose] },
+          path: { enable: [leafletEvents.click] }
         },
         controls: {
           draw: { polyline: false, polygon: false, rectangle: true, circle: false, marker: false }

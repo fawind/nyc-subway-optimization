@@ -6,7 +6,7 @@ var router = express.Router();
 
 var errorMsg = 'Internal server error';
 
-const RADIUS = 500;
+var RADIUS = 500;
 
 router.post('/api/cluster/outgoing', function(req, res, next) {
   console.log('POST request to ' + req.url + ' Station: ' + req.body.station.id);

@@ -14,6 +14,10 @@ angular.module('epic-taxi')
         clusterStation(args);
       });
 
+      $scope.$on('leafletDirectivePath.click', function(event, args) {
+        getSavedRides(args);
+      });
+
       /* Scale icons based on zoom level */
       $scope.$on('leafletDirectiveMap.zoomend', function(event, args) {
         var zoomLevel = args.leafletEvent.target.getZoom();
@@ -116,6 +120,7 @@ angular.module('epic-taxi')
           var routes = mapService.createPaths(results);
           var stations = mapService.createMarker(results);
 
+          $scope.results = results;
           $scope.paths = _.assign($scope.paths, routes);
           $scope.markers = _.assign($scope.markers, stations);
         })
@@ -153,6 +158,19 @@ angular.module('epic-taxi')
           mainService.box = null;
         });
       });
+    }
+
+    function getSavedRides(args) {
+      var lineName = args.modelName;
+      if (lineName.indexOf('new') === -1)
+        return;
+
+      var line = _.find($scope.results, function(result) { return result.route === lineName });
+
+      mainService.getRidesCount(line.stations)
+        .success(function(results) {
+          $scope.savedRides = results.count;
+        });
     }
 
     /* Decrease the subway-routes opacity except a given station */
