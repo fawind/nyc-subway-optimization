@@ -24,5 +24,9 @@
     "fs": "0.0.2",
     "hdb": "^0.4.4",
     "lodash": "^3.10.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "install": "bower install"
   }
 }

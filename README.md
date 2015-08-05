@@ -1,4 +1,4 @@
-Epic-Taxi
+NYC-Subway-Optimization
 ===================
 
 ### Installation
@@ -6,11 +6,10 @@ Requires [node.js](https://nodejs.org/download/) and [bower](http://bower.io/#in
 ```bash
 # clone the repository
 git clone https://github.com/fawind/epic-subway.git
-cd epic-subway
+cd nyc-subway-optimization
 
 # install required packages
 npm install
-bower install
 ```
 
 Finally, modify the `credentials.js.default` file in the `/app` directory and save it as `credentials.js`.
@@ -18,7 +17,7 @@ Finally, modify the `credentials.js.default` file in the `/app` directory and sa
 ### Run the app
 ```bash
 # start the server
-node app.js
+npm start
 ```
 
 Now you can visit `localhost:8080` in your browser.
