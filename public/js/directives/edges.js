@@ -28,9 +28,7 @@ angular.module('epic-taxi')
 
         function renderEdges(edges, map) {
           var overlayPane = d3.select(map.getPanes().overlayPane);
-
-          // remove all old clusterConnections
-          overlayPane.selectAll('.edges').remove();
+          removeEdges(map);
 
           var svg = overlayPane.append('svg').attr('class', 'leaflet-zoom-hide edges');
           var g = svg.append('g');

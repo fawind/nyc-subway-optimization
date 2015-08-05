@@ -28,12 +28,19 @@ angular.module('epic-taxi')
 
         function renderCluster(cluster, map) {
           var overlayPane = d3.select(map.getPanes().overlayPane);
-
-          // remove all old cluster
-          overlayPane.selectAll('.cluster').remove();
+          removeCluster(map);
 
           var svg = overlayPane.append('svg').attr('class', 'leaflet-zoom-hide cluster');
           var g = svg.append('g');
+
+          var min = _.min(cluster.cluster, 'count').count;
+          var max = _.max(cluster.cluster, 'count').count;
+
+          console.log(min, max);
+
+          var color = d3.scale.linear()
+            .domain([min, max])
+            .range(['#FFECB3', '#FFA000']);
 
           var gridSize = cluster.gridSize;
           var features = cluster.cluster.map(function(area) {
@@ -63,7 +70,7 @@ angular.module('epic-taxi')
             .data(features)
             .enter().append('circle')
             .style('opacity', 0.6)
-            .style('fill', '#FFC107')
+            .style('fill', function(d) { return color(d.properties.count); })
             .on('mouseover', function(d) {
               d3.select(this).style('fill', '#FFEB3B');
               return tooltip.style('visibility', 'visible').text(d.properties.count + ' rides');
@@ -72,7 +79,7 @@ angular.module('epic-taxi')
               return tooltip.style('top', event.pageY + 'px').style('left', event.pageX + 20 + 'px');
             })
             .on('mouseout', function(d) {
-              d3.select(this).style('fill', '#FFC107');
+              d3.select(this).style('fill', function(d) { return color(d.properties.count); });
               return tooltip.style('visibility', 'hidden');
             });
 
