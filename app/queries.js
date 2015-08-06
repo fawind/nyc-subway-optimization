@@ -304,7 +304,7 @@ var QueryHandler = {
       outgoingList.push(getQueryStationOut(stations[i], radius));
     }
 
-    var query = 'SELECT SUM(COUNTS) as "sum" FROM NYCCAB.RIDE_EDGES WHERE ' +
+    var query = 'SELECT COUNT(*) as "sum" FROM NYCCAB.TRIP WHERE ' +
       '(' + incomingList.join(' OR ') + ') AND (' + outgoingList.join(' OR ') + ')';
 
     return new Promise(function(resolve, reject) {
@@ -368,8 +368,8 @@ function getExtent(station, radius) {
  */
 function getQueryStationOut(station, radius) {
   var ext = getExtent(station, radius)
-  var query = '(LAT_OUT <= ' + ext.latMax.toFixed(6) + ' AND LAT_OUT >= ' + ext.latMin.toFixed(6) +
-              ' AND LNG_OUT <= ' + ext.lngMax.toFixed(6) + ' AND LNG_OUT >= ' + ext.lngMin.toFixed(6) + ')';
+  var query = '(DROPOFF_LAT <= ' + ext.latMax.toFixed(6) + ' AND DROPOFF_LAT >= ' + ext.latMin.toFixed(6) +
+              ' AND DROPOFF_LONG <= ' + ext.lngMax.toFixed(6) + ' AND DROPOFF_LONG >= ' + ext.lngMin.toFixed(6) + ')';
 
   return query;
 }
@@ -382,8 +382,8 @@ function getQueryStationOut(station, radius) {
  */
 function getQueryStationIn(station, radius) {
   var ext = getExtent(station, radius)
-  var query = '(LAT_IN <= ' + ext.latMax.toFixed(6) + ' AND LAT_IN >= ' + ext.latMin.toFixed(6) +
-              ' AND LNG_IN <= ' + ext.lngMax.toFixed(6) + ' AND LNG_IN >= ' + ext.lngMin.toFixed(6) + ')';
+  var query = '(PICKUP_LAT <= ' + ext.latMax.toFixed(6) + ' AND PICKUP_LAT >= ' + ext.latMin.toFixed(6) +
+              ' AND PICKUP_LONG <= ' + ext.lngMax.toFixed(6) + ' AND PICKUP_LONG >= ' + ext.lngMin.toFixed(6) + ')';
 
   return query;
 }
