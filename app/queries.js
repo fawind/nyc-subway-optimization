@@ -307,6 +307,8 @@ var QueryHandler = {
     var query = 'SELECT COUNT(*) as "sum" FROM NYCCAB.TRIP WHERE ' +
       '(' + incomingList.join(' OR ') + ') AND (' + outgoingList.join(' OR ') + ')';
 
+    getLineLength(stations);
+
     return new Promise(function(resolve, reject) {
       clientPool.query(
         query,
@@ -386,6 +388,21 @@ function getQueryStationIn(station, radius) {
               ' AND PICKUP_LONG <= ' + ext.lngMax.toFixed(6) + ' AND PICKUP_LONG >= ' + ext.lngMin.toFixed(6) + ')';
 
   return query;
+}
+
+/**
+ * Get a lines length to calculate its performance
+ * @param {Array} of stations with lat and lng
+ * @return {Number} length in kilometres
+ */
+function getLineLength(stations) {
+  var length_m = 0;
+  for (k = 1; k < stations.length; k++) {
+    length_m += geo.getDistance_m(stations[k-1].lat, stations[k-1].lng, stations[k].lat, stations[k].lng);
+  }
+  console.log(length_m);
+  console.log('in kilometres: ', (length_m / 1000));
+  return length_m/1000;
 }
 
 module.exports = QueryHandler;
