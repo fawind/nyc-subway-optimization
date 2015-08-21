@@ -9,20 +9,20 @@ var req = {
     date: [ '2010-01-01T00:00:00.000Z', '2013-12-31T00:00:00.000Z' ],
     years: [ '2010', '2011', '2012', '2013' ] } };
 
-var block = true;
-var radius = 2000, max = 3000;
-while (radius <= max) {
-  var str = String(radius);
+var radius = 700, max = 3000;
+
+function recursive(size) {
+  var str = String(size);
   console.time(str);
   QueryHandler.getClusterOutgoing(req.station, req.filter.date, req.filter.years,
-    radius, req.box)
+    size, req.box)
     .then(function(rows) {
       console.timeEnd(str);
-      block = false;
+      if (size <= max){ recursive(size+100); }
     })
     .catch(function(err) {
       console.log('[ERROR]', err);
     });
-  while(block) { }
-  radius += 100;
 }
+
+recursive(radius);
