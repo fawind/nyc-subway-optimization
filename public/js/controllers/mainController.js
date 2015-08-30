@@ -15,8 +15,9 @@ angular.module('epic-taxi')
         clusterStation(args);
       });
 
+      /* Get covered rides when clicking on a line */
       $scope.$on('leafletDirectivePath.click', function(event, args) {
-        getCoveredLines(args);
+        getCoveredRides(args);
       });
 
       /* Scale icons based on zoom level */
@@ -31,6 +32,7 @@ angular.module('epic-taxi')
       $scope.loading = true;
       hideSubway(args.model.stationId);
 
+      /* Load the models */
       var visualization = mainService.visualization;
       var filter = mainService.filter;
       var rides = mainService.rides;
@@ -50,6 +52,7 @@ angular.module('epic-taxi')
               cluster: _.sortBy(response.cluster, 'count').reverse().slice(0, 5)
             };
           }
+
           $scope.loading = false;
         })
         .error(function(error) {
@@ -88,7 +91,6 @@ angular.module('epic-taxi')
 
       mainService.getEdges(boundingBox, filter)
         .success(function(edges) {
-          console.log('got all edges!');
           angular.extend($scope, { edges: angular.copy(edges.edges) });
           $scope.loading = false;
         })
@@ -163,7 +165,7 @@ angular.module('epic-taxi')
     }
 
     /* Get the number of rides covered by a subway line */
-    function getCoveredLines(args) {
+    function getCoveredRides(args) {
       var lineName = args.modelName;
 
       var lines = $scope.routes;
@@ -186,6 +188,7 @@ angular.module('epic-taxi')
         else
           marker.opacity = 0.2;
       });
+
       _.each($scope.paths, function(path){
         path.opacity = 0.2;
       });
@@ -196,6 +199,7 @@ angular.module('epic-taxi')
       _.each($scope.markers, function(marker){
         marker.opacity = 1.0;
       });
+
       _.each($scope.paths, function(path){
         path.opacity = 1.0;
       });
@@ -204,7 +208,7 @@ angular.module('epic-taxi')
     /* Scale all icons to a given zoom level */
     function updateRoutesAndStationIcons(zoomLevel) {
       _.each($scope.markers, function(marker) {
-        marker.icon.iconSize = [mapService.iconScale(zoomLevel), mapService.iconScale(zoomLevel) ];
+        marker.icon.iconSize = [ mapService.iconScale(zoomLevel), mapService.iconScale(zoomLevel) ];
       });
 
       _.each($scope.paths, function(path) {

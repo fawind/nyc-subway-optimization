@@ -4,17 +4,15 @@ var routes = require('./app/routes');
 
 var server = express();
 
-// for parsing json in req-body
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 
 /* Static files */
 server.use(express.static(__dirname + '/public'));
-
 /* Routes */
 server.use('/', routes);
 
-// 404 error handling
+/* 404 error handling */
 server.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;

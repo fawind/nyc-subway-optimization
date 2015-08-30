@@ -14,6 +14,7 @@ angular.module('epic-taxi')
             });
         });
 
+        /* Update the cluster view */
         function render(edges, map) {
           if (edges === undefined || edges.length === 0)
             removeEdges(map);
@@ -21,11 +22,13 @@ angular.module('epic-taxi')
             renderEdges(edges, map);
         }
 
+        /* Remove all rendered edges */
         function removeEdges(map) {
           var overlayPane = d3.select(map.getPanes().overlayPane);
           overlayPane.selectAll('.edges').remove();
         }
 
+        /* Draw given edges on the map */
         function renderEdges(edges, map) {
           var overlayPane = d3.select(map.getPanes().overlayPane);
           removeEdges(map);

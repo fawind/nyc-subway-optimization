@@ -4,6 +4,28 @@ angular.module('epic-taxi')
     var minDate = new Date('2010-01-01');
     var maxDate = new Date('2013-12-31');
 
+    /* Rides filter */
+    $scope.visualizationModel = 'circular';
+    $scope.ridesModel = 'incoming';
+    $scope.gridSizeModel = 2000;
+    $scope.yearModel = {
+      year2010: true,
+      year2011: true,
+      year2012: true,
+      year2013: true
+    };
+    $scope.dateModel = {
+      startDate: formatDate(minDate),
+      endDate: formatDate(maxDate)
+    };
+
+    /* Optimization filter */
+    $scope.filterEdgesModel = 'on';
+    $scope.countThresholdModel = 1000;
+    $scope.distanceThresholdModel = 2200;
+    $scope.valueLimitModel = 500;
+
+    /* init the modal */
     $scope.openModal = function() {
       $('#modalFilter').openModal();
 
@@ -25,34 +47,6 @@ angular.module('epic-taxi')
           }
         });
     };
-
-    /* Rides filter */
-    $scope.visualizationModel = 'circular';
-
-    $scope.ridesModel = 'incoming';
-
-    $scope.gridSizeModel = 2000;
-
-    $scope.yearModel = {
-      year2010: true,
-      year2011: true,
-      year2012: true,
-      year2013: true
-    };
-
-    $scope.dateModel = {
-      startDate: formatDate(minDate),
-      endDate: formatDate(maxDate)
-    };
-
-    /* Optimization filter */
-    $scope.filterEdgesModel = 'on';
-
-    $scope.countThresholdModel = 1000;
-
-    $scope.distanceThresholdModel = 2200;
-
-    $scope.valueLimitModel = 500;
 
     /* Update filter for subway optimization */
     $scope.updateOptimizationFilter = function() {
@@ -93,6 +87,7 @@ angular.module('epic-taxi')
       mainService.visualization = $scope.visualizationModel;
     };
 
+    /* Check if a given date is in range */
     function validateDates(startDate, endDate) {
       startDate = new Date(startDate);
       endDate = new Date(endDate);
@@ -109,6 +104,7 @@ angular.module('epic-taxi')
       return { start: startDate, end: endDate };
     }
 
+    /* Format a given date */
     function formatDate(date) {
       return date.toISOString().slice(0, 10);
     }

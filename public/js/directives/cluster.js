@@ -14,6 +14,7 @@ angular.module('epic-taxi')
             });
         });
 
+        /* Update the cluster view */
         function render(cluster, map) {
           if (cluster.cluster === undefined)
             removeCluster(map);
@@ -21,11 +22,13 @@ angular.module('epic-taxi')
             renderCluster(cluster, map);
         }
 
+        /* Remove all rendered cluster */
         function removeCluster(map) {
           var overlayPane = d3.select(map.getPanes().overlayPane);
           overlayPane.selectAll('.cluster').remove();
         }
 
+        /* Draw given cluster on the map */
         function renderCluster(cluster, map) {
           var overlayPane = d3.select(map.getPanes().overlayPane);
           removeCluster(map);
@@ -35,8 +38,6 @@ angular.module('epic-taxi')
 
           var min = _.min(cluster.cluster, 'count').count;
           var max = _.max(cluster.cluster, 'count').count;
-
-          console.log(min, max);
 
           var color = d3.scale.linear()
             .domain([min, max])
@@ -65,7 +66,7 @@ angular.module('epic-taxi')
             .style('visibility', 'hidden')
             .text('cluster');
 
-          // Add a circle for each feature
+          /* Add a circle for each feature */
           var feature = g.selectAll('circle')
             .data(features)
             .enter().append('circle')
@@ -86,7 +87,7 @@ angular.module('epic-taxi')
           map.on('viewreset', update);
           update();
 
-          /* Update size and scaling of svgs on mapchange */
+          /* Update size and scaling of svgs on map change */
           function update() {
             var bounds = getBounds(features);
             var radius = gridSize / 120000 * Math.pow(2, map.getZoom());

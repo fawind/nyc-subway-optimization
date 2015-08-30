@@ -14,6 +14,7 @@ angular.module('epic-taxi')
             });
         });
 
+        /* Update the cluster connections view */
         function render(cluster, map) {
           if (cluster.cluster === undefined)
             removeConnection(map);
@@ -21,11 +22,13 @@ angular.module('epic-taxi')
             renderConnections(cluster, map);
         }
 
+        /* Remove all rendered cluster connections */
         function removeConnection(map) {
           var overlayPane = d3.select(map.getPanes().overlayPane);
           overlayPane.selectAll('.clusterConnection').remove();
         }
 
+        /* Draw connections for all given cluster on the map */
         function renderConnections(cluster, map) {
           var overlayPane = d3.select(map.getPanes().overlayPane);
           removeConnection(map);
@@ -33,6 +36,7 @@ angular.module('epic-taxi')
           var svg = overlayPane.append('svg').attr('class', 'leaflet-zoom-hide clusterConnection');
           var g = svg.append('g');
 
+          /* Each line connects the station with the center of the cluster circles */
           var connections = cluster.cluster.map(function(area) {
             return [
                 { x: cluster.station.lat, y: cluster.station.lng },

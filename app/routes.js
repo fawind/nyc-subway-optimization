@@ -5,8 +5,8 @@ var PathFinder = require('./pathfinder');
 var router = express.Router();
 
 var errorMsg = 'Internal server error';
-
 var RADIUS = 500;
+
 
 router.post('/api/cluster/outgoing', function(req, res, next) {
   console.log('POST request to ' + req.url + ' Station: ' + req.body.station.id);
@@ -22,6 +22,7 @@ router.post('/api/cluster/outgoing', function(req, res, next) {
     });
 });
 
+
 router.post('/api/cluster/incoming', function(req, res, next) {
 	console.log('POST request to ' + req.url + ' Station: ' + req.body.station.id);
 
@@ -35,6 +36,7 @@ router.post('/api/cluster/incoming', function(req, res, next) {
       res.status(500).json({ error: errorMsg });
     });
 });
+
 
 router.post('/api/cluster/outgoing/raw', function(req, res, next) {
   console.log('POST request to ' + req.url + ' Station: ' + req.body.station.id);
@@ -50,6 +52,7 @@ router.post('/api/cluster/outgoing/raw', function(req, res, next) {
     });
 });
 
+
 router.post('/api/cluster/incoming/raw', function(req, res, next) {
   console.log('POST request to ' + req.url + ' Station: ' + req.body.station.id);
 
@@ -63,6 +66,7 @@ router.post('/api/cluster/incoming/raw', function(req, res, next) {
       res.status(500).json({ error: errorMsg });
     });
 });
+
 
 router.post('/api/analyse', function(req, res, next) {
   console.log('POST request to /api/analyse');
@@ -78,6 +82,7 @@ router.post('/api/analyse', function(req, res, next) {
     });
 });
 
+
 router.post('/api/analyse/stations', function(req, res, next) {
   console.log('POST request to /api/analyse/stations');
 
@@ -87,6 +92,7 @@ router.post('/api/analyse/stations', function(req, res, next) {
       res.json(stations);
     });
 });
+
 
 router.post('/api/analyse/stations/countrides', function(req, res, next) {
   console.log('POST request to /api/analyse/stations/countrides');

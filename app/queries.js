@@ -369,7 +369,7 @@ function getExtent(station, radius) {
  * @return {String} Query part
  */
 function getQueryStationOut(station, radius) {
-  var ext = getExtent(station, radius)
+  var ext = getExtent(station, radius);
   var query = '(DROPOFF_LAT <= ' + ext.latMax.toFixed(6) + ' AND DROPOFF_LAT >= ' + ext.latMin.toFixed(6) +
               ' AND DROPOFF_LONG <= ' + ext.lngMax.toFixed(6) + ' AND DROPOFF_LONG >= ' + ext.lngMin.toFixed(6) + ')';
 
@@ -383,7 +383,7 @@ function getQueryStationOut(station, radius) {
  * @return {String} Query part
  */
 function getQueryStationIn(station, radius) {
-  var ext = getExtent(station, radius)
+  var ext = getExtent(station, radius);
   var query = '(PICKUP_LAT <= ' + ext.latMax.toFixed(6) + ' AND PICKUP_LAT >= ' + ext.latMin.toFixed(6) +
               ' AND PICKUP_LONG <= ' + ext.lngMax.toFixed(6) + ' AND PICKUP_LONG >= ' + ext.lngMin.toFixed(6) + ')';
 

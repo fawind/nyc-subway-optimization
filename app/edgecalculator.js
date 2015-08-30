@@ -59,7 +59,7 @@ var EdgeCalculator = {
       latLng = queries.pop();
       QueryHandler.getClusterOutgoing(latLng, attr.dates, attr.years, attr.radius, attr.box)
         .then(function(rows) {
-          var result = { lat: latLng.lat, lng: latLng.lng, endPoints: rows }
+          var result = { lat: latLng.lat, lng: latLng.lng, endPoints: rows };
           countCluster++;
 
           if (exportFile)
@@ -108,7 +108,7 @@ var EdgeCalculator = {
       });
     });
   }
-}
+};
 
 /**
  * write edges as JSON to file in /tmp if wanted - called while clustering all

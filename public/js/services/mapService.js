@@ -92,10 +92,12 @@ angular.module('epic-taxi')
       return color;
     }
 
+    /* Zoom scaling for icons */
     var iconScale = d3.scale.sqrt()
       .domain([6, 8, 10, 12, 13, 16, 18])
       .range([1, 3, 7, 13, 16, 35, 50]);
 
+    /* Zoom scaling for paths */
     var pathScale = d3.scale.sqrt()
       .domain([9, 12, 14, 16, 18])
       .range([1, 3, 5, 8, 12]);
@@ -159,6 +161,7 @@ angular.module('epic-taxi')
       return paths;
     }
 
+    /* Bring paths in the desired structure */
     function sanitizePath(paths) {
       var pathCount = 0;
       var stationCount = 0;
@@ -177,7 +180,7 @@ angular.module('epic-taxi')
       return paths;
     }
 
-    /* Check if the given box is valid */
+    /* Check if the given radius box is valid */
     function validBounds(box) {
       var maxTopLeft = clusterBounds.topLeft;
       var maxBottomRight = clusterBounds.bottomRight;
