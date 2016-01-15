@@ -1,6 +1,8 @@
 NYC-Subway-Optimization
 ===================
 
+Optimize the NYC subway network based on 500 million taxi rides. The resulting optimization would make 80,000 taxi rides obsolete each day.
+
 ### Installation
 Requires [node.js](https://nodejs.org/download/) and [bower](http://bower.io/#install-bower).
 ```bash
