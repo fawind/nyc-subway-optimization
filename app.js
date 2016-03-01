@@ -4,8 +4,8 @@ var routes = require('./app/routes');
 
 var server = express();
 
-server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({ extended: true }));
+server.use(bodyParser.json({ limit: '100mb' }));
+server.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
 
 /* Static files */
 server.use(express.static(__dirname + '/public'));
